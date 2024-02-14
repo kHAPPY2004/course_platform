@@ -1,35 +1,55 @@
 import React, { useState } from "react";
 // import { Link } from "react-router-dom";
 import axios from "axios";
-import "../index.css";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const Signup: React.FC = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const handleChange = (e: {
     target: { name: string; value: React.SetStateAction<string> };
   }) => {
-    if (e.target.name == "name") {
-      setName(e.target.value);
-    } else if (e.target.name == "email") {
-      setEmail(e.target.value);
-    } else if (e.target.name == "password") {
-      setPassword(e.target.value);
-    } else if (e.target.name == "confirmpassword") {
-      setConfirmPassword(e.target.value);
+    const { name, value } = e.target;
+
+    if (name === "name") {
+      setName(value);
+    } else if (name === "email") {
+      setEmail(value);
+    } else if (name === "password") {
+      setPassword(value);
+    } else if (name === "confirmpassword") {
+      setConfirmPassword(value);
+    } else if (name === "phoneNumber") {
+      setPhoneNumber(value);
     }
   };
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
+    if (password !== confirmpassword) {
+      toast.error("Passwords do not match", {
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+      return; // Stop the function if passwords do not match
+    }
     // const data = { name, email, password, confirmpassword };
-    const data = { name, email };
-    console.log(data);
+    // const data = { name, email };
+    // console.log(data);
     let res = await axios
       .post("/api/signup", {
         name,
         email,
+        password,
+        phoneNumber,
       })
       .then((result: any) => {
         console.log(result);
@@ -44,6 +64,8 @@ const Signup: React.FC = () => {
     setEmail("");
     setPassword("");
     setConfirmPassword("");
+    setPhoneNumber("");
+
     toast.success(" Your account has been created! ", {
       position: "top-left",
       autoClose: 1500,
@@ -124,6 +146,24 @@ const Signup: React.FC = () => {
                   id="email"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="name@company.com"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="phoneNumber"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Phone Number
+                </label>
+                <input
+                  value={phoneNumber}
+                  onChange={handleChange}
+                  type="tel"
+                  name="phoneNumber"
+                  id="phoneNumber"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="123-456-7890"
                   required
                 />
               </div>

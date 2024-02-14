@@ -7,8 +7,8 @@ dotenv.config();
 interface RequestBody {
   name: string;
   email: string;
-  // password: string;
-  // phoneNumber: string;
+  password: string;
+  phoneNumber: string;
 }
 
 export const createUser = async (
@@ -18,7 +18,7 @@ export const createUser = async (
   res: { status: (code: number) => any; json: (data: any) => any }
 ) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, password, phoneNumber } = req.body;
     const findUser = await prisma.user.findUnique({
       where: {
         email,
@@ -33,16 +33,16 @@ export const createUser = async (
     }
 
     // Explicitly cast the data object to UserCreateInput
-    // const encryptedPassword = CryptoJS.AES.encrypt(
-    //   password,
-    //   process.env.CRYPTO_SECRET || ""
-    // ).toString();
+    const encryptedPassword = CryptoJS.AES.encrypt(
+      password,
+      process.env.CRYPTO_SECRET || ""
+    ).toString();
     const newUser = await prisma.user.create({
       data: {
         name,
         email,
-        // password: encryptedPassword,
-        // phoneNumber,
+        password: encryptedPassword,
+        phoneNumber,
       },
     });
 
