@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import { redirect } from "react-router-dom";
 interface UserData {
@@ -11,34 +11,32 @@ interface UserData {
 const Dashboard: React.FC = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch user details
-        const response: AxiosResponse<UserData> = await axios.get(
-          "/api/dashboard",
-          {
-            withCredentials: true,
-          }
-        ); // Include credentials
-
-        if (response.status === 200) {
-          setUserData(response.data);
-        } else if (response.status === 401) {
-          // Redirect to login page if unauthorized
-          redirect("/login");
-          console.log("redirect to login");
-        } else {
-          // Handle other errors
-          console.error("Error fetching user data:", response.statusText);
+  const fetchData = async () => {
+    try {
+      // Fetch user details
+      const response: AxiosResponse<UserData> = await axios.get(
+        "/api/dashboard",
+        {
+          withCredentials: true,
         }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+      ); // Include credentials
+      console.log("response", response);
+      if (response.status === 200) {
+        setUserData(response.data);
+      } else if (response.status === 401) {
+        // Redirect to login page if unauthorized
+        redirect("/login");
+        console.log("redirect to login");
+      } else {
+        // Handle other errors
+        console.error("Error fetching user data:", response.statusText);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
 
-    fetchData();
-  }, [history]); // Include history in the dependency array
+  fetchData();
 
   return (
     <div>

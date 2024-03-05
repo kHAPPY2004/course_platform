@@ -21,9 +21,9 @@ const isAuthenticated = (req: { session: any }, res: any, next: any) => {
 };
 
 const router = express.Router();
-router.post("/", createUser);
-// router.post("/signup", createUser);
-// router.post("/login", loginUser);
-// router.get("/dashboard", isAuthenticated, userdetail);
+// router.post("/", createUser);
+router.post("/signup", createUser);
+router.post("/login", loginUser);
+router.get("/dashboard", userdetail);
 
 export default router;

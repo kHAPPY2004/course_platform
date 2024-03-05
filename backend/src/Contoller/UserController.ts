@@ -1,8 +1,7 @@
 import prisma from "../DB/db.config";
 import dotenv from "dotenv";
 import CryptoJS from "crypto-js";
-import express from "express";
-const app = express();
+
 dotenv.config();
 
 interface RequestBody {
@@ -54,10 +53,8 @@ export const createUser = async (
     });
 
     // Create a session entry in the database
-    const sessionToken = generateSessionToken(); // You need to implement this function
-    console.log("Generated Session Token:", sessionToken);
+    const sessionToken = generateSessionToken();
     const expirationDate = calculateExpirationDate();
-    console.log("Expiration Date:", expirationDate);
 
     const newUserSession = await prisma.session.create({
       data: {
@@ -72,18 +69,12 @@ export const createUser = async (
     if (!req.session) {
       throw new Error("Session is not initialized");
     }
-    req.session.sessionToken = sessionToken;
-    req.session.userId = newUser.id;
-    req.session.user = newUser;
+    req.session.cookie.sessionToken = sessionToken;
+    req.session.cookie.user = newUser;
 
     // Save the session
     req.session.save();
     console.log("sdfsdfsdfsdf 2:", req.session);
-
-    await res.cookie("sessionToken", sessionToken, {
-      expires: expirationDate,
-      httpOnly: true,
-    });
 
     return res.status(200).json({
       data: { newUser, newUserSession },
@@ -151,7 +142,6 @@ export const loginUser = async (
     });
 
     req.session.sessionToken = sessionToken;
-    req.session.userId = user.id;
     req.session.user = user;
     req.session.save();
 
@@ -179,8 +169,10 @@ export const userdetail = async (
   try {
     console.log("In userdetail backend");
     // Fetch user details from the session
-    const { userId, user, sessionToken } = req.session;
-    if (!userId || !user || !sessionToken) {
+    const { user, sessionToken } = req.session.cookie;
+    console.log("user", user);
+    console.log("sessiontiokern", sessionToken);
+    if (!user || !sessionToken) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
