@@ -11,8 +11,8 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET || "your-secret-key",
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: true },
+    saveUninitialized: false,
+    cookie: { secure: false },
   })
 );
 interface RequestBody {
@@ -76,9 +76,12 @@ export const createUser = async (
         user: { connect: { id: newUser.id } }, // Connect session to the newly created user
       },
     });
-    req.session.sessionToken = sessionToken;
-    req.session.userId = newUser.id;
-    req.session.user = newUser;
+    if (!req.session) {
+      throw new Error("Session is not initialized");
+    }
+    req.session.sessionToken = "hello there";
+    req.session.userId = newUser.id || "";
+    req.session.user = newUser || "";
 
     // Save the session
     req.session.save();
@@ -96,6 +99,104 @@ export const createUser = async (
     return res.status(500).json({ message: "Internal server error" });
   } finally {
     await prisma.$disconnect();
+  }
+};
+export const loginUser = async (
+  req: {
+    session: any;
+    body: { email: string; password: string };
+  },
+  res: {
+    [x: string]: any;
+    status: (code: number) => any;
+    json: (data: any) => any;
+  }
+) => {
+  try {
+    const { email, password } = req.body;
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      console.log("User not found");
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Decrypt the stored password and compare it with the provided password
+    const decryptedPassword = CryptoJS.AES.decrypt(
+      user.password,
+      process.env.CRYPTO_SECRET || ""
+    ).toString(CryptoJS.enc.Utf8);
+
+    if (password !== decryptedPassword) {
+      console.log("Incorrect password");
+      return res
+        .status(401)
+        .json({ success: false, message: "Incorrect password" });
+    }
+
+    // If the user is authenticated, set session variables
+    const sessionToken = generateSessionToken();
+    console.log("Generated Session Token:", sessionToken);
+    const expirationDate = calculateExpirationDate();
+    console.log("Expiration Date:", expirationDate);
+
+    const userSession = await prisma.session.create({
+      data: {
+        sessionToken,
+        expires: expirationDate,
+        user: { connect: { id: user.id } },
+      },
+    });
+
+    req.session.sessionToken = sessionToken;
+    req.session.userId = user.id;
+    req.session.user = user;
+    req.session.save();
+
+    return res.status(200).json({
+      data: { user, userSession },
+      message: "User logged in successfully",
+    });
+  } catch (error) {
+    console.error("Error logging in:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+export const userdetail = async (
+  req: {
+    session: any;
+  },
+  res: {
+    [x: string]: any;
+    status: (code: number) => any;
+    json: (data: any) => any;
+  }
+) => {
+  try {
+    console.log("In userdetail backend");
+    // Fetch user details from the session
+    const { userId, user, sessionToken } = req.session;
+    if (!userId || !user || !sessionToken) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Response with user details
+    return res.status(200).json({
+      name: user.name,
+      email: user.email,
+      sessionToken: sessionToken,
+    });
+  } catch (error) {
+    console.error("Error fetching user details in backend:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
