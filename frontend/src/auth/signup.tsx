@@ -3,7 +3,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 const Signup: React.FC = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,14 +47,15 @@ const Signup: React.FC = () => {
     // const data = { name, email };
     // console.log(data);
     try {
-      let res = await axios.post("/api/signup", {
+      const res = await axios.post("/api/signup", {
         name,
         email,
         password,
         phoneNumber,
       });
       console.log("res in frontend", res);
-      if (res.status == 400) {
+      console.log("res in frontend", res.status);
+      if (!res.data.success) {
         console.log("user found in frontend");
         toast.success("User already exits", {
           position: "top-left",
@@ -64,7 +67,9 @@ const Signup: React.FC = () => {
           progress: undefined,
           theme: "colored",
         });
-      } else if (res.status == 200) {
+        navigate("/");
+      } else {
+        console.log("toast for 200");
         toast.success(" Your account has been created! ", {
           position: "top-left",
           autoClose: 1500,
@@ -81,9 +86,6 @@ const Signup: React.FC = () => {
         setPassword("");
         setConfirmPassword("");
         setPhoneNumber("");
-      } else {
-        // Handle other errors
-        console.error("Error fetching user data:", res.statusText);
       }
     } catch (error) {
       console.error("Error fetching user data:", error);

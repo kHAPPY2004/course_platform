@@ -1,20 +1,10 @@
 import prisma from "../DB/db.config";
 import dotenv from "dotenv";
 import CryptoJS from "crypto-js";
-import session from "express-session";
 import express from "express";
 const app = express();
 dotenv.config();
 
-// Express session setup
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "your-secret-key",
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false },
-  })
-);
 interface RequestBody {
   name: string;
   email: string;
@@ -44,7 +34,7 @@ export const createUser = async (
     if (findUser) {
       console.log("User found");
       return res
-        .status(400)
+        .status(200)
         .json({ success: false, message: "Email already exists" });
     }
 
@@ -76,22 +66,28 @@ export const createUser = async (
         user: { connect: { id: newUser.id } }, // Connect session to the newly created user
       },
     });
+
+    console.log("sdfsdfsdfsdf :", req.session);
+
     if (!req.session) {
       throw new Error("Session is not initialized");
     }
-    req.session.sessionToken = "hello there";
-    req.session.userId = newUser.id || "";
-    req.session.user = newUser || "";
+    req.session.sessionToken = sessionToken;
+    req.session.userId = newUser.id;
+    req.session.user = newUser;
 
     // Save the session
     req.session.save();
-    // await res.cookie("sessionToken", sessionToken, {
-    //   expires: expirationDate,
-    //   httpOnly: true,
-    // });
+    console.log("sdfsdfsdfsdf 2:", req.session);
+
+    await res.cookie("sessionToken", sessionToken, {
+      expires: expirationDate,
+      httpOnly: true,
+    });
 
     return res.status(200).json({
       data: { newUser, newUserSession },
+      success: true,
       message: "User created successfully",
     });
   } catch (error) {
