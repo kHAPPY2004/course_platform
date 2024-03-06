@@ -12,7 +12,8 @@ const Dashboard: React.FC = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
 
   const fetchData = async (e: { preventDefault: () => void }) => {
-    e.preventDefault();
+   e.preventDefault();
+  const fetchData = async () => {
     try {
       // Fetch user details
       const response: AxiosResponse<UserData> = await axios.get(
@@ -36,6 +37,22 @@ const Dashboard: React.FC = () => {
       console.error("Error fetching user data:", error);
     }
   };
+      console.log("response", response);
+      if (response.status === 200) {
+        setUserData(response.data);
+      } else if (response.status === 401) {
+        // Redirect to login page if unauthorized
+        redirect("/login");
+        console.log("redirect to login");
+      } else {
+        // Handle other errors
+        console.error("Error fetching user data:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
 
   return (
     <div>
