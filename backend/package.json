@@ -10,10 +10,12 @@
   "author": "HAPPY KAMBOJ",
   "license": "ISC",
   "dependencies": {
+    "connect-redis": "^7.1.1",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.4",
     "express": "^4.18.2",
-    "express-session": "^1.18.0"
+    "express-session": "^1.18.0",
+    "redis": "^4.6.13"
   },
   "devDependencies": {
     "@prisma/client": "^5.9.1",
