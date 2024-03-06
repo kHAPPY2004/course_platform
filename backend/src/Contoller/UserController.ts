@@ -91,7 +91,7 @@ export const createUser = async (
 export const loginUser = async (
   req: {
     session: any;
-    body: { email: string; password: string };
+    body: { email: string; password: string; allCookies: any };
   },
   res: {
     [x: string]: any;
@@ -126,6 +126,25 @@ export const loginUser = async (
         .status(401)
         .json({ success: false, message: "Incorrect password" });
     }
+    console.log("check session while login :", req.session);
+    // Expire existing session if it exists
+    if (req.session) {
+      try {
+        // Delete existing session(s) associated with the user ID
+        await prisma.session.deleteMany({
+          where: {
+            userId: req.session.userId,
+          },
+        });
+        console.log(
+          "Existing session(s) expired for user:",
+          req.session.userId
+        );
+      } catch (error) {
+        console.error("Error expiring existing session(s):", error);
+        // Handle error if needed
+      }
+    }
 
     // If the user is authenticated, set session variables
     const sessionToken = generateSessionToken();
@@ -145,6 +164,7 @@ export const loginUser = async (
     req.session.user = user;
     req.session.save();
 
+    console.log("check session after login :", req.session);
     return res.status(200).json({
       data: { user, userSession },
       message: "User logged in successfully",
@@ -167,7 +187,7 @@ export const userdetail = async (
   }
 ) => {
   try {
-    console.log("In userdetail backend");
+    console.log("In userdetail backend", req.session);
     // Fetch user details from the session
     const { user, sessionToken } = req.session.cookie;
     console.log("user", user);
