@@ -46,15 +46,11 @@ const Login: React.FC = () => {
     // const data = { name, email, password, confirmpassword };
     // const data = { name, email };
     // console.log(data);
-    const allCookies = document.cookie;
-
-    console.log("Cookies:", allCookies);
     let res = await axios
       .post("/api/login", {
         // name,
         email,
         password,
-        allCookies,
         // phoneNumber,
       })
       .then((result: any) => {

@@ -69,8 +69,8 @@ export const createUser = async (
     if (!req.session) {
       throw new Error("Session is not initialized");
     }
-    req.session.cookie.sessionToken = sessionToken;
-    req.session.cookie.user = newUser;
+    req.session.sessionToken = sessionToken;
+    req.session.user = newUser;
 
     // Save the session
     req.session.save();
@@ -105,8 +105,15 @@ export const loginUser = async (
       where: {
         email,
       },
+      include: {
+        sessions: {
+          select: {
+            sessionToken: true,
+          },
+        },
+      },
     });
-
+    console.log("user in loginuser: ", user);
     if (!user) {
       console.log("User not found");
       return res
@@ -128,18 +135,15 @@ export const loginUser = async (
     }
     console.log("check session while login :", req.session);
     // Expire existing session if it exists
-    if (req.session) {
+    if (user.sessions.length > 0) {
       try {
+        console.log("delete the purna session from database");
         // Delete existing session(s) associated with the user ID
         await prisma.session.deleteMany({
           where: {
             userId: req.session.userId,
           },
         });
-        console.log(
-          "Existing session(s) expired for user:",
-          req.session.userId
-        );
       } catch (error) {
         console.error("Error expiring existing session(s):", error);
         // Handle error if needed
@@ -148,9 +152,7 @@ export const loginUser = async (
 
     // If the user is authenticated, set session variables
     const sessionToken = generateSessionToken();
-    console.log("Generated Session Token:", sessionToken);
     const expirationDate = calculateExpirationDate();
-    console.log("Expiration Date:", expirationDate);
 
     const userSession = await prisma.session.create({
       data: {
@@ -189,7 +191,7 @@ export const userdetail = async (
   try {
     console.log("In userdetail backend", req.session);
     // Fetch user details from the session
-    const { user, sessionToken } = req.session.cookie;
+    const { user, sessionToken } = req.session;
     console.log("user", user);
     console.log("sessiontiokern", sessionToken);
     if (!user || !sessionToken) {

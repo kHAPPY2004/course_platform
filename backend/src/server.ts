@@ -25,7 +25,6 @@ app.use(
     saveUninitialized: false, // recommended: only save session when data exists
     secret: process.env.SESSION_SECRET || "your-secret-key",
     cookie: { secure: false, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 },
-    },
   })
 );
 
