@@ -12,13 +12,13 @@ datasource db {
 
 // user
 model User {
-  id          String    @id @default(cuid())
+  id          String          @id @default(cuid())
   name        String
-  email       String    @unique
+  email       String          @unique
   phoneNumber String
   password    String
   sessions    Session[]
-  // purchases UserPurchases[]
+  purchases   UserPurchases[]
 }
 
 model Session {
@@ -29,28 +29,28 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// model UserPurchases {
-//   user       User     @relation(fields: [userId], references: [id])
-//   userId     String
-//   course     Course   @relation(fields: [courseId], references: [id])
-//   courseId   Int
-//   assignedAt DateTime @default(now())
+model UserPurchases {
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  course     Course   @relation(fields: [courseId], references: [id])
+  courseId   Int
+  assignedAt DateTime @default(now())
 
-//   @@id([userId, courseId])
-// }
+  @@id([userId, courseId])
+}
 
-// model Course {
-//   id             Int             @id @default(autoincrement())
-//   appxCourseId   Int
-//   discordRoleId  String
-//   title          String
-//   imageUrl       String
-//   description    String
-//   openToEveryone Boolean         @default(false)
-//   slug           String
-//   content        CourseContent[]
-//   purchasedBy    UserPurchases[]
-// }
+model Course {
+  id             Int             @id @unique @default(autoincrement())
+  appxCourseId   Int
+  discordRoleId  String
+  title          String
+  imageUrl       String
+  description    String
+  openToEveryone Boolean         @default(false)
+  slug           String
+  // content        CourseContent[]
+  purchasedBy    UserPurchases[]
+}
 
 // model CourseContent {
 //   course    Course  @relation(fields: [courseId], references: [id])

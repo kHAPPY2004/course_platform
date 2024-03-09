@@ -1,7 +1,7 @@
 // src/routes/sampleRouter.ts
 import express from "express";
 import { createUser, loginUser, userdetail } from "../Contoller/UserController";
-
+import { addnewCourse, getallCourses } from "../Contoller/CourseController";
 // check user is authenticated or not
 const isAuthenticated = (req: { session: any }, res: any, next: any) => {
   class CustomError extends Error {
@@ -25,5 +25,7 @@ const router = express.Router();
 router.post("/signup", createUser);
 router.post("/login", loginUser);
 router.get("/dashboard", userdetail);
+router.get("/new-courses", getallCourses);
+router.post("/new-courses", addnewCourse);
 
 export default router;
