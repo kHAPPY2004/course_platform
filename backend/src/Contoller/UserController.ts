@@ -1,7 +1,6 @@
 import prisma from "../DB/db.config";
 import dotenv from "dotenv";
 import CryptoJS from "crypto-js";
-
 dotenv.config();
 
 interface RequestBody {
@@ -10,7 +9,9 @@ interface RequestBody {
   password: string;
   phoneNumber: string;
 }
-
+function customKeyGenerator(prefix: string, sessionToken: string) {
+  return `${prefix}:${sessionToken}`;
+}
 export const createUser = async (
   req: {
     session: any;
@@ -31,7 +32,6 @@ export const createUser = async (
     });
 
     if (findUser) {
-      console.log("User found");
       return res
         .status(200)
         .json({ success: false, message: "Email already exists" });
@@ -82,7 +82,6 @@ export const createUser = async (
       message: "User created successfully",
     });
   } catch (error) {
-    console.error("Error creating user:", error);
     return res.status(500).json({ message: "Internal server error" });
   } finally {
     await prisma.$disconnect();
@@ -115,7 +114,6 @@ export const loginUser = async (
     });
     console.log("user in loginuser: ", user);
     if (!user) {
-      console.log("User not found");
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
@@ -128,7 +126,6 @@ export const loginUser = async (
     ).toString(CryptoJS.enc.Utf8);
 
     if (password !== decryptedPassword) {
-      console.log("Incorrect password");
       return res
         .status(401)
         .json({ success: false, message: "Incorrect password" });
@@ -141,13 +138,33 @@ export const loginUser = async (
         // Delete existing session(s) associated with the user ID
         await prisma.session.deleteMany({
           where: {
-            userId: req.session.userId,
+            userId: user.id,
           },
         });
       } catch (error) {
         console.error("Error expiring existing session(s):", error);
         // Handle error if needed
       }
+
+      // try {
+      //   const redisClient = createClient();
+      //   redisClient.connect().catch(console.error);
+      //   console.log("redis client added: ");
+      //   // Loop through existing sessions and delete them from Redis
+      //   const ans: any = await redisClient.get(
+      //     `myapp:3MQpKpaUw5fqb5XTYcYDROTuzIFQSKSz`
+      //   );
+
+      //   if (ans.user.email == email) {
+      //     console.log("delete the toek");
+      //     await redisClient.del(`myapp:3MQpKpaUw5fqb5XTYcYDROTuzIFQSKSz`);
+      //   }
+
+      //   redisClient.quit();
+      // } catch (error) {
+      //   console.error("Error deleting existing session(s):", error);
+      //   // Handle error if needed
+      // }
     }
 
     // If the user is authenticated, set session variables
@@ -192,8 +209,6 @@ export const userdetail = async (
     console.log("In userdetail backend", req.session);
     // Fetch user details from the session
     const { user, sessionToken } = req.session;
-    console.log("user", user);
-    console.log("sessiontiokern", sessionToken);
     if (!user || !sessionToken) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -205,7 +220,6 @@ export const userdetail = async (
       sessionToken: sessionToken,
     });
   } catch (error) {
-    console.error("Error fetching user details in backend:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

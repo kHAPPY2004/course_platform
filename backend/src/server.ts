@@ -28,10 +28,10 @@ app.use(
   })
 );
 
-app.use(async (req, res, next) => {
-  console.log("Session data:", req.session);
-  next();
-});
+// app.use(async (req, res, next) => {
+//   console.log("Session data:", req.session);
+//   next();
+// });
 
 const port: number | string | undefined = process.env.PORT;
 
