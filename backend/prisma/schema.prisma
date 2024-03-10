@@ -40,7 +40,7 @@ model UserPurchases {
 }
 
 model Course {
-  id             Int             @id @unique @default(autoincrement())
+  id             Int             @id @default(autoincrement())
   appxCourseId   Int
   discordRoleId  String
   title          String
