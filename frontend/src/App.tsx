@@ -14,8 +14,22 @@ function App() {
         {/* <Navbar /> */}
 
         <Routes>
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/signup"
+            element={
+              <RecoilRoot>
+                <Signup />
+              </RecoilRoot>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <RecoilRoot>
+                <Login completeUrl={location.pathname} />
+              </RecoilRoot>
+            }
+          />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/" element={<Navbar />} />
 

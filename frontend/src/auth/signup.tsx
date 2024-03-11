@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // import { Link } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import { checkUser } from "../store/atoms/userAuth";
+import { useRecoilValueLoadable } from "recoil";
 const Signup: React.FC = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -11,6 +13,14 @@ const Signup: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const check_user = useRecoilValueLoadable(checkUser);
+  console.log("check", check_user);
+  useEffect(() => {
+    if (check_user.contents.data?.success) {
+      console.log("redirect to home page you are login");
+      navigate("/");
+    }
+  }, [check_user.contents.data?.success, navigate]);
   const handleChange = (e: {
     target: { name: string; value: React.SetStateAction<string> };
   }) => {
@@ -67,7 +77,7 @@ const Signup: React.FC = () => {
           progress: undefined,
           theme: "colored",
         });
-        navigate("/");
+        // navigate("/");
       } else {
         console.log("toast for 200");
         toast.success(" Your account has been created! ", {
@@ -86,6 +96,7 @@ const Signup: React.FC = () => {
         setPassword("");
         setConfirmPassword("");
         setPhoneNumber("");
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error("Error fetching user data:", error);

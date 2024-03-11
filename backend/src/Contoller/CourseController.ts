@@ -144,7 +144,7 @@ export const coursePurchase = async (
     console.log("course added successfully in frontend");
     // Response with user details
     return res.status(200).json({
-      success: false,
+      success: true,
       course_added,
     });
   } catch (error) {

@@ -1,6 +1,12 @@
 // src/routes/sampleRouter.ts
 import express from "express";
-import { createUser, loginUser, userdetail } from "../Contoller/UserController";
+import {
+  checkAuth,
+  createUser,
+  loginUser,
+  userPurchases,
+  userdetail,
+} from "../Contoller/UserController";
 import {
   addnewCourse,
   coursePurchase,
@@ -32,5 +38,7 @@ router.get("/dashboard", userdetail);
 router.get("/new-courses", getallCourses);
 router.post("/new-courses", addnewCourse);
 router.post("/course-purchase", coursePurchase);
+router.get("/check-auth", checkAuth);
+router.get("/userPurchases", userPurchases);
 
 export default router;

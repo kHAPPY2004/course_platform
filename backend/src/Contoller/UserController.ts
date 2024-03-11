@@ -9,9 +9,6 @@ interface RequestBody {
   password: string;
   phoneNumber: string;
 }
-function customKeyGenerator(prefix: string, sessionToken: string) {
-  return `${prefix}:${sessionToken}`;
-}
 export const createUser = async (
   req: {
     session: any;
@@ -115,7 +112,7 @@ export const loginUser = async (
     console.log("user in loginuser: ", user);
     if (!user) {
       return res
-        .status(404)
+        .status(200)
         .json({ success: false, message: "User not found" });
     }
 
@@ -185,6 +182,7 @@ export const loginUser = async (
 
     console.log("check session after login :", req.session);
     return res.status(200).json({
+      success: true,
       data: { user, userSession },
       message: "User logged in successfully",
     });
@@ -222,7 +220,58 @@ export const userdetail = async (
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
+export const checkAuth = async (
+  req: {
+    session: any;
+  },
+  res: {
+    [x: string]: any;
+    status: (code: number) => any;
+    json: (data: any) => any;
+  }
+) => {
+  try {
+    // Fetch user details from the session
+    const { user, sessionToken } = req.session;
+    if (!user || !sessionToken) {
+      return res.status(200).json({ success: false, message: "Unauthorized" });
+    }
+    // Response with user details
+    return res
+      .status(200)
+      .json({ success: true, message: "you are authorised" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const userPurchases = async (
+  req: {
+    session: any;
+  },
+  res: {
+    [x: string]: any;
+    status: (code: number) => any;
+    json: (data: any) => any;
+  }
+) => {
+  try {
+    // Fetch user details from the session
+    const { user, sessionToken } = req.session;
+    if (!user || !sessionToken) {
+      return res.status(200).json({ success: false, message: "Unauthorized" });
+    }
+    // Response with user details
+    const user_purchases = await prisma.userPurchases.findMany({
+      where: {
+        userId: user.id,
+      },
+    });
+    console.log("user purchases", user_purchases);
+    return res.status(200).json({ success: true, data: user_purchases });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 // Function to generate session token
 function generateSessionToken() {
   const characters =
