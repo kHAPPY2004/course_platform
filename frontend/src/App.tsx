@@ -30,7 +30,14 @@ function App() {
               </RecoilRoot>
             }
           />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route
+            path="/dashboard"
+            element={
+              <RecoilRoot>
+                <Dashboard />
+              </RecoilRoot>
+            }
+          />
           <Route path="/" element={<Navbar />} />
 
           <Route

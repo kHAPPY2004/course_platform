@@ -120,15 +120,14 @@ export const coursePurchase = async (
 ) => {
   try {
     console.log("User tries to purchase a course", req.session);
-
+    const { courseId } = req.body;
+    console.log("courseId", courseId);
     // Fetch user details from the session
     const { user, sessionToken } = req.session;
     if (!user || !sessionToken) {
       return res.status(200).json({ success: false, message: "Unauthorized" });
     }
     console.log("user id in backend", user.id);
-    const { courseId } = req.body;
-    console.log("courseId", courseId);
 
     // create a new course in the database
     const course_added = await prisma.userPurchases.create({
