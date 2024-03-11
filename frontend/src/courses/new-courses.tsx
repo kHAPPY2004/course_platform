@@ -7,6 +7,7 @@ const New_Courses: React.FC = () => {
   const courses = useRecoilValueLoadable(coursesState);
   // const courses = useRecoilValue(coursesState);
   console.log("courses", courses);
+
   if (courses.state === "loading") {
     return (
       <>
@@ -37,6 +38,16 @@ const New_Courses: React.FC = () => {
                   discordRoleId:{course.discordRoleId}
                 </div>
                 <div className="bg-red-100 m-2">slug:{course.slug}</div>
+                <div>selling price : {course.sellingPrice}</div>
+                <div>List price : {course.listPrice}</div>
+                <div className="text-green-400 font-semibold">
+                  {(
+                    ((course.listPrice - course.sellingPrice) /
+                      course.listPrice) *
+                    100
+                  ).toFixed(2)}
+                  {" % off"}
+                </div>
                 {/* Add more details if needed */}
                 <img
                   src={course.imageUrl}

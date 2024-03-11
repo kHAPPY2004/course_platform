@@ -32,7 +32,7 @@ model Session {
 model UserPurchases {
   user       User     @relation(fields: [userId], references: [id])
   userId     String
-  course     Course   @relation(fields: [courseId], references: [id])
+  course     Course   @relation(fields: [courseId], references: [appxCourseId])
   courseId   Int
   assignedAt DateTime @default(now())
 
@@ -41,42 +41,44 @@ model UserPurchases {
 
 model Course {
   id             Int             @id @default(autoincrement())
-  appxCourseId   Int
+  appxCourseId   Int             @unique
   discordRoleId  String
   title          String
   imageUrl       String
   description    String
   openToEveryone Boolean         @default(false)
   slug           String
-  // content        CourseContent[]
+  sellingPrice   Int
+  listPrice      Int
+  content        CourseContent[]
   purchasedBy    UserPurchases[]
 }
 
-// model CourseContent {
-//   course    Course  @relation(fields: [courseId], references: [id])
-//   courseId  Int
-//   content   Content @relation(fields: [contentId], references: [id])
-//   contentId Int
+model CourseContent {
+  course    Course  @relation(fields: [courseId], references: [id])
+  courseId  Int
+  content   Content @relation(fields: [contentId], references: [id])
+  contentId Int
 
-//   @@id([courseId, contentId])
-// }
+  @@id([courseId, contentId])
+}
 
-// model Content {
-//   id               Int             @id @default(autoincrement())
-//   type             String          @default("folder")
-//   title            String
-//   hidden           Boolean         @default(false)
-//   description      String?
-//   thumbnail        String?
-//   parentId         Int?
-//   parent           Content?        @relation("ContentToContent", fields: [parentId], references: [id])
-//   // videoProgress    VideoProgress[]
-//   children         Content[]       @relation("ContentToContent")
-//   courses          CourseContent[]
-//   createdAt        DateTime        @default(now())
-//   // VideoMetadata    VideoMetadata?
-//   // NotionMetadata   NotionMetadata?
-//   notionMetadataId Int?
-//   // comments         Comment[]
-//   commentsCount    Int             @default(0)
-// }
+model Content {
+  id               Int             @id @default(autoincrement())
+  type             String          @default("folder")
+  title            String
+  hidden           Boolean         @default(false)
+  description      String?
+  thumbnail        String?
+  parentId         Int?
+  parent           Content?        @relation("ContentToContent", fields: [parentId], references: [id])
+  // videoProgress    VideoProgress[]
+  children         Content[]       @relation("ContentToContent")
+  courses          CourseContent[]
+  createdAt        DateTime        @default(now())
+  // VideoMetadata    VideoMetadata?
+  // NotionMetadata   NotionMetadata?
+  notionMetadataId Int?
+  // comments         Comment[]
+  commentsCount    Int             @default(0)
+}

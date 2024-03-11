@@ -12,6 +12,8 @@ export const addnewCourse = async (
           slug: string;
           appxCourseId: number;
           discordRoleId: string;
+          sellingPrice: number;
+          listPrice: number;
         }
       | PromiseLike<{
           adminSecret: any;
@@ -21,6 +23,8 @@ export const addnewCourse = async (
           slug: any;
           appxCourseId: any;
           discordRoleId: any;
+          sellingPrice: any;
+          listPrice: any;
         }>;
     session: any;
   },
@@ -41,6 +45,8 @@ export const addnewCourse = async (
       slug,
       appxCourseId,
       discordRoleId,
+      sellingPrice,
+      listPrice,
     } = addcourse;
 
     if (adminSecret !== process.env.ADMIN_SECRET) {
@@ -59,6 +65,8 @@ export const addnewCourse = async (
         description,
         openToEveryone: false, // Whether the course is open to everyone or not
         slug,
+        sellingPrice: parseInt(sellingPrice),
+        listPrice: parseInt(listPrice),
       },
     });
     console.log("course added successfully in frontend");
@@ -97,5 +105,49 @@ export const getallCourses = async (
     return res.status(500).json({ message: "Internal server error" });
   } finally {
     await prisma.$disconnect();
+  }
+};
+export const coursePurchase = async (
+  req: {
+    body: any;
+    session: any;
+  },
+  res: {
+    [x: string]: any;
+    status: (code: number) => any;
+    json: (data: any) => any;
+  }
+) => {
+  try {
+    console.log("User tries to purchase a course", req.session);
+
+    // Fetch user details from the session
+    const { user, sessionToken } = req.session;
+    if (!user || !sessionToken) {
+      return res.status(200).json({ success: false, message: "Unauthorized" });
+    }
+    console.log("user id in backend", user.id);
+    const { courseId } = req.body;
+    console.log("courseId", courseId);
+
+    // create a new course in the database
+    const course_added = await prisma.userPurchases.create({
+      data: {
+        course: {
+          connect: {
+            appxCourseId: courseId, // Connect using appxCourseId
+          },
+        },
+        user: { connect: { id: user.id } },
+      },
+    });
+    console.log("course added successfully in frontend");
+    // Response with user details
+    return res.status(200).json({
+      success: false,
+      course_added,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
   }
 };

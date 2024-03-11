@@ -35,6 +35,8 @@ interface UserData {
   slug: string;
   title: string;
   id: number;
+  sellingPrice: number;
+  listPrice: number;
 }
 
 export default UserData;

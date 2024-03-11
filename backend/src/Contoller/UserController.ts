@@ -212,7 +212,6 @@ export const userdetail = async (
     if (!user || !sessionToken) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-
     // Response with user details
     return res.status(200).json({
       name: user.name,

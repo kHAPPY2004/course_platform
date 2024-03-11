@@ -15,6 +15,8 @@ const Add_Course: React.FC = () => {
     slug: string;
     appxCourseId: number;
     discordRoleId: string;
+    sellingPrice: string;
+    listPrice: string;
   }
 
   const initialCourseState: CourseState = {
@@ -25,6 +27,8 @@ const Add_Course: React.FC = () => {
     slug: "",
     appxCourseId: 0,
     discordRoleId: "",
+    sellingPrice: "",
+    listPrice: "",
   };
 
   const [addCourse, setAddCourse] = useState<CourseState>(initialCourseState);
@@ -69,6 +73,16 @@ const Add_Course: React.FC = () => {
         ...prevState,
         adminSecret: value,
       }));
+    } else if (name === "sellingPrice") {
+      setAddCourse((prevState) => ({
+        ...prevState,
+        sellingPrice: value,
+      }));
+    } else if (name === "listPrice") {
+      setAddCourse((prevState) => ({
+        ...prevState,
+        listPrice: value,
+      }));
     }
   };
   const handleSubmit = async (e: { preventDefault: () => void }) => {
@@ -112,6 +126,8 @@ const Add_Course: React.FC = () => {
           slug: "", // Reset to empty string
           appxCourseId: 0, // Reset to default value, adjust if it's a different default value
           discordRoleId: "", // Reset to empty string
+          sellingPrice: "",
+          listPrice: "",
         });
       }
     } catch (error) {
@@ -259,6 +275,42 @@ const Add_Course: React.FC = () => {
                   id="appxCourseId"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Appx Course Id"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="sellingPrice"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Selling Price
+                </label>
+                <input
+                  value={addCourse.sellingPrice}
+                  onChange={handleChange}
+                  type="text"
+                  name="sellingPrice"
+                  id="sellingPrice"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Enter sellingPrice"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="listPrice"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  List Price
+                </label>
+                <input
+                  value={addCourse.listPrice}
+                  onChange={handleChange}
+                  type="text"
+                  name="listPrice"
+                  id="listPrice"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Enter listPrice"
                   required
                 />
               </div>
