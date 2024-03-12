@@ -24,7 +24,7 @@ const New_Courses: React.FC = () => {
     return (
       <div>
         {courses && (
-          <div className="max-w-screen-xl justify-between mx-auto p-4 cursor-pointer grid grid-cols-1 gap-5 md:grid-cols-3">
+          <div className="max-w-screen-xl justify-between mx-auto p-4 grid grid-cols-1 gap-5 md:grid-cols-3">
             {courses.contents.map((course) => (
               <div className="bg-slate-400 m-10 p-5" key={course.id}>
                 <div>{course.title}</div>

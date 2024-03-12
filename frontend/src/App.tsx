@@ -7,6 +7,9 @@ import New_Courses from "./courses/new-courses";
 import { New_Courses_slug } from "./courses/new-courses-slug";
 import Add_Course from "./admin/add_course";
 import { RecoilRoot } from "recoil";
+import Course_slug from "./courses/course_slug";
+import Add_Course_Content from "./admin/add_course_content";
+import Course_slug_Video from "./courses/course_slug_video";
 function App() {
   return (
     <Router>
@@ -39,7 +42,6 @@ function App() {
             }
           />
           <Route path="/" element={<Navbar />} />
-
           <Route
             path="/new-courses"
             element={
@@ -56,8 +58,24 @@ function App() {
               </RecoilRoot>
             }
           />
-
+          <Route
+            path="/course/:id"
+            element={
+              <RecoilRoot>
+                <Course_slug />
+              </RecoilRoot>
+            }
+          />
+          <Route
+            path="/course/:id/:hash"
+            element={
+              <RecoilRoot>
+                <Course_slug_Video />
+              </RecoilRoot>
+            }
+          />
           <Route path="/add_course" element={<Add_Course />} />
+          <Route path="/add_course_content" element={<Add_Course_Content />} />
         </Routes>
       </>
     </Router>

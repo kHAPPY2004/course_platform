@@ -1,5 +1,9 @@
-import { useParams } from "react-router-dom";
-import { useRecoilState, useRecoilValueLoadable } from "recoil";
+import { Link, useParams } from "react-router-dom";
+import {
+  useRecoilState,
+  useRecoilValueLoadable,
+  useSetRecoilState,
+} from "recoil";
 import { filteredCoursesState, slugState } from "../store/atoms/getcourses";
 import { useEffect } from "react";
 import axios from "axios";
@@ -7,11 +11,21 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { userPurchases } from "../store/atoms/userPurchases";
+import {
+  filteredUserPurchases,
+  userPurchases,
+} from "../store/atoms/userPurchases";
 
 export const New_Courses_slug: React.FC = () => {
   const course = useRecoilValueLoadable(filteredCoursesState);
   console.log("course", course);
+
+  // const setPurchaseSlug = useSetRecoilState(purchasesSlug);
+  // if (course.state === "hasValue") {
+  //   useEffect(() => {
+  //     return setPurchaseSlug(course.contents[0]?.appxCourseId);
+  //   }, [setPurchaseSlug, course.contents[0]?.appxCourseId]);
+  // }
 
   const navigate = useNavigate();
   const [slug, setSlug] = useRecoilState(slugState); // Get and set the current slug
@@ -35,6 +49,9 @@ export const New_Courses_slug: React.FC = () => {
       </>
     );
   } else if (course.state === "hasValue" && course.contents.length > 0) {
+    const happt = course.contents[0].appxCourseId;
+    console.log("happt", happt);
+
     const handleSubmit = async (e: { preventDefault: () => void }) => {
       e.preventDefault();
       try {
@@ -89,7 +106,7 @@ export const New_Courses_slug: React.FC = () => {
         />
         <div>slug: {slug}</div>
         <div>{course.contents[0].id}</div>
-        <div>{course.contents[0].appxCourseId}</div>
+        <div>appxCourseId: {course.contents[0].appxCourseId}</div>
         <div>{course.contents[0].description}</div>
         <div>{course.contents[0].discordRoleId}</div>
         <div>{course.contents[0].id}</div>
@@ -102,7 +119,13 @@ export const New_Courses_slug: React.FC = () => {
           ).toFixed(2)}
           {" % off"}
         </div>
-        <PurchaseButton handleSubmit={handleSubmit} />
+        <div>{course.contents[0].slug}</div>
+        <PurchaseButton
+          handleSubmit={handleSubmit}
+          slug={course.contents[0].slug}
+          id={course.contents[0].id}
+          course={course}
+        />
       </>
     );
   } else {
@@ -111,11 +134,30 @@ export const New_Courses_slug: React.FC = () => {
 };
 interface PurchaseButtonProps {
   handleSubmit: any;
+  slug: any;
+  id: any;
+  course: any;
 }
-const PurchaseButton: React.FC<PurchaseButtonProps> = ({ handleSubmit }) => {
+const PurchaseButton: React.FC<PurchaseButtonProps> = ({
+  handleSubmit,
+  slug,
+  id,
+  course,
+}: any) => {
+  console.log("slug", slug);
+  console.log("id of slug", id);
   const location = useLocation();
-  const check_user_purchases = useRecoilValueLoadable(userPurchases);
-  console.log("u9serPurchese", check_user_purchases);
+  const check_user_purchases = useRecoilValueLoadable(filteredUserPurchases);
+  console.log("u9serPurchese", check_user_purchases.contents);
+  console.log(
+    "course.contents[0].appxCourseId",
+    course.contents[0].appxCourseId
+  );
+  const data = Object.values(check_user_purchases.contents);
+  const filteredPurchases = data.filter(
+    (purchase: any) => purchase.courseId === course.contents[0].appxCourseId
+  );
+  console.log("filteredPurchases", filteredPurchases);
 
   console.log("location.pathname", location.pathname);
   if (check_user_purchases.state === "loading") {
@@ -133,7 +175,7 @@ const PurchaseButton: React.FC<PurchaseButtonProps> = ({ handleSubmit }) => {
   } else if (check_user_purchases.state === "hasValue") {
     return (
       <div>
-        {!check_user_purchases.contents.data.success && (
+        {filteredPurchases.length == 0 && (
           <button
             onClick={handleSubmit}
             className="bg-blue-400 rounded-md p-1 m-1 px-3"
@@ -141,15 +183,10 @@ const PurchaseButton: React.FC<PurchaseButtonProps> = ({ handleSubmit }) => {
             Buy Now
           </button>
         )}
-        {check_user_purchases.contents.data.success && (
-          <button
-            onClick={() => {
-              console.log("view content");
-            }}
-            className="bg-blue-400 rounded-md p-1 m-1 px-3"
-          >
-            View content
-          </button>
+        {filteredPurchases.length > 0 && (
+          <Link className="bg-blue-400 rounded-md p-2" to={`/course/${id}`}>
+            View Details
+          </Link>
         )}
       </div>
     );

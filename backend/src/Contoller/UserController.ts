@@ -239,7 +239,7 @@ export const checkAuth = async (
     // Response with user details
     return res
       .status(200)
-      .json({ success: true, message: "you are authorised" });
+      .json({ success: true, user, message: "you are authorised" });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }

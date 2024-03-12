@@ -12,6 +12,10 @@ import {
   coursePurchase,
   getallCourses,
 } from "../Contoller/CourseController";
+import {
+  addCourseContent,
+  getContentfolder,
+} from "../Contoller/ContentController";
 // check user is authenticated or not
 const isAuthenticated = (req: { session: any }, res: any, next: any) => {
   class CustomError extends Error {
@@ -36,9 +40,11 @@ router.post("/signup", createUser);
 router.post("/login", loginUser);
 router.get("/dashboard", userdetail);
 router.get("/new-courses", getallCourses);
-router.post("/new-courses", addnewCourse);
+router.post("/new-courses", addnewCourse); // admin part
+router.post("/add-course-content", addCourseContent); // admin part
 router.post("/course-purchase", coursePurchase);
 router.get("/check-auth", checkAuth);
 router.get("/userPurchases", userPurchases);
+router.get("/getContentfolder", getContentfolder);
 
 export default router;
