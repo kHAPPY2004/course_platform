@@ -55,9 +55,9 @@ model Course {
 }
 
 model CourseContent {
-  course    Course  @relation(fields: [courseId], references: [id])
+  course    Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId  Int
-  content   Content @relation(fields: [contentId], references: [id])
+  content   Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
   contentId Int
 
   @@id([courseId, contentId])

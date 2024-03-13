@@ -57,7 +57,7 @@ const New_Courses: React.FC = () => {
                 />
                 <Link
                   className="bg-blue-400 rounded-md p-2"
-                  to={`/new-courses/${course.slug}`}
+                  to={`/new-courses/${course.id}`}
                 >
                   View Details
                 </Link>

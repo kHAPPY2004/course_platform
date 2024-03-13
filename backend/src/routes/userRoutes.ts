@@ -13,6 +13,7 @@ import {
   getallCourses,
 } from "../Contoller/CourseController";
 import {
+  CourseContent,
   addCourseContent,
   getContentfolder,
 } from "../Contoller/ContentController";
@@ -46,5 +47,6 @@ router.post("/course-purchase", coursePurchase);
 router.get("/check-auth", checkAuth);
 router.get("/userPurchases", userPurchases);
 router.get("/getContentfolder", getContentfolder);
+router.get("/courseContent", CourseContent);
 
 export default router;

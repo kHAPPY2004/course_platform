@@ -1,14 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useRecoilValueLoadable } from "recoil";
-import { filteredContentfolder } from "../store/atoms/getcontent";
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
+import { contentSlug1, filteredContentfolder } from "../store/atoms/getcontent";
+import { courseContent } from "../store/atoms/courseContent";
 
 const Course_slug: React.FC = () => {
   const contentFolder = useRecoilValueLoadable(filteredContentfolder);
+  const [content_slug, setContent_slug] = useRecoilState(contentSlug1);
+  const courseContenter = useRecoilValueLoadable(courseContent);
+  console.log("courseContenter", courseContenter);
+
   console.log("contentFolder", contentFolder.contents);
 
   const params: any = useParams();
   console.log("params", params);
+
+  useEffect(() => {
+    return setContent_slug(params.id);
+  }, [params.id, setContent_slug]);
+
   if (contentFolder.state === "loading") {
     return (
       <>

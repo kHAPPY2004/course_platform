@@ -22,8 +22,12 @@ export const filteredCoursesState = selector<UserData[]>({
   key: "filteredCoursesState",
   get: ({ get }: any) => {
     const slug = get(slugState); // Get the slug from another atom or selector
+    console.log("Slugi", typeof slug, slug);
     const courses = get(coursesState);
-    return courses.filter((course: { slug: any }) => course.slug === slug);
+    console.log("course filtererererstate", courses);
+    return courses.filter(
+      (course: { id: any }) => course.id === parseInt(slug)
+    );
   },
 } as any);
 

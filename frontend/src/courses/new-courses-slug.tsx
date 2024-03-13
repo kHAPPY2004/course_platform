@@ -15,6 +15,7 @@ import {
   filteredUserPurchases,
   userPurchases,
 } from "../store/atoms/userPurchases";
+import { contentSlug1 } from "../store/atoms/getcontent";
 
 export const New_Courses_slug: React.FC = () => {
   const course = useRecoilValueLoadable(filteredCoursesState);
@@ -29,8 +30,10 @@ export const New_Courses_slug: React.FC = () => {
 
   const navigate = useNavigate();
   const [slug, setSlug] = useRecoilState(slugState); // Get and set the current slug
+
   const params: any = useParams();
 
+  console.log("asfereerererer", params);
   // update the slug
   useEffect(() => {
     return setSlug(params.id);
@@ -105,7 +108,7 @@ export const New_Courses_slug: React.FC = () => {
           theme="colored"
         />
         <div>slug: {slug}</div>
-        <div>{course.contents[0].id}</div>
+        <div>id: {course.contents[0].id}</div>
         <div>appxCourseId: {course.contents[0].appxCourseId}</div>
         <div>{course.contents[0].description}</div>
         <div>{course.contents[0].discordRoleId}</div>
