@@ -16,12 +16,12 @@ const Dashboard: React.FC = () => {
   const check_user = useRecoilValueLoadable(checkUser);
   console.log("check", check_user);
 
-  useEffect(() => {
-    if (!check_user.contents.data?.success) {
-      console.log("redirect to home page you are login");
-      navigate("/");
-    }
-  }, [check_user.contents.data?.success, navigate]);
+  // useEffect(() => {
+  //   if (!check_user.contents.data?.success) {
+  //     console.log("redirect to home page you are login");
+  //     navigate("/");
+  //   }
+  // }, [check_user.contents.data?.success, navigate]);
 
   const [userData, setUserData] = useState<UserData | null>(null);
 

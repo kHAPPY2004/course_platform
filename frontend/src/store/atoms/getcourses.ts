@@ -4,7 +4,7 @@ import axios from "axios";
 export const coursesState = atom<UserData[]>({
   key: "coursesState",
   default: selector({
-    key: "UserInfo/Default",
+    key: "coursesState/Default",
     get: async () => {
       const res = await axios.get("/api/new-courses", {
         withCredentials: true,
