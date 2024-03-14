@@ -1,6 +1,7 @@
 import { atom, selector } from "recoil";
 import axios from "axios";
 import { checkUser } from "./userAuth";
+import { filteredContentfolder } from "./getcontent";
 
 export const userPurchases = atom({
   key: "userPurchases",
@@ -27,12 +28,13 @@ export const filteredUserPurchases = selector<PurchaseData[]>({
     const user = get(checkUser);
     console.log("user", user);
     console.log("totalPurchasesByUser", totalPurchasesByUser);
-    if (totalPurchasesByUser.success) {
-      const filteredPurchases = totalPurchasesByUser.data.filter(
+
+    return (
+      totalPurchasesByUser.success &&
+      totalPurchasesByUser.data.filter(
         (purchase: PurchaseData) => purchase.userId === user.data.user.id
-      );
-      return filteredPurchases;
-    } else return totalPurchasesByUser.message;
+      )
+    );
   },
 } as any);
 
@@ -41,24 +43,44 @@ export const filteredUserPurchases = selector<PurchaseData[]>({
 //   default: null,
 // });
 
-// export const protectRoutePurchases = selector<PurchaseData[]>({
-//   key: "protectRoutePurchases",
-//   get: ({ get }: any) => {
-//     const purchasesByUser = get(filteredUserPurchases);
-//     console.log("purchasesByUser", purchasesByUser);
+// here we filter that ,for specific content slug ,this user is authenticated or not
+export const protectRoutePurchases = selector<PurchaseData[]>({
+  key: "protectRoutePurchases",
+  get: ({ get }: any) => {
+    const purchasesByUser = get(filteredUserPurchases);
+    console.log(
+      "purchasesByUser in 1q",
+      purchasesByUser,
+      typeof purchasesByUser
+    );
+    if (!purchasesByUser) {
+      return purchasesByUser;
+    }
+    console.log("hwy");
+    const id_for_route = get(filteredContentfolder);
+    console.log(
+      "contentFolder2121",
+      id_for_route[0].notionMetadataId,
+      typeof id_for_route
+    );
 
-//     const slug = get(protectRouteSlug);
-//     console.log("slug", typeof slug, slug);
-//     // const filteredPurchases = purchasesByUser.data.filter(
-//     //   (purchase: PurchaseData) => purchase.userId === slug
-//     // );
+    const filteredPurchases = purchasesByUser.filter(
+      (purchase: PurchaseData) => {
+        console.log("1313", purchase.courseId, typeof purchase.courseId);
+        return purchase.courseId === id_for_route[0].notionMetadataId;
+      }
+    );
+    console.log(
+      "object   filteredPurchases ",
+      filteredPurchases.length,
+      filteredPurchases
+    );
 
-//     // return filteredPurchases;
-//     return purchasesByUser;
-//   },
-// } as any);
+    return filteredPurchases.length > 0;
+    // return purchasesByUser;
+  },
+} as any);
 interface PurchaseData {
   courseId: number;
   userId: string;
-  forEach: string;
 }

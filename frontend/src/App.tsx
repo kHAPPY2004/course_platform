@@ -16,12 +16,13 @@ import Course_slug from "./courses/course_slug";
 import Add_Course_Content from "./admin/add_course_content";
 import Course_slug_Video from "./courses/course_slug_video";
 import { checkUser } from "./store/atoms/userAuth";
+import { protectRoutePurchases } from "./store/atoms/userPurchases";
 
 const ProtectedRouteUser = () => {
   // Check if user is authenticated
   const checkUserLoadable = useRecoilValueLoadable(checkUser);
+  const protrect = useRecoilValueLoadable(protectRoutePurchases);
   let isAuthenticated;
-  console.log("fetching data");
 
   if (checkUserLoadable.state === "loading") {
     return (
@@ -37,12 +38,35 @@ const ProtectedRouteUser = () => {
     );
   } else if (checkUserLoadable.state === "hasValue") {
     isAuthenticated = checkUserLoadable.contents.data.success; // Assuming your checkUser atom returns a boolean
+    console.log("asqw", typeof isAuthenticated, isAuthenticated);
+    if (isAuthenticated) {
+      protrect.state === "hasValue" &&
+        console.log("protect123", protrect.contents, typeof protrect.contents);
+    }
   }
 
   return (
     <Routes>
       {isAuthenticated ? (
         <>
+          {protrect.contents ? (
+            <>
+              <Route path="/course/:id" element={<Course_slug />} />
+              <Route path="/course/:id/:hash" element={<Course_slug_Video />} />
+            </>
+          ) : (
+            <>
+              <Route
+                path="/course/:id/:hash"
+                element={<Navigate to="/new-courses" replace />}
+              />
+              <Route
+                path="/course/:id"
+                element={<Navigate to="/new-courses" replace />}
+              />
+            </>
+          )}
+
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/login" element={<Navigate to="/dashboard" replace />} />
           <Route
@@ -52,6 +76,10 @@ const ProtectedRouteUser = () => {
         </>
       ) : (
         <>
+          <Route
+            path="/course/:id"
+            element={<Navigate to="/login" replace />}
+          />
           <Route path="/dashboard" element={<Navigate to="/login" replace />} />
           <Route
             path="/login"
@@ -63,8 +91,8 @@ const ProtectedRouteUser = () => {
       <Route path="/" element={<Navbar />} />
       <Route path="/new-courses" element={<New_Courses />} />
       <Route path="/new-courses/:id" element={<New_Courses_slug />} />
-      <Route path="/course/:id" element={<Course_slug />} />
-      <Route path="/course/:id/:hash" element={<Course_slug_Video />} />
+      {/* <Route path="/course/:id" element={<Course_slug />} /> */}
+      {/* <Route path="/course/:id/:hash" element={<Course_slug_Video />} /> */}
       <Route path="/add_course" element={<Add_Course />} />
       <Route path="/add_course_content" element={<Add_Course_Content />} />
     </Routes>

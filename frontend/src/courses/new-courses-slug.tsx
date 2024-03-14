@@ -52,14 +52,14 @@ export const New_Courses_slug: React.FC = () => {
       </>
     );
   } else if (course.state === "hasValue" && course.contents.length > 0) {
-    const happt = course.contents[0].appxCourseId;
+    const happt = course.contents[0].id;
     console.log("happt", happt);
 
     const handleSubmit = async (e: { preventDefault: () => void }) => {
       e.preventDefault();
       try {
         const res = await axios.post("/api/course-purchase", {
-          courseId: course.contents[0].appxCourseId,
+          id: course.contents[0].id,
         });
         console.log("res in frontend", res);
         if (!res.data.success) {
@@ -158,7 +158,7 @@ const PurchaseButton: React.FC<PurchaseButtonProps> = ({
   );
   const data = Object.values(check_user_purchases.contents);
   const filteredPurchases = data.filter(
-    (purchase: any) => purchase.courseId === course.contents[0].appxCourseId
+    (purchase: any) => purchase.courseId === course.contents[0].id
   );
   console.log("filteredPurchases", filteredPurchases);
 

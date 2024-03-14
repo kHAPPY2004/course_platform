@@ -120,8 +120,8 @@ export const coursePurchase = async (
 ) => {
   try {
     console.log("User tries to purchase a course", req.session);
-    const { courseId } = req.body;
-    console.log("courseId", courseId);
+    const { id } = req.body;
+    console.log("id", id);
     // Fetch user details from the session
     const { user, sessionToken } = req.session;
     if (!user || !sessionToken) {
@@ -134,7 +134,7 @@ export const coursePurchase = async (
       data: {
         course: {
           connect: {
-            appxCourseId: courseId, // Connect using appxCourseId
+            id: id, // Connect using id
           },
         },
         user: { connect: { id: user.id } },

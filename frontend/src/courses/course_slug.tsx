@@ -1,19 +1,19 @@
 import React, { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
+import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
 import { contentSlug1, filteredContentfolder } from "../store/atoms/getcontent";
-import { courseContent } from "../store/atoms/courseContent";
+import { protectRoutePurchases } from "../store/atoms/userPurchases";
 
 const Course_slug: React.FC = () => {
   const contentFolder = useRecoilValueLoadable(filteredContentfolder);
-  const [content_slug, setContent_slug] = useRecoilState(contentSlug1);
-  const courseContenter = useRecoilValueLoadable(courseContent);
-  console.log("courseContenter", courseContenter);
 
-  console.log("contentFolder", contentFolder.contents);
-
+  // console.log("contentFolder", contentFolder.contents[0].notionMetadataId);
   const params: any = useParams();
-  console.log("params", params);
+  console.log("parama", typeof params.id);
+  const setContent_slug = useSetRecoilState(contentSlug1);
+
+  // const protrect = useRecoilValueLoadable(protectRoutePurchases);
+  // console.log("protect123", protrect.contents.length > 0);
 
   useEffect(() => {
     return setContent_slug(params.id);

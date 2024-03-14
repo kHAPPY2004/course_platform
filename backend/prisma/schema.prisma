@@ -32,7 +32,7 @@ model Session {
 model UserPurchases {
   user       User     @relation(fields: [userId], references: [id])
   userId     String
-  course     Course   @relation(fields: [courseId], references: [appxCourseId])
+  course     Course   @relation(fields: [courseId], references: [id])
   courseId   Int
   assignedAt DateTime @default(now())
 
