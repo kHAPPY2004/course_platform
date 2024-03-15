@@ -1,23 +1,17 @@
 import React, { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
-import { contentSlug1, filteredContentfolder } from "../store/atoms/getcontent";
-import { protectRoutePurchases } from "../store/atoms/userPurchases";
+import { contentSlug, filteredContentfolder } from "../store/atoms/getcontent";
 
 const Course_slug: React.FC = () => {
+  const params: any = useParams();
+
+  const setSlug = useSetRecoilState(contentSlug);
   const contentFolder = useRecoilValueLoadable(filteredContentfolder);
 
-  // console.log("contentFolder", contentFolder.contents[0].notionMetadataId);
-  const params: any = useParams();
-  console.log("parama", typeof params.id);
-  const setContent_slug = useSetRecoilState(contentSlug1);
-
-  // const protrect = useRecoilValueLoadable(protectRoutePurchases);
-  // console.log("protect123", protrect.contents.length > 0);
-
   useEffect(() => {
-    return setContent_slug(params.id);
-  }, [params.id, setContent_slug]);
+    setSlug({ id: params.id, hash: params.hash }); // Set both slug values in one useEffect
+  }, [params.id, params.hash, setSlug]);
 
   if (contentFolder.state === "loading") {
     return (
@@ -73,6 +67,8 @@ const Course_slug: React.FC = () => {
         )}
       </>
     );
+  } else {
+    return <>Error while fetching data from backend</>;
   }
 };
 

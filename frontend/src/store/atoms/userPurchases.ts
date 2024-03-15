@@ -16,10 +16,6 @@ export const userPurchases = atom({
     },
   }),
 });
-// export const purchasesSlug: any = atom({
-//   key: "purchaseSlug",
-//   default: null,
-// });
 
 export const filteredUserPurchases = selector<PurchaseData[]>({
   key: "filteredUserPurchases",
@@ -37,11 +33,6 @@ export const filteredUserPurchases = selector<PurchaseData[]>({
     );
   },
 } as any);
-
-// export const protectRouteSlug = atom<string | null>({
-//   key: "protectRouteSlug",
-//   default: null,
-// });
 
 // here we filter that ,for specific content slug ,this user is authenticated or not
 export const protectRoutePurchases = selector<PurchaseData[]>({
@@ -77,7 +68,6 @@ export const protectRoutePurchases = selector<PurchaseData[]>({
     );
 
     return filteredPurchases.length > 0;
-    // return purchasesByUser;
   },
 } as any);
 interface PurchaseData {

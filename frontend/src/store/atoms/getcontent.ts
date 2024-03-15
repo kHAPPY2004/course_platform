@@ -1,7 +1,15 @@
 import { atom, selector } from "recoil";
 import axios from "axios";
 import { courseContent } from "./courseContent";
-import { slugState } from "./getcourses";
+
+export const contentSlug = atom<ContentSlug>({
+  key: "contentSlug",
+  default: { id: null, hash: null }, // Set default values for both id and hash
+});
+export interface ContentSlug {
+  id: string | null;
+  hash: string | null;
+}
 
 export const contentState = atom<UserData[]>({
   key: "contentState",
@@ -17,10 +25,6 @@ export const contentState = atom<UserData[]>({
     },
   }),
 });
-export const contentSlug1 = atom<string | null>({
-  key: "contentSlug1",
-  default: null,
-});
 
 export const filteredContentfolder = selector<UserData[]>({
   key: "filteredContentfolder",
@@ -29,20 +33,16 @@ export const filteredContentfolder = selector<UserData[]>({
     console.log("coursecontent123", coursecontentqw.courseContent[0].courseId);
     const courses = get(contentState);
 
-    const slug = get(contentSlug1); // Get the slug from another atom or selector
+    const slug = get(contentSlug); // Get the slug from another atom or selector
     console.log("Slugi 4", typeof slug, slug);
 
     return courses.filter(
       (course: { type: any; notionMetadataId: any }) =>
-        course.type === "folder" && course.notionMetadataId === parseInt(slug)
+        course.type === "folder" &&
+        course.notionMetadataId === parseInt(slug.id)
     );
   },
 } as any);
-
-export const contentSlug = atom<string | null>({
-  key: "contentSlug",
-  default: null,
-});
 
 export const filteredContentvideo = selector<UserData[]>({
   key: "filteredContentvideo",
@@ -53,7 +53,7 @@ export const filteredContentvideo = selector<UserData[]>({
     console.log(courses);
     return courses.filter(
       (content: { type: any; parentId: any }) =>
-        content.type === "video" && content.parentId === parseInt(slug)
+        content.type === "video" && content.parentId === parseInt(slug.hash)
     );
   },
 } as any);
