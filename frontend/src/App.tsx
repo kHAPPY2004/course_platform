@@ -57,11 +57,11 @@ const ProtectedRouteUser = () => {
           ) : (
             <>
               <Route
-                path="/course/:id/:hash"
+                path="/course/:id"
                 element={<Navigate to="/new-courses" replace />}
               />
               <Route
-                path="/course/:id"
+                path="/course/:id/:hash"
                 element={<Navigate to="/new-courses" replace />}
               />
             </>
@@ -78,6 +78,10 @@ const ProtectedRouteUser = () => {
         <>
           <Route
             path="/course/:id"
+            element={<Navigate to="/login" replace />}
+          />
+          <Route
+            path="/course/:id/:hash"
             element={<Navigate to="/login" replace />}
           />
           <Route path="/dashboard" element={<Navigate to="/login" replace />} />

@@ -8,9 +8,11 @@ export const contentState = atom<UserData[]>({
   default: selector({
     key: "contentState/Default",
     get: async () => {
+      console.log("Hello this is contentState");
       const res = await axios.get("/api/getContentfolder", {
         withCredentials: true,
       });
+      console.log("res", res);
       return res.data.allcontents;
     },
   }),

@@ -1,20 +1,29 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
-import { contentSlug, filteredContentvideo } from "../store/atoms/getcontent";
+import {
+  contentSlug,
+  contentSlug1,
+  filteredContentvideo,
+} from "../store/atoms/getcontent";
 
 const Course_slug_Video: React.FC = () => {
   const contentVideo = useRecoilValueLoadable(filteredContentvideo);
   console.log("contentVideo", contentVideo.contents);
 
   const setSlug = useSetRecoilState(contentSlug);
-
+  const setContent_slug = useSetRecoilState(contentSlug1);
   const params: any = useParams();
   console.log("params", params.hash);
 
   useEffect(() => {
     return setSlug(params.hash);
   }, [params.hash, setSlug]);
+
+  useEffect(() => {
+    return setContent_slug(params.id);
+  }, [params.id, setContent_slug]);
+
   if (contentVideo.state === "loading") {
     return (
       <>
