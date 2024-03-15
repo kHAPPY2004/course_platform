@@ -17,6 +17,7 @@ import Add_Course_Content from "./admin/add_course_content";
 import Course_slug_Video from "./courses/course_slug_video";
 import { checkUser } from "./store/atoms/userAuth";
 import { protectRoutePurchases } from "./store/atoms/userPurchases";
+import Video_play from "./courses/video_play";
 
 const ProtectedRouteUser = () => {
   // Check if user is authenticated
@@ -99,6 +100,7 @@ const ProtectedRouteUser = () => {
       {/* <Route path="/course/:id/:hash" element={<Course_slug_Video />} /> */}
       <Route path="/add_course" element={<Add_Course />} />
       <Route path="/add_course_content" element={<Add_Course_Content />} />
+      <Route path="/video_play" element={<Video_play />} />
     </Routes>
   );
 };

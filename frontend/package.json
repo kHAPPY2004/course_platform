@@ -11,14 +11,17 @@
   },
   "dependencies": {
     "@types/react-router-dom": "^5.3.3",
+    "@videojs/http-streaming": "^3.10.0",
     "autoprefixer": "^10.4.17",
     "axios": "^0.28.0",
     "postcss": "^8.4.35",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-player": "^2.15.1",
     "react-router-dom": "^6.22.2",
     "react-toastify": "^10.0.4",
-    "recoil": "^0.7.7"
+    "recoil": "^0.7.7",
+    "video.js": "^8.10.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.55",
