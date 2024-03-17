@@ -183,7 +183,8 @@ export const loginUser = async (
     console.log("check session after login :", req.session);
     return res.status(200).json({
       success: true,
-      data: { user, userSession },
+      // data: { user, userSession },
+      user,
       message: "User logged in successfully",
     });
   } catch (error) {

@@ -1,12 +1,19 @@
 import { Link, useParams } from "react-router-dom";
-import { useRecoilState, useRecoilValueLoadable } from "recoil";
+import {
+  useRecoilState,
+  useRecoilValueLoadable,
+  useSetRecoilState,
+} from "recoil";
 import { filteredCoursesState, slugState } from "../store/atoms/getcourses";
 import { useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import { filteredUserPurchases } from "../store/atoms/userPurchases";
+import {
+  filteredUserPurchases,
+  purchaseStatus,
+} from "../store/atoms/userPurchases";
 
 export const New_Courses_slug: React.FC = () => {
   const params: any = useParams();
@@ -14,6 +21,7 @@ export const New_Courses_slug: React.FC = () => {
 
   const [slug, setSlug] = useRecoilState(slugState);
   const course = useRecoilValueLoadable(filteredCoursesState);
+  const setPurchases = useSetRecoilState(purchaseStatus);
 
   useEffect(() => {
     return setSlug(params.id);
@@ -52,6 +60,8 @@ export const New_Courses_slug: React.FC = () => {
           });
           navigate("/login");
         } else {
+          // Update the purchase status to trigger a re-fetch of userPurchases
+          setPurchases(true);
           toast.success("course purchased successfully...", {
             position: "top-left",
             autoClose: 1500,

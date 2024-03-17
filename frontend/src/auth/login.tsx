@@ -3,11 +3,14 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
+import { checkUser } from "../store/atoms/userAuth";
 
 interface LoginProps {
   completeUrl: string;
 }
 const Login: React.FC<LoginProps> = ({ completeUrl }) => {
+  const setCheckUser = useSetRecoilState(checkUser);
   const navigate = useNavigate();
   console.log("complete url", completeUrl);
 
@@ -47,7 +50,8 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
 
       setEmail("");
       setPassword("");
-
+      // Update the checkUser selector after successful login
+      setCheckUser(res); // Update the checkUser atom
       toast.success(" Your are logined! ", {
         position: "top-left",
         autoClose: 1500,

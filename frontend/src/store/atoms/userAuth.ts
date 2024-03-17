@@ -11,5 +11,8 @@ export const checkUser = atom({
       });
       return res;
     },
+    set: ({ set }, newValue) => {
+      set(checkUser, newValue); // Update the selector value
+    },
   }),
 });

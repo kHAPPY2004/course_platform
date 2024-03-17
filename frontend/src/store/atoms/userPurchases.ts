@@ -3,12 +3,21 @@ import axios from "axios";
 import { checkUser } from "./userAuth";
 import { filteredContentfolder } from "./getcontent";
 
+// Define an atom for the purchase status
+export const purchaseStatus = atom({
+  key: "purchaseStatus",
+  default: false, // Initial value indicating no purchase
+});
+
 export const userPurchases = atom({
   key: "userPurchases",
   default: selector({
     key: "userPurchases/Default",
-    get: async () => {
-      console.log("reqewr2343242");
+    get: async ({ get }) => {
+      // Depend on the purchaseStatus atom
+      get(purchaseStatus);
+
+      console.log("Fetching user purchases...");
       const res = await axios.get("/api/userPurchases", {
         withCredentials: true,
       });
@@ -51,7 +60,7 @@ export const protectRoutePurchases = selector<PurchaseData[]>({
     const id_for_route = get(filteredContentfolder);
     console.log(
       "contentFolder2121",
-      id_for_route[0].notionMetadataId,
+      // id_for_route[0].notionMetadataId,
       typeof id_for_route
     );
 
