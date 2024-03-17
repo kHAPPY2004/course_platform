@@ -16,6 +16,10 @@ import {
   addCourseContent,
   getContentfolder,
 } from "../Contoller/ContentController";
+import {
+  addVideoMetadata,
+  getVideoMetadata,
+} from "../Contoller/VideoController";
 
 const router = express.Router();
 
@@ -25,6 +29,8 @@ router.get("/dashboard", userdetail);
 router.get("/new-courses", getallCourses);
 router.post("/new-courses", addnewCourse); // admin part
 router.post("/add-course-content", addCourseContent); // admin part
+router.post("/add-video-metadata", addVideoMetadata); // admin part
+router.get("/get-videos", getVideoMetadata);
 router.post("/course-purchase", coursePurchase);
 router.get("/check-auth", checkAuth);
 router.get("/userPurchases", userPurchases);

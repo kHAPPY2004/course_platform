@@ -25,7 +25,7 @@ const New_Courses: React.FC = () => {
       <div>
         {courses && (
           <div className="max-w-screen-xl justify-between mx-auto p-4 grid grid-cols-1 gap-5 md:grid-cols-3">
-            {courses.contents.map((course) => (
+            {courses.contents.new_courses.map((course: any) => (
               <div className="bg-slate-400 m-10 p-5" key={course.id}>
                 <div>{course.title}</div>
                 <div className="bg-red-200 m-2">

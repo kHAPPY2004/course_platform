@@ -5,13 +5,13 @@ import { contentSlug, filteredContentfolder } from "../store/atoms/getcontent";
 
 const Course_slug: React.FC = () => {
   const params: any = useParams();
-
+  console.log(params);
   const setSlug = useSetRecoilState(contentSlug);
   const contentFolder = useRecoilValueLoadable(filteredContentfolder);
 
   useEffect(() => {
-    setSlug({ id: params.id, hash: params.hash }); // Set both slug values in one useEffect
-  }, [params.id, params.hash, setSlug]);
+    setSlug({ id: params.id, hash: params.hash, hash2: params.hash2 }); // Set both slug values in one useEffect
+  }, [params.id, params.hash, params.hash2, setSlug]);
 
   if (contentFolder.state === "loading") {
     return (

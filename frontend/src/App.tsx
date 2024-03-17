@@ -18,6 +18,7 @@ import Course_slug_Video from "./courses/course_slug_video";
 import { checkUser } from "./store/atoms/userAuth";
 import { protectRoutePurchases } from "./store/atoms/userPurchases";
 import Video_play from "./courses/video_play";
+import Add_Video_Metadata from "./admin/add_video_metadata";
 
 const ProtectedRouteUser = () => {
   // Check if user is authenticated
@@ -54,6 +55,7 @@ const ProtectedRouteUser = () => {
             <>
               <Route path="/course/:id" element={<Course_slug />} />
               <Route path="/course/:id/:hash" element={<Course_slug_Video />} />
+              <Route path="/course/:id/:hash/:hash2" element={<Video_play />} />
             </>
           ) : (
             <>
@@ -63,6 +65,10 @@ const ProtectedRouteUser = () => {
               />
               <Route
                 path="/course/:id/:hash"
+                element={<Navigate to="/new-courses" replace />}
+              />
+              <Route
+                path="/course/:id/:hash/:hash2"
                 element={<Navigate to="/new-courses" replace />}
               />
             </>
@@ -85,6 +91,10 @@ const ProtectedRouteUser = () => {
             path="/course/:id/:hash"
             element={<Navigate to="/login" replace />}
           />
+          <Route
+            path="/course/:id/:hash/:hash2"
+            element={<Navigate to="/login" replace />}
+          />
           <Route path="/dashboard" element={<Navigate to="/login" replace />} />
           <Route
             path="/login"
@@ -100,7 +110,8 @@ const ProtectedRouteUser = () => {
       {/* <Route path="/course/:id/:hash" element={<Course_slug_Video />} /> */}
       <Route path="/add_course" element={<Add_Course />} />
       <Route path="/add_course_content" element={<Add_Course_Content />} />
-      <Route path="/video_play" element={<Video_play />} />
+      <Route path="/add_video_metadata" element={<Add_Video_Metadata />} />
+      {/* <Route path="/course/:id/:hash/:hash2" element={<Video_play />} /> */}
     </Routes>
   );
 };

@@ -4,11 +4,12 @@ import { courseContent } from "./courseContent";
 
 export const contentSlug = atom<ContentSlug>({
   key: "contentSlug",
-  default: { id: null, hash: null }, // Set default values for both id and hash
+  default: { id: null, hash: null, hash2: null }, // Set default values for both id and hash
 });
 export interface ContentSlug {
   id: string | null;
   hash: string | null;
+  hash2: string | null;
 }
 
 export const contentState = atom<UserData[]>({
@@ -21,7 +22,7 @@ export const contentState = atom<UserData[]>({
         withCredentials: true,
       });
       console.log("res", res);
-      return res.data.allcontents;
+      return res.data;
     },
   }),
 });
@@ -32,14 +33,16 @@ export const filteredContentfolder = selector<UserData[]>({
     const coursecontentqw = get(courseContent); // Get the slug from another atom or selector
     console.log("coursecontent123", coursecontentqw.courseContent[0].courseId);
     const courses = get(contentState);
-
     const slug = get(contentSlug); // Get the slug from another atom or selector
     console.log("Slugi 4", typeof slug, slug);
 
-    return courses.filter(
-      (course: { type: any; notionMetadataId: any }) =>
-        course.type === "folder" &&
-        course.notionMetadataId === parseInt(slug.id)
+    return (
+      courses.success &&
+      courses.allcontents.filter(
+        (course: { type: any; notionMetadataId: any }) =>
+          course.type === "folder" &&
+          course.notionMetadataId === parseInt(slug.id)
+      )
     );
   },
 } as any);
@@ -51,9 +54,12 @@ export const filteredContentvideo = selector<UserData[]>({
     const courses = get(contentState);
     console.log("slug in filter", slug);
     console.log(courses);
-    return courses.filter(
-      (content: { type: any; parentId: any }) =>
-        content.type === "video" && content.parentId === parseInt(slug.hash)
+    return (
+      courses.success &&
+      courses.allcontents.filter(
+        (content: { type: any; parentId: any }) =>
+          content.type === "video" && content.parentId === parseInt(slug.hash)
+      )
     );
   },
 } as any);

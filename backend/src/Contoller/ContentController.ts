@@ -240,13 +240,13 @@ export const CourseContent = async (
   try {
     const content = await prisma.content.findMany();
     const temp: any = content.filter((e) => e.parentId);
-    console.log("Content in coursebaclemdn", content);
-    console.log("temp parent", temp);
+    // console.log("Content in coursebaclemdn", content);
+    // console.log("temp parent", temp);
 
     // Response with user details
     const courseContent = await prisma.courseContent.findMany();
 
-    console.log("course - content", courseContent);
+    // console.log("course - content", courseContent);
     return res.status(200).json({ success: true, courseContent });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });

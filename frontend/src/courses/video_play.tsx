@@ -1,7 +1,22 @@
 import React, { useRef, useState, useEffect } from "react";
 import ReactPlayer from "react-player";
+import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
+import { filteredVideostate } from "../store/atoms/getVideos";
+import { useParams } from "react-router-dom";
+import { contentSlug } from "../store/atoms/getcontent";
 
 const VideoPlayer: React.FC = () => {
+  const params: any = useParams();
+  console.log(params);
+
+  const setSlug = useSetRecoilState(contentSlug);
+  const allvid = useRecoilValueLoadable(filteredVideostate);
+  console.log("all vid", allvid);
+
+  useEffect(() => {
+    setSlug({ id: params.id, hash: params.hash, hash2: params.hash2 }); // Set both slug values in one useEffect
+  }, [params.id, params.hash, params.hash2, setSlug]);
+
   const playerRef = useRef<ReactPlayer>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.5);
@@ -180,95 +195,101 @@ const VideoPlayer: React.FC = () => {
     // playerRef.current?.selectPlaybackQuality(e.target.value);
   };
 
+  // return (
+  //   <div
+  //     onMouseEnter={handleQualityMouseEnter} // Add onMouseEnter event
+  //     onMouseLeave={handleQualityMouseLeave} // Add onMouseLeave event
+  //     className={`relative ${
+  //       isCinemaMode ? "bg-slate-500 w-96 h-2/3" : "bg-zinc-400 w-2/3 h-2/3"
+  //     }`}
+  //   >
+  //     <ReactPlayer
+  //       ref={playerRef}
+  //       url="https://d2szwvl7yo497w.cloudfront.net/cohort-2/0/Week%200.1%20-%20Introduction,%20Settings%20up%20IDE.mp4"
+  //       // url="https://www.youtube.com/watch?v=vnWSeZ1JIxY"
+  //       playing={isPlaying}
+  //       volume={volume}
+  //       playbackRate={speed}
+  //       width="100%"
+  //       height="100%"
+  //       controls
+  //       className="border-none"
+  //       config={{
+  //         // file: { attributes: { controlsList: "nodownload" } },
+  //         youtube: { playerVars: { controls: 1 } }, // Enable YouTube controls
+  //       }}
+  //       onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
+  //       onPlaybackQualityChange={handlePlaybackQualityChange}
+  //       onBuffer={handleBuffer}
+  //       onBufferEnd={handleBufferEnd}
+  //       onError={handleError}
+  //       onDuration={handleDuration}
+  //       onProgress={handleProgress}
+  //     />
+  //     {isBuffering && (
+  //       <div className="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-75">
+  //         <div className="text-white">Buffering...</div>
+  //       </div>
+  //     )}
+  //     {isError && (
+  //       <div className="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-75">
+  //         <div className="text-white">Error loading video</div>
+  //       </div>
+  //     )}{" "}
+  //     {showQuality && (
+  //       <div className="absolute top-2 right-2 flex items-center">
+  //         <>
+  //           <span className="text-white mr-2">Quality:</span>
+  //           <select
+  //             className="bg-gray-800 text-white rounded p-1"
+  //             value={selectedQuality}
+  //             onChange={handleQualityChange}
+  //           >
+  //             <option value="auto">Auto</option>
+  //             <option value="360p">360p</option>
+  //             <option value="480p">480p</option>
+  //             <option value="720p">720p</option>
+  //             <option value="1080p">1080p</option>
+  //           </select>
+  //         </>
+  //       </div>
+  //     )}
+  //     {/* <button
+  //       className="absolute top-2 right-2 bg-gray-800 text-white rounded-full p-2"
+  //       onClick={toggleMiniPlayer}
+  //     >
+  //       {isMiniPlayer ? "Exit Mini Player" : "Mini Player"}
+  //     </button> */}
+  //     {/* Cinema mode button */}
+  //     <button
+  //       className="absolute top-2 left-2 bg-gray-800 text-white rounded-full p-2"
+  //       onClick={toggleCinemaMode}
+  //     >
+  //       {isCinemaMode ? "Exit Cinema Mode" : "Cinema Mode"}
+  //     </button>
+  //     {showVolume && (
+  //       <div
+  //         className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-md p-2"
+  //         style={{ zIndex: 9999 }}
+  //       >
+  //         <span className="icon icon-volume" />
+  //         <span>{Math.round(volume * 100)}%</span>
+  //       </div>
+  //     )}
+  //     {showSpeed && (
+  //       <div
+  //         className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-md p-2"
+  //         style={{ zIndex: 9999 }}
+  //       >
+  //         <span>{speed}x</span>
+  //       </div>
+  //     )}
+  //   </div>
+  // );
   return (
-    <div
-      onMouseEnter={handleQualityMouseEnter} // Add onMouseEnter event
-      onMouseLeave={handleQualityMouseLeave} // Add onMouseLeave event
-      className={`relative ${
-        isCinemaMode ? "bg-slate-500 w-96 h-2/3" : "bg-zinc-400 w-2/3 h-2/3"
-      }`}
-    >
-      <ReactPlayer
-        ref={playerRef}
-        url="https://d2szwvl7yo497w.cloudfront.net/cohort-2/0/Week%200.1%20-%20Introduction,%20Settings%20up%20IDE.mp4"
-        playing={isPlaying}
-        volume={volume}
-        playbackRate={speed}
-        width="100%"
-        height="100%"
-        controls
-        className="border-none"
-        config={{
-          file: { attributes: { controlsList: "nodownload" } },
-          youtube: { playerVars: { controls: 1 } }, // Enable YouTube controls
-        }}
-        onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
-        onPlaybackQualityChange={handlePlaybackQualityChange}
-        onBuffer={handleBuffer}
-        onBufferEnd={handleBufferEnd}
-        onError={handleError}
-        onDuration={handleDuration}
-        onProgress={handleProgress}
-      />
-      {isBuffering && (
-        <div className="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-75">
-          <div className="text-white">Buffering...</div>
-        </div>
-      )}
-      {isError && (
-        <div className="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-75">
-          <div className="text-white">Error loading video</div>
-        </div>
-      )}{" "}
-      {showQuality && (
-        <div className="absolute top-2 right-2 flex items-center">
-          <>
-            <span className="text-white mr-2">Quality:</span>
-            <select
-              className="bg-gray-800 text-white rounded p-1"
-              value={selectedQuality}
-              onChange={handleQualityChange}
-            >
-              <option value="auto">Auto</option>
-              <option value="360p">360p</option>
-              <option value="480p">480p</option>
-              <option value="720p">720p</option>
-              <option value="1080p">1080p</option>
-            </select>
-          </>
-        </div>
-      )}
-      {/* <button
-        className="absolute top-2 right-2 bg-gray-800 text-white rounded-full p-2"
-        onClick={toggleMiniPlayer}
-      >
-        {isMiniPlayer ? "Exit Mini Player" : "Mini Player"}
-      </button> */}
-      {/* Cinema mode button */}
-      <button
-        className="absolute top-2 left-2 bg-gray-800 text-white rounded-full p-2"
-        onClick={toggleCinemaMode}
-      >
-        {isCinemaMode ? "Exit Cinema Mode" : "Cinema Mode"}
-      </button>
-      {showVolume && (
-        <div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-md p-2"
-          style={{ zIndex: 9999 }}
-        >
-          <span className="icon icon-volume" />
-          <span>{Math.round(volume * 100)}%</span>
-        </div>
-      )}
-      {showSpeed && (
-        <div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-md p-2"
-          style={{ zIndex: 9999 }}
-        >
-          <span>{speed}x</span>
-        </div>
-      )}
-    </div>
+    <>
+      <div>hkdjfhskhs</div>
+    </>
   );
 };
 

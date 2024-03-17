@@ -1,17 +1,18 @@
 import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
 import { contentSlug, filteredContentvideo } from "../store/atoms/getcontent";
 
 const Course_slug_Video: React.FC = () => {
   const params: any = useParams();
-
+  console.log(params);
   const setSlug = useSetRecoilState(contentSlug);
   const contentVideo = useRecoilValueLoadable(filteredContentvideo);
+  console.log("content Video", contentVideo);
 
   useEffect(() => {
-    setSlug({ id: params.id, hash: params.hash }); // Set both slug values in one useEffect
-  }, [params.id, params.hash, setSlug]);
+    setSlug({ id: params.id, hash: params.hash, hash2: params.hash2 }); // Set both slug values in one useEffect
+  }, [params.id, params.hash, params.hash2, setSlug]);
 
   if (contentVideo.state === "loading") {
     return (
@@ -32,7 +33,7 @@ const Course_slug_Video: React.FC = () => {
     return (
       <>
         {contentVideo && (
-          <div className="max-w-screen-xl justify-between mx-auto p-4 cursor-pointer grid grid-cols-1 gap-5 md:grid-cols-3">
+          <div className="max-w-screen-xl justify-between mx-auto p-4 grid grid-cols-1 gap-5 md:grid-cols-3">
             {contentVideo.contents.map((content) => (
               <div className="bg-slate-400 m-10 p-5" key={content.id}>
                 <img
@@ -41,6 +42,7 @@ const Course_slug_Video: React.FC = () => {
                   style={{ maxWidth: "100%" }}
                   className="m-2 mb-4"
                 />
+                <div>{content.id}</div>
                 <div>{content.title}</div>
                 <div className="bg-red-200 m-2">
                   Content type: {content.type}
@@ -55,12 +57,12 @@ const Course_slug_Video: React.FC = () => {
                 <div>parentid : {content.parentId}</div>
 
                 {/* Add more details if needed */}
-                {/* <Link
+                <Link
                   className="bg-blue-400 rounded-md p-2"
-                  to={`/new-courses/${content.slug}`}
+                  to={`/course/${params.id}/${params.hash}/${content.id}`}
                 >
-                  View Details
-                </Link> */}
+                  play video
+                </Link>
               </div>
             ))}
           </div>

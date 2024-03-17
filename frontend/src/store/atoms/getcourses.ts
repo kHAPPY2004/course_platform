@@ -1,7 +1,7 @@
 import { atom, selector } from "recoil";
 import axios from "axios";
 
-export const coursesState = atom<UserData[]>({
+export const coursesState = atom({
   key: "coursesState",
   default: selector({
     key: "coursesState/Default",
@@ -9,7 +9,7 @@ export const coursesState = atom<UserData[]>({
       const res = await axios.get("/api/new-courses", {
         withCredentials: true,
       });
-      return res.data.new_courses;
+      return res.data;
     },
   }),
 });
@@ -25,8 +25,11 @@ export const filteredCoursesState = selector<UserData[]>({
     console.log("Slugi", typeof slug, slug);
     const courses = get(coursesState);
     console.log("course filtererererstate", courses);
-    return courses.filter(
-      (course: { id: any }) => course.id === parseInt(slug)
+    return (
+      courses.success &&
+      courses.new_courses.filter(
+        (course: { id: any }) => course.id === parseInt(slug)
+      )
     );
   },
 } as any);
