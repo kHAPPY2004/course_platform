@@ -6,7 +6,19 @@ import { filteredContentfolder } from "./getcontent";
 // Define an atom for the purchase status
 export const purchaseStatus = atom({
   key: "purchaseStatus",
-  default: false, // Initial value indicating no purchase
+  default: 0, // Initial value indicating no purchase
+});
+
+// Define a selector to get and set the purchase status
+export const purchaseStatusSelector = selector({
+  key: "purchaseStatusSelector",
+  get: ({ get }) => {
+    return get(purchaseStatus);
+  },
+  set: ({ set }, newValue) => {
+    console.log("setting new vlaue", newValue);
+    if (newValue) set(purchaseStatus, newValue);
+  },
 });
 
 export const userPurchases = atom({
@@ -15,7 +27,7 @@ export const userPurchases = atom({
     key: "userPurchases/Default",
     get: async ({ get }) => {
       // Depend on the purchaseStatus atom
-      get(purchaseStatus);
+      get(purchaseStatusSelector);
 
       console.log("Fetching user purchases...");
       const res = await axios.get("/api/userPurchases", {
@@ -61,15 +73,17 @@ export const protectRoutePurchases = selector<PurchaseData[]>({
     console.log(
       "contentFolder2121",
       // id_for_route[0].notionMetadataId,
+      id_for_route,
       typeof id_for_route
     );
 
-    const filteredPurchases = purchasesByUser.filter(
-      (purchase: PurchaseData) => {
+    const filteredPurchases =
+      purchasesByUser.length > 0 &&
+      id_for_route.length > 0 &&
+      purchasesByUser.filter((purchase: PurchaseData) => {
         console.log("1313", purchase.courseId, typeof purchase.courseId);
         return purchase.courseId === id_for_route[0].notionMetadataId;
-      }
-    );
+      });
     console.log(
       "object   filteredPurchases ",
       filteredPurchases.length,

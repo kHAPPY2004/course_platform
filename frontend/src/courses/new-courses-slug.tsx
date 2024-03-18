@@ -1,10 +1,6 @@
 import { Link, useParams } from "react-router-dom";
-import {
-  useRecoilState,
-  useRecoilValueLoadable,
-  useSetRecoilState,
-} from "recoil";
-import { filteredCoursesState, slugState } from "../store/atoms/getcourses";
+import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
+import { filteredCoursesState } from "../store/atoms/getcourses";
 import { useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -12,20 +8,22 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import {
   filteredUserPurchases,
-  purchaseStatus,
+  purchaseStatusSelector,
 } from "../store/atoms/userPurchases";
+import { contentSlug } from "../store/atoms/getcontent";
 
 export const New_Courses_slug: React.FC = () => {
   const params: any = useParams();
+  console.log("Params u", params);
   const navigate = useNavigate();
 
-  const [slug, setSlug] = useRecoilState(slugState);
+  const setSlug = useSetRecoilState(contentSlug);
   const course = useRecoilValueLoadable(filteredCoursesState);
-  const setPurchases = useSetRecoilState(purchaseStatus);
+  const setPurchases = useSetRecoilState(purchaseStatusSelector);
 
   useEffect(() => {
-    return setSlug(params.id);
-  }, [params.id, setSlug]);
+    setSlug({ id: params.id, hash: params.hash, hash2: params.hash2 }); // Set both slug values in one useEffect
+  }, [params.id, params.hash, params.hash2, setSlug]);
 
   if (course.state === "loading") {
     return (
@@ -61,7 +59,8 @@ export const New_Courses_slug: React.FC = () => {
           navigate("/login");
         } else {
           // Update the purchase status to trigger a re-fetch of userPurchases
-          setPurchases(true);
+          console.log(res.data);
+          setPurchases(res.data.course_added.courseId);
           toast.success("course purchased successfully...", {
             position: "top-left",
             autoClose: 1500,
@@ -102,7 +101,7 @@ export const New_Courses_slug: React.FC = () => {
           pauseOnHover
           theme="colored"
         />
-        <div>slug: {slug}</div>
+        {/* <div>slug: {slug.id}</div> */}
         <div>id: {course.contents[0].id}</div>
         <div>appxCourseId: {course.contents[0].appxCourseId}</div>
         <div>{course.contents[0].description}</div>
