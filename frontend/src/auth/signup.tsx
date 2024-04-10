@@ -87,7 +87,7 @@ const Signup: React.FC = () => {
         setPassword("");
         setConfirmPassword("");
         setPhoneNumber("");
-        navigate("/dashboard");
+        navigate("/");
       }
     } catch (error) {
       console.error("Error fetching user data:", error);

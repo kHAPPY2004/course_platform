@@ -23,6 +23,7 @@ const New_Courses: React.FC = () => {
   } else if (courses.state === "hasValue") {
     return (
       <div>
+        {courses.contents.new_courses.length < 1 && <div>No Courses found</div>}
         {courses && (
           <div className="max-w-screen-xl justify-between mx-auto p-4 grid grid-cols-1 gap-5 md:grid-cols-3">
             {courses.contents.new_courses.map((course: any) => (

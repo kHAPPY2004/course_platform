@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node src/server.ts",
-    "build": "tsc && node dist/server.js"
+    "build": "tsc && node dist/server.js",
+    "dev:docker": "npx prisma migrate dev && npm run dev"
   },
   "author": "HAPPY KAMBOJ",
   "license": "ISC",
