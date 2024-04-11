@@ -68,6 +68,8 @@ const checkExistingSession = async (req: Request, res: Response, next: any) => {
   // get first then set
   const existingSessionIdtttt: any = await redisClient.get(email);
   const existingSessionsdfsf = await redisClient.set(email, seee);
+  // Set the expiration time for the key "mykey" to 10 seconds
+  await redisClient.expire(email, 24 * 60 * 60);
   console.log(existingSessionsdfsf);
   console.log("++++++ sessionId +++", sessionId);
 
