@@ -44,10 +44,14 @@ router.use(
     saveUninitialized: false, // recommended: only save session when data exists
     secret: process.env.SESSION_SECRET || "your-secret-key",
     cookie: { secure: false, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 },
-    // genid: function (req) {
-    //   // Use a custom function to generate session ID
-    //   return "your-custom-session-id"; // Change this to generate session ID dynamically
-    // },
+    genid: function (req) {
+      // Use a custom function to generate session ID
+      console.log("bnbnbnb*&^*(^&&*(", req.body.email);
+      const val = req.body.email;
+      // Generate a random string
+      const randomString = Math.random();
+      return val && val + ":" + randomString; // Change this to generate session ID dynamically
+    },
   })
 );
 redisClient.on("error", (err) => {
@@ -57,23 +61,16 @@ redisClient.on("ready", () => {
   console.log("client chaluy");
 });
 const checkExistingSession = async (req: Request, res: Response, next: any) => {
-  const email = req.body.email;
-  console.log("email9090909090", email);
-
-  // req.sessionID = email;
   console.log("reqsdfsfds", req.sessionID);
   const sessionId = req.sessionID;
-  const seee = `myapp:${sessionId}`;
+  const firstArgument = sessionId.split(":")[0];
+  console.log("12st", firstArgument);
+  const seee = `myapp:${firstArgument}:*`;
   console.log("!!!!!!", seee);
-  // get first then set
-  const existingSessionIdtttt: any = await redisClient.get(email);
-  const existingSessionsdfsf = await redisClient.set(email, seee);
-  // Set the expiration time for the key "mykey" to 10 seconds
-  await redisClient.expire(email, 24 * 60 * 60);
-  console.log(existingSessionsdfsf);
-  console.log("++++++ sessionId +++", sessionId);
 
-  if (email && sessionId) {
+  const existingSessionIdtttt: any = await redisClient.keys(seee);
+
+  if (sessionId) {
     try {
       console.log("existingSessionIdtttt", existingSessionIdtttt);
       if (existingSessionIdtttt) {
