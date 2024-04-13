@@ -2,34 +2,19 @@ version: "3.8"
 
 services:
   backend:
-    image: backend_course_platform
-    # build:
-    #   context: .
-    #   dockerfile: /Dockerfile for starting from backend folder
     build:
-      context: ..
-      dockerfile: ./backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: backend_cp
     restart: always
-    # develop:
-    #   watch:
-    #     - action: sync
-    #       path: ./src
-    #       target: /app/src
-    #       ignore:
-    #         - node_modules/
-    #     - action: rebuild
-    #       path: package.json
     ports:
       - "3000:3000"
     volumes:
-      - .:/usr/src/app
+      - ./backend:/usr/src/app
       - /usr/src/app/node_modules
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - db
+      - redis
     environment:
       DATABASE_URL: postgres://happy:happy123@db:5432/mydatabase
       REDIS_HOST: redis
@@ -40,25 +25,28 @@ services:
       timeout: 5s
       retries: 3
 
-  # pm2:
-  #   image: node:20-alpine
-  #   container_name: pm2_backend
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: frontend_cp
+  #   restart: always
+  #   ports:
+  #     - "80:80"
   #   volumes:
-  #     - .:/usr/src/app
-  #   working_dir: /usr/src/app
-  #   command:
-  #     - "npm"
-  #     - "run"
-  #     - "dev:docker"
-  #   depends_on:
-  #     - backend
+  #     - ./frontend:/usr/src/app
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 3
 
   redis:
     image: redis:latest
     container_name: redis
     restart: always
     ports:
-      - 6379:6379
+      - "6379:6379"
     volumes:
       - redis_volume:/data
     healthcheck:
@@ -69,14 +57,14 @@ services:
 
   db:
     image: postgres:9.6
-    container_name: backend_db
+    container_name: postgres
     restart: always
     environment:
       POSTGRES_USER: happy
       POSTGRES_PASSWORD: happy123
       POSTGRES_DB: mydatabase
     ports:
-      - 5432:5432
+      - "5432:5432"
     volumes:
       - postgres_volume:/var/lib/postgresql/data
     healthcheck:

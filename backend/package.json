@@ -4,7 +4,7 @@
   "description": "Backend for course sellling website",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --legacy-watch src/server.ts",
+    "dev": "nodemon --legacy-watch src/server.ts --delay 100ms --ignore node_modules --ignore dist",
     "build": "tsc && node dist/server.js",
     "dev:docker": "npx prisma migrate dev && npm run dev"
   },

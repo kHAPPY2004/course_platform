@@ -99,7 +99,7 @@ redisClient.on("error", (err) => {
   console.error("Redis error:", err);
 });
 
-router.post("/signup", createUser);
+router.post("/signup", checkExistingSession, createUser);
 router.post("/login", checkExistingSession, loginUser);
 router.get("/dashboard", userdetail);
 router.get("/new-courses", getallCourses);
