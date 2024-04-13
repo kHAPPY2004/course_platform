@@ -11,7 +11,7 @@ COPY package*.json ./
 RUN npm install
 
 # Install PM2 globally
-RUN npm install -g pm2
+# RUN npm install -g pm2
 
 # Install Redis
 # RUN apk add --no-cache redis
