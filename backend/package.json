@@ -4,8 +4,9 @@
   "description": "Backend for course sellling website",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node src/server.ts",
+    "dev": "pm2-runtime start src/server.ts --name myApp --interpreter ts-node --watch",
     "build": "tsc && node dist/server.js",
+    "start": "pm2 start dist/server.js --name myApp",
     "dev:docker": "npx prisma migrate dev && npm run dev"
   },
   "author": "HAPPY KAMBOJ",
@@ -26,6 +27,7 @@
     "@types/node": "^20.11.17",
     "prisma": "^5.9.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "pm2": "^5.3.1"
   }
 }

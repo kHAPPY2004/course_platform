@@ -8,8 +8,20 @@ services:
       dockerfile: Dockerfile
     container_name: backend_cp
     restart: always
+    # develop:
+    #   watch:
+    #     - action: sync
+    #       path: ./src
+    #       target: /app/src
+    #       ignore:
+    #         - node_modules/
+    #     - action: rebuild
+    #       path: package.json
     ports:
       - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     depends_on:
       db:
         condition: service_healthy
@@ -24,6 +36,19 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
+  pm2:
+    image: node:20-alpine
+    container_name: pm2_backend
+    volumes:
+      - .:/usr/src/app
+    working_dir: /usr/src/app
+    command:
+      - "npm"
+      - "run"
+      - "dev:docker"
+    depends_on:
+      - backend
 
   redis:
     image: redis:latest
