@@ -41,6 +41,7 @@ const Course_slug: React.FC = () => {
                   style={{ maxWidth: "100%" }}
                   className="m-2 mb-4"
                 />
+                <div>{content.id}</div>
                 <div>{content.title}</div>
                 <div className="bg-red-200 m-2">
                   Content type: {content.type}

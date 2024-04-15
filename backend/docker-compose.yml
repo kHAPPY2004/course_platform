@@ -69,7 +69,7 @@ services:
 
   db:
     image: postgres:9.6
-    container_name: backend_db
+    container_name: postgres
     restart: always
     environment:
       POSTGRES_USER: happy

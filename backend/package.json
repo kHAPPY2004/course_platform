@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon --legacy-watch src/server.ts --delay 100ms --ignore node_modules --ignore dist",
     "build": "tsc && node dist/server.js",
-    "dev:docker": "npx prisma migrate dev && npm run dev"
+    "dev:docker": "npx prisma migrate dev && npm run db:seed && npm run dev",
+    "db:seed": "ts-node ./prisma/seed.ts"
   },
   "author": "HAPPY KAMBOJ",
   "license": "ISC",
