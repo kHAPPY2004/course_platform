@@ -6,10 +6,11 @@ export const checkUser = atom({
   default: selector({
     key: "checkUser/Default",
     get: async () => {
+      console.log("request goes to check-auth");
       const res = await axios.get("/api/check-auth", {
         withCredentials: true,
       });
-      return res;
+      return res.data;
     },
     set: ({ set }, newValue) => {
       set(checkUser, newValue); // Update the selector value

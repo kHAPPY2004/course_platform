@@ -58,7 +58,7 @@ const ProtectedRouteUser = () => {
       </>
     );
   } else if (checkUserLoadable.state === "hasValue") {
-    const isAuthenticated: boolean = checkUserLoadable.contents.data.success; // Assuming your checkUser atom returns a boolean
+    const isAuthenticated: boolean = checkUserLoadable.contents.success; // Assuming your checkUser atom returns a boolean
     return (
       <Routes>
         {isAuthenticated ? (

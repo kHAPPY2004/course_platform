@@ -4,7 +4,6 @@ import {
   createUser,
   loginUser,
   userPurchases,
-  userdetail,
 } from "../Contoller/UserController";
 import {
   addnewCourse,
@@ -101,7 +100,6 @@ redisClient.on("error", (err) => {
 
 router.post("/signup", checkExistingSession, createUser);
 router.post("/login", checkExistingSession, loginUser);
-router.get("/dashboard", userdetail);
 router.get("/new-courses", getallCourses);
 router.post("/new-courses", addnewCourse); // admin part
 router.post("/add-course-content", addCourseContent); // admin part

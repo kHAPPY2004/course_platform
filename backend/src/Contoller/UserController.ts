@@ -194,33 +194,6 @@ export const loginUser = async (
     await prisma.$disconnect();
   }
 };
-export const userdetail = async (
-  req: {
-    session: any;
-  },
-  res: {
-    [x: string]: any;
-    status: (code: number) => any;
-    json: (data: any) => any;
-  }
-) => {
-  try {
-    console.log("In userdetail backend", req.session);
-    // Fetch user details from the session
-    const { user, sessionToken } = req.session;
-    if (!user || !sessionToken) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-    // Response with user details
-    return res.status(200).json({
-      name: user.name,
-      email: user.email,
-      sessionToken: sessionToken,
-    });
-  } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
 export const checkAuth = async (
   req: {
     session: any;
