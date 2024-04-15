@@ -14,7 +14,6 @@ import { contentSlug } from "../store/atoms/getcontent";
 
 export const New_Courses_slug: React.FC = () => {
   const params: any = useParams();
-  console.log("Params u", params);
   const navigate = useNavigate();
 
   const setSlug = useSetRecoilState(contentSlug);

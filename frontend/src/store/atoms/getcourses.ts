@@ -7,6 +7,7 @@ export const coursesState = atom({
   default: selector({
     key: "coursesState/Default",
     get: async () => {
+      console.log("request goes to courses...");
       const res = await axios.get("/api/new-courses", {
         withCredentials: true,
       });
@@ -18,10 +19,8 @@ export const coursesState = atom({
 export const filteredCoursesState = selector<UserData[]>({
   key: "filteredCoursesState",
   get: ({ get }: any) => {
-    const slug = get(contentSlug); // Get the slug from another atom or selector
-    console.log("Slugi", typeof slug, slug);
     const courses = get(coursesState);
-    console.log("course filtererererstate", courses);
+    const slug = get(contentSlug);
     return (
       courses.success &&
       courses.new_courses.filter(

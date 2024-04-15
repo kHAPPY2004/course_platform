@@ -5,8 +5,6 @@ import { coursesState } from "../store/atoms/getcourses";
 
 const New_Courses: React.FC = () => {
   const courses = useRecoilValueLoadable(coursesState);
-  // const courses = useRecoilValue(coursesState);
-  console.log("courses", courses);
 
   if (courses.state === "loading") {
     return (
