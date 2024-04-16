@@ -1,19 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
-import { contentSlug, filteredContentvideo } from "../store/atoms/getcontent";
+import { useRecoilValueLoadable } from "recoil";
+import { filteredContentvideo } from "../store/atoms/getcontent";
+import CourseSlugRedirector from "../components/course_protect";
 
-const Course_slug_Video: React.FC = () => {
-  const params: any = useParams();
-  console.log(params);
-  const setSlug = useSetRecoilState(contentSlug);
+interface CourseSlugRedirectorProps1 {
+  params: { id: string; hash: string; hash2: string };
+}
+
+const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({ params }) => {
   const contentVideo = useRecoilValueLoadable(filteredContentvideo);
-  console.log("content Video", contentVideo);
-
-  useEffect(() => {
-    setSlug({ id: params.id, hash: params.hash, hash2: params.hash2 }); // Set both slug values in one useEffect
-  }, [params.id, params.hash, params.hash2, setSlug]);
-
   if (contentVideo.state === "loading") {
     return (
       <>
@@ -72,6 +68,17 @@ const Course_slug_Video: React.FC = () => {
   } else {
     return <>Error while fetching data from backend</>;
   }
+};
+
+const Course_slug_Video: React.FC = () => {
+  const [see, setSee] = useState(false);
+  const params: any = useParams();
+  return (
+    <>
+      <CourseSlugRedirector setSee={setSee} params={params} />
+      {see && <CourseSlugViewer params={params} />}
+    </>
+  );
 };
 
 export default Course_slug_Video;

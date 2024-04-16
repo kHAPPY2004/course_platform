@@ -1,42 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
-import { contentSlug, filteredContentfolder } from "../store/atoms/getcontent";
-import { filteredUserPurchases } from "../store/atoms/userPurchases";
+import React, { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useRecoilValueLoadable } from "recoil";
+import { filteredContentfolder } from "../store/atoms/getcontent";
+import CourseSlugRedirector from "../components/course_protect";
 
-const CourseSlugRedirector: React.FC<{
-  setSee: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({ setSee }) => {
-  const params: any = useParams();
-  const setSlug = useSetRecoilState(contentSlug);
-  const filterUser = useRecoilValueLoadable(filteredUserPurchases);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    setSlug({ id: params.id, hash: params.hash, hash2: params.hash2 });
-  }, [params.id, params.hash, params.hash2, setSlug]);
-
-  useEffect(() => {
-    if (filterUser.state === "hasValue") {
-      const filteredPurch =
-        filterUser.contents.length > 0 &&
-        filterUser.contents.filter((purchase: any) => {
-          return purchase.courseId === parseInt(params.id);
-        });
-      //@ts-ignore
-      if (filteredPurch.length) {
-        setSee(true);
-      } else {
-        setSee(false);
-        navigate(`/new-courses/${params.id}`);
-      }
-    }
-  }, [filterUser, params.id, navigate]);
-
-  return null;
-};
-const CourseSlugViewer: React.FC = () => {
-  const params: any = useParams();
+interface CourseSlugRedirectorProps1 {
+  params: { id: string; hash: string; hash2: string };
+}
+const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({ params }) => {
   const contentFolder = useRecoilValueLoadable(filteredContentfolder);
   if (contentFolder.state === "loading") {
     return (
@@ -99,10 +70,11 @@ const CourseSlugViewer: React.FC = () => {
 };
 const Course_slug: React.FC = () => {
   const [see, setSee] = useState(false);
+  const params: any = useParams();
   return (
     <>
-      <CourseSlugRedirector setSee={setSee} />
-      {see && <CourseSlugViewer />}
+      <CourseSlugRedirector setSee={setSee} params={params} />
+      {see && <CourseSlugViewer params={params} />}
     </>
   );
 };

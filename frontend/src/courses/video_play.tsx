@@ -1,21 +1,14 @@
 import React, { useRef, useState, useEffect } from "react";
 import ReactPlayer from "react-player";
-import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
+import { useRecoilValueLoadable } from "recoil";
 import { filteredVideostate } from "../store/atoms/getVideos";
 import { useParams } from "react-router-dom";
-import { contentSlug } from "../store/atoms/getcontent";
 
-const VideoPlayer: React.FC = () => {
-  const params: any = useParams();
-  console.log(params);
+import CourseSlugRedirector from "../components/course_protect";
 
-  const setSlug = useSetRecoilState(contentSlug);
+const CourseSlugViewer: React.FC = () => {
   const allvid = useRecoilValueLoadable(filteredVideostate);
   console.log("all vid", allvid);
-
-  useEffect(() => {
-    setSlug({ id: params.id, hash: params.hash, hash2: params.hash2 }); // Set both slug values in one useEffect
-  }, [params.id, params.hash, params.hash2, setSlug]);
 
   const playerRef = useRef<ReactPlayer>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -289,6 +282,17 @@ const VideoPlayer: React.FC = () => {
   return (
     <>
       <div>hkdjfhskhs</div>
+    </>
+  );
+};
+
+const VideoPlayer: React.FC = () => {
+  const [see, setSee] = useState(false);
+  const params: any = useParams();
+  return (
+    <>
+      <CourseSlugRedirector setSee={setSee} params={params} />
+      {see && <CourseSlugViewer />}
     </>
   );
 };
