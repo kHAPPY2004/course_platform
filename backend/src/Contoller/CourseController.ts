@@ -1,5 +1,6 @@
 import prisma from "../DB/db.config";
 import dotenv from "dotenv";
+import redisClient from "../DB/redis.config";
 dotenv.config();
 export const addnewCourse = async (
   req: {
@@ -94,11 +95,25 @@ export const getallCourses = async (
   }
 ) => {
   try {
+    const all_courses = await redisClient.get("getallcourses");
+    if (all_courses) {
+      return res.status(200).json({
+        success: true,
+        data: JSON.parse(all_courses),
+      });
+    }
     // get all the courses from database
     const new_courses = await prisma.course.findMany();
+    if (!new_courses) {
+      return res.status(400).json({
+        success: false,
+      });
+    }
+    await redisClient.set("getallcourses", JSON.stringify(new_courses));
+
     return res.status(200).json({
       success: true,
-      new_courses,
+      data: new_courses,
     });
   } catch (error) {
     console.error("Error logging in:", error);

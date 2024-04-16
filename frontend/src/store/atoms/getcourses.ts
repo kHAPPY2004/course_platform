@@ -23,7 +23,7 @@ export const filteredCoursesState = selector<UserData[]>({
     const slug = get(contentSlug);
     return (
       courses.success &&
-      courses.new_courses.filter(
+      courses.data.filter(
         (course: { id: any }) => course.id === parseInt(slug.id)
       )
     );

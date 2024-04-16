@@ -20,16 +20,11 @@ import {
   getVideoMetadata,
 } from "../Contoller/VideoController";
 
-import { createClient } from "redis";
 import session from "express-session";
 import RedisStore from "connect-redis";
+import redisClient from "../DB/redis.config";
 
 const router = express.Router();
-
-const redisClient = createClient({
-  url: process.env.REDIS_URL,
-});
-redisClient.connect().catch(console.error);
 
 // Initialize store.
 let redisStore = new RedisStore({
@@ -45,18 +40,9 @@ router.use(
     saveUninitialized: false, // recommended: only save session when data exists
     secret: process.env.SESSION_SECRET || "your-secret-key",
     cookie: { secure: false, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 },
-    // genid: function (req) {
-    //   // Use a custom function to generate session ID
-    //   return "your-custom-session-id"; // Change this to generate session ID dynamically
-    // },
   })
 );
-redisClient.on("error", (err) => {
-  console.error("Redis error:", err);
-});
-redisClient.on("ready", () => {
-  console.log("client chaluy");
-});
+
 const checkExistingSession = async (req: Request, res: Response, next: any) => {
   const email = req.body.email;
   console.log("email9090909090", email);
@@ -93,10 +79,6 @@ const checkExistingSession = async (req: Request, res: Response, next: any) => {
     next();
   }
 };
-// Handle Redis client "error" event
-redisClient.on("error", (err) => {
-  console.error("Redis error:", err);
-});
 
 router.post("/signup", checkExistingSession, createUser);
 router.post("/login", checkExistingSession, loginUser);
