@@ -1,6 +1,5 @@
 import { atom, selector } from "recoil";
 import axios from "axios";
-import { filteredContentfolder } from "./getcontent";
 
 // Define an atom for the purchase status
 export const purchaseStatus = atom({
@@ -46,43 +45,35 @@ export const filteredUserPurchases = selector<PurchaseData[]>({
 } as any);
 
 // here we filter that ,for specific content slug ,this user is authenticated or not
-export const protectRoutePurchases = selector<PurchaseData[]>({
-  key: "protectRoutePurchases",
-  get: ({ get }: any) => {
-    const purchasesByUser = get(userPurchases);
-    console.log(
-      "purchasesByUser in 1q",
-      purchasesByUser,
-      typeof purchasesByUser
-    );
-    if (!purchasesByUser) {
-      return purchasesByUser;
-    }
-    console.log("hwy");
-    const id_for_route = get(filteredContentfolder);
-    console.log(
-      "contentFolder2121",
-      // id_for_route[0].notionMetadataId,
-      id_for_route,
-      typeof id_for_route
-    );
+// export const protectRoutePurchases = selector<PurchaseData[]>({
+//   key: "protectRoutePurchases",
+//   get: ({ get }: any) => {
+//     const purchasesByUser = get(filteredUserPurchases);
+//     console.log("purchasesByUser in 1q", purchasesByUser);
 
-    const filteredPurchases =
-      purchasesByUser.length > 0 &&
-      id_for_route.length > 0 &&
-      purchasesByUser.filter((purchase: PurchaseData) => {
-        console.log("1313", purchase.courseId, typeof purchase.courseId);
-        return purchase.courseId === id_for_route[0].notionMetadataId;
-      });
-    console.log(
-      "object   filteredPurchases ",
-      filteredPurchases.length,
-      filteredPurchases
-    );
+//     if (!purchasesByUser) {
+//       return purchasesByUser;
+//     }
 
-    return filteredPurchases.length > 0;
-  },
-} as any);
+//     const slug = get(contentSlug);
+//     console.log("slug", slug);
+
+//     const filteredPurchases =
+//       purchasesByUser.length > 0 &&
+//       purchasesByUser.filter((purchase: PurchaseData) => {
+//         console.log("1313", purchase.courseId, typeof purchase.courseId);
+//         return purchase.courseId === parseInt(slug.id);
+//       });
+
+//     console.log(
+//       "object   filteredPurchases ",
+//       filteredPurchases.length,
+//       filteredPurchases
+//     );
+
+//     return filteredPurchases.length > 0;
+//   },
+// } as any);
 interface PurchaseData {
   courseId: number;
   userId: string;

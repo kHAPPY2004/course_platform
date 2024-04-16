@@ -96,6 +96,60 @@ async function main() {
           "https://d2szwvl7yo497w.cloudfront.net/courseThumbnails/folder.png",
         notionMetadataId: 1,
       },
+      {
+        type: "folder",
+        title: "Week -0 course 0-1",
+        hidden: false,
+        description: "description for week - 0",
+        thumbnail:
+          "https://d2szwvl7yo497w.cloudfront.net/courseThumbnails/folder.png",
+        notionMetadataId: 2,
+      },
+      {
+        type: "folder",
+        title: "Week -1 course 0-1",
+        hidden: false,
+        description: "description for week - 1",
+        thumbnail:
+          "https://d2szwvl7yo497w.cloudfront.net/courseThumbnails/folder.png",
+        notionMetadataId: 2,
+      },
+      {
+        type: "folder",
+        title: "Week -2 course 0-1",
+        hidden: false,
+        description: "description for week - 2",
+        thumbnail:
+          "https://d2szwvl7yo497w.cloudfront.net/courseThumbnails/folder.png",
+        notionMetadataId: 2,
+      },
+      {
+        type: "folder",
+        title: "Week -0 course 1-100",
+        hidden: false,
+        description: "description for week - 0",
+        thumbnail:
+          "https://d2szwvl7yo497w.cloudfront.net/courseThumbnails/folder.png",
+        notionMetadataId: 3,
+      },
+      {
+        type: "folder",
+        title: "Week -1 course 1-100",
+        hidden: false,
+        description: "description for week - 1",
+        thumbnail:
+          "https://d2szwvl7yo497w.cloudfront.net/courseThumbnails/folder.png",
+        notionMetadataId: 3,
+      },
+      {
+        type: "folder",
+        title: "Week -2 course 1-100",
+        hidden: false,
+        description: "description for week - 2",
+        thumbnail:
+          "https://d2szwvl7yo497w.cloudfront.net/courseThumbnails/folder.png",
+        notionMetadataId: 3,
+      },
     ];
     const contentDataVideo = [
       {
@@ -149,17 +203,26 @@ async function main() {
         notionMetadataId: 1,
       },
     ];
-
+    const coursecontent = [
+      {
+        courseId: 1,
+        contentId: 1,
+      },
+      {
+        courseId: 2,
+        contentId: 2,
+      },
+      {
+        courseId: 3,
+        contentId: 3,
+      },
+    ];
     // Seed courses data
     await prisma.course.createMany({ data: coursesData });
     await prisma.content.createMany({ data: contentDataFolder });
     await prisma.content.createMany({ data: contentDataVideo });
-    await prisma.courseContent.create({
-      data: {
-        courseId: 1,
-        contentId: 1,
-      },
-    });
+    await prisma.courseContent.createMany({ data: coursecontent });
+
     await prisma.user.create({
       data: {
         name: "Demo",

@@ -1,18 +1,43 @@
-import React, { useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
 import { contentSlug, filteredContentfolder } from "../store/atoms/getcontent";
+import { filteredUserPurchases } from "../store/atoms/userPurchases";
 
-const Course_slug: React.FC = () => {
+const CourseSlugRedirector: React.FC<{
+  setSee: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({ setSee }) => {
   const params: any = useParams();
-  console.log(params);
   const setSlug = useSetRecoilState(contentSlug);
-  const contentFolder = useRecoilValueLoadable(filteredContentfolder);
+  const filterUser = useRecoilValueLoadable(filteredUserPurchases);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setSlug({ id: params.id, hash: params.hash, hash2: params.hash2 }); // Set both slug values in one useEffect
+    setSlug({ id: params.id, hash: params.hash, hash2: params.hash2 });
   }, [params.id, params.hash, params.hash2, setSlug]);
 
+  useEffect(() => {
+    if (filterUser.state === "hasValue") {
+      const filteredPurch =
+        filterUser.contents.length > 0 &&
+        filterUser.contents.filter((purchase: any) => {
+          return purchase.courseId === parseInt(params.id);
+        });
+      //@ts-ignore
+      if (filteredPurch.length) {
+        setSee(true);
+      } else {
+        setSee(false);
+        navigate(`/new-courses/${params.id}`);
+      }
+    }
+  }, [filterUser, params.id, navigate]);
+
+  return null;
+};
+const CourseSlugViewer: React.FC = () => {
+  const params: any = useParams();
+  const contentFolder = useRecoilValueLoadable(filteredContentfolder);
   if (contentFolder.state === "loading") {
     return (
       <>
@@ -22,7 +47,7 @@ const Course_slug: React.FC = () => {
   } else if (contentFolder.state === "hasError") {
     return (
       <>
-        <div>Error while fetching data from backend</div>
+        <div>Error while fetching data from backend111</div>
       </>
     );
   } else if (
@@ -69,8 +94,17 @@ const Course_slug: React.FC = () => {
       </>
     );
   } else {
-    return <>Error while fetching data from backend</>;
+    return <>Error while fetching data from backend end</>;
   }
+};
+const Course_slug: React.FC = () => {
+  const [see, setSee] = useState(false);
+  return (
+    <>
+      <CourseSlugRedirector setSee={setSee} />
+      {see && <CourseSlugViewer />}
+    </>
+  );
 };
 
 export default Course_slug;

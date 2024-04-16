@@ -16,13 +16,9 @@ import Course_slug from "./courses/course_slug";
 import Add_Course_Content from "./admin/add_course_content";
 import Course_slug_Video from "./courses/course_slug_video";
 import { checkUser } from "./store/atoms/userAuth";
-import { protectRoutePurchases } from "./store/atoms/userPurchases";
 import Video_play from "./courses/video_play";
 import Add_Video_Metadata from "./admin/add_video_metadata";
 
-interface ProtectedRouteCourseProps {
-  isAuthenticated: boolean;
-}
 function App() {
   return (
     <RecoilRoot>
@@ -72,12 +68,9 @@ const ProtectedRouteUser = () => {
               path="/signup"
               element={<Navigate to="/dashboard" replace />}
             />
-            <Route
-              path="*"
-              element={
-                <ProtectedRouteCourse isAuthenticated={isAuthenticated} />
-              }
-            />
+            <Route path="/course/:id" element={<Course_slug />} />
+            <Route path="/course/:id/:hash" element={<Course_slug_Video />} />
+            <Route path="/course/:id/:hash/:hash2" element={<Video_play />} />
           </>
         ) : (
           <>
@@ -106,53 +99,6 @@ const ProtectedRouteUser = () => {
         )}
       </Routes>
     );
-  }
-};
-const ProtectedRouteCourse: React.FC<ProtectedRouteCourseProps> = ({
-  isAuthenticated,
-}) => {
-  const protrect = useRecoilValueLoadable(protectRoutePurchases);
-  if (isAuthenticated) {
-    if (protrect.state === "loading") {
-      return (
-        <>
-          <div>Loading...</div>
-        </>
-      );
-    } else if (protrect.state === "hasError") {
-      return (
-        <>
-          <div>Error while fetching courses ...</div>
-        </>
-      );
-    } else if (protrect.state === "hasValue") {
-      return (
-        <Routes>
-          {protrect.contents ? (
-            <>
-              <Route path="/course/:id" element={<Course_slug />} />
-              <Route path="/course/:id/:hash" element={<Course_slug_Video />} />
-              <Route path="/course/:id/:hash/:hash2" element={<Video_play />} />
-            </>
-          ) : (
-            <>
-              <Route
-                path="/course/:id"
-                element={<Navigate to="/new-courses" replace />}
-              />
-              <Route
-                path="/course/:id/:hash"
-                element={<Navigate to="/new-courses" replace />}
-              />
-              <Route
-                path="/course/:id/:hash/:hash2"
-                element={<Navigate to="/new-courses" replace />}
-              />
-            </>
-          )}
-        </Routes>
-      );
-    }
   }
 };
 export default App;
