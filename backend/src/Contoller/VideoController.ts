@@ -86,11 +86,14 @@ export const getVideoMetadata = async (
   }
 ) => {
   try {
-    const getVideos = await redisClient.get("getallvideos");
+    const getallvideos = `data:videometadata`;
+    const getVideos = await redisClient.get(getallvideos);
     if (getVideos) {
+      const getVideosparse = JSON.parse(getVideos);
+      console.log("Retrieved videos from cache ...");
       return res.status(200).json({
         success: true,
-        data: JSON.parse(getVideos),
+        data: getVideosparse,
       });
     }
     // get all the courses from database
@@ -101,8 +104,8 @@ export const getVideoMetadata = async (
         success: false,
       });
     }
-
-    await redisClient.set("getallvideos", JSON.stringify(allVideos));
+    console.log("Retrieved videos from database...");
+    await redisClient.set(getallvideos, JSON.stringify(allVideos));
 
     return res.status(200).json({
       success: true,

@@ -214,11 +214,14 @@ export const getContentfolder = async (
   }
 ) => {
   try {
-    const getContent = await redisClient.get("getallcontent");
+    const getallcontent = `data:content`;
+    const getContent = await redisClient.get(getallcontent);
     if (getContent) {
+      const getContentparse = JSON.parse(getContent);
+      console.log("Retrieved content from cache ...");
       return res.status(200).json({
         success: true,
-        data: JSON.parse(getContent),
+        data: getContentparse,
       });
     }
     // get all the courses from database
@@ -229,7 +232,8 @@ export const getContentfolder = async (
         success: false,
       });
     }
-    await redisClient.set("getallcontent", JSON.stringify(allcontents));
+    console.log("Retrieved content from database...");
+    await redisClient.set(getallcontent, JSON.stringify(allcontents));
 
     return res.status(200).json({
       success: true,

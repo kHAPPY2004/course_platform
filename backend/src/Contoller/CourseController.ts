@@ -95,11 +95,14 @@ export const getallCourses = async (
   }
 ) => {
   try {
-    const all_courses = await redisClient.get("getallcourses");
+    const getallcourses = `data:courses`;
+    const all_courses = await redisClient.get(getallcourses);
     if (all_courses) {
+      const all_coursesparse = JSON.parse(all_courses);
+      console.log("Retrieved courses from cache ...");
       return res.status(200).json({
         success: true,
-        data: JSON.parse(all_courses),
+        data: all_coursesparse,
       });
     }
     // get all the courses from database
@@ -109,7 +112,8 @@ export const getallCourses = async (
         success: false,
       });
     }
-    await redisClient.set("getallcourses", JSON.stringify(new_courses));
+    console.log("Retrieved courses from database....");
+    await redisClient.set(getallcourses, JSON.stringify(new_courses));
 
     return res.status(200).json({
       success: true,
@@ -134,15 +138,23 @@ export const coursePurchase = async (
   }
 ) => {
   try {
-    console.log("User tries to purchase a course", req.session);
     const { id } = req.body;
-    console.log("id", id);
+
     // Fetch user details from the session
     const { user, sessionToken } = req.session;
     if (!user || !sessionToken) {
       return res.status(200).json({ success: false, message: "Unauthorized" });
     }
-    console.log("user id in backend", user.id);
+
+    // delete the redis key before adding new course purchase to user
+    const userPurchasesCacheKey = `data:userpurchases:${user.id}`;
+    try {
+      await redisClient.del(userPurchasesCacheKey);
+    } catch (redisError) {
+      console.error("Error deleting Redis key:", redisError);
+      // Handle the error, maybe log it or notify administrators
+      // Since the deletion failed, continue with the purchase process
+    }
 
     // create a new course in the database
     const course_added = await prisma.userPurchases.create({

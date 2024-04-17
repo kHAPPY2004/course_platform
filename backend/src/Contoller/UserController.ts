@@ -237,7 +237,7 @@ export const userPurchases = async (
     }
 
     // Attempt to retrieve user purchases from Redis
-    const userPurchasesCacheKey = `user:${user.id}:purchases`;
+    const userPurchasesCacheKey = `data:userpurchases:${user.id}`;
     const cachedPurchases = await redisClient.get(userPurchasesCacheKey);
     if (cachedPurchases) {
       const purchases = JSON.parse(cachedPurchases);
