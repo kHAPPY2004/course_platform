@@ -7,7 +7,6 @@ import {
 import Signup from "./auth/signup";
 import Login from "./auth/login";
 import Dashboard from "./auth/dashboard";
-import Navbar from "./components/navbar";
 import New_Courses from "./courses/new-courses";
 import { New_Courses_slug } from "./courses/new-courses-slug";
 import Add_Course from "./admin/add_course";
@@ -18,15 +17,38 @@ import Course_slug_Video from "./courses/course_slug_video";
 import { checkUser } from "./store/atoms/userAuth";
 import Video_play from "./courses/video_play";
 import Add_Video_Metadata from "./admin/add_video_metadata";
+import CourseLayout from "./components/courseLayout";
+import Home from "./components/home";
 
 function App() {
   return (
     <RecoilRoot>
       <Router>
         <Routes>
-          <Route path="/" element={<Navbar />} />
-          <Route path="/new-courses" element={<New_Courses />} />
-          <Route path="/new-courses/:id" element={<New_Courses_slug />} />
+          <Route
+            path="/"
+            element={
+              <CourseLayout>
+                <Home />
+              </CourseLayout>
+            }
+          />
+          <Route
+            path="/new-courses"
+            element={
+              <CourseLayout>
+                <New_Courses />
+              </CourseLayout>
+            }
+          />
+          <Route
+            path="/new-courses/:id"
+            element={
+              <CourseLayout>
+                <New_Courses_slug />
+              </CourseLayout>
+            }
+          />
           <Route path="/add_course" element={<Add_Course />} />
           <Route path="/add_course_content" element={<Add_Course_Content />} />
           <Route path="/add_video_metadata" element={<Add_Video_Metadata />} />
@@ -59,7 +81,14 @@ const ProtectedRouteUser = () => {
       <Routes>
         {isAuthenticated ? (
           <>
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route
+              path="/dashboard"
+              element={
+                <CourseLayout>
+                  <Dashboard />
+                </CourseLayout>
+              }
+            />
             <Route
               path="/login"
               element={<Navigate to="/dashboard" replace />}
