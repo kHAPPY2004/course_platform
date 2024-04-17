@@ -45,20 +45,16 @@ router.use(
 
 const checkExistingSession = async (req: Request, res: Response, next: any) => {
   const email = req.body.email;
-  console.log("email9090909090", email);
-
-  // req.sessionID = email;
-  console.log("reqsdfsfds", req.sessionID);
   const sessionId = req.sessionID;
-  const seee = `myapp:${sessionId}`;
-  console.log("!!!!!!", seee);
+  const seee = `${redisStore.prefix}${sessionId}`;
+
   // get first then set
-  const existingSessionIdtttt: any = await redisClient.get(email);
-  const existingSessionsdfsf = await redisClient.set(email, seee);
+  const setemailredis = `${redisStore.prefix}email:${email}`;
+  const existingSessionIdtttt: any = await redisClient.get(setemailredis);
+  const existingSessionsdfsf = await redisClient.set(setemailredis, seee);
   // Set the expiration time for the key "mykey" to 10 seconds
   await redisClient.expire(email, 24 * 60 * 60);
   console.log(existingSessionsdfsf);
-  console.log("++++++ sessionId +++", sessionId);
 
   if (email && sessionId) {
     try {
