@@ -30,15 +30,15 @@ export const contentState = atom<UserData[]>({
 export const filteredContentfolder = selector<UserData[]>({
   key: "filteredContentfolder",
   get: ({ get }: any) => {
-    const coursecontentqw = get(courseContent); // Get the slug from another atom or selector
-    console.log("coursecontent123", coursecontentqw.courseContent[0].courseId);
+    // const coursecontentqw = get(courseContent); // Get the slug from another atom or selector
+    // console.log("coursecontent123", coursecontentqw.courseContent[0].courseId);
     const courses = get(contentState);
     const slug = get(contentSlug); // Get the slug from another atom or selector
     console.log("Slugi 4", typeof slug, slug);
 
     return (
       courses.success &&
-      courses.allcontents.filter(
+      courses.data.filter(
         (course: { type: any; notionMetadataId: any }) =>
           course.type === "folder" &&
           course.notionMetadataId === parseInt(slug.id)
@@ -56,7 +56,7 @@ export const filteredContentvideo = selector<UserData[]>({
     console.log(courses);
     return (
       courses.success &&
-      courses.allcontents.filter(
+      courses.data.filter(
         (content: { type: any; parentId: any }) =>
           content.type === "video" && content.parentId === parseInt(slug.hash)
       )

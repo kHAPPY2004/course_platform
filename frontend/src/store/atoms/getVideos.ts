@@ -23,7 +23,7 @@ export const filteredVideostate = selector({
     const vidoes = get(videoState);
     return (
       vidoes.success &&
-      vidoes.allVideos.filter(
+      vidoes.data.filter(
         (video: { contentId: any }) => video.contentId === parseInt(slug.hash2)
       )
     );

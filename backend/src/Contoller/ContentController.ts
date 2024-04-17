@@ -1,4 +1,5 @@
 import prisma from "../DB/db.config";
+import redisClient from "../DB/redis.config";
 import dotenv from "dotenv";
 dotenv.config();
 // to add the folder part
@@ -213,12 +214,26 @@ export const getContentfolder = async (
   }
 ) => {
   try {
+    const getContent = await redisClient.get("getallcontent");
+    if (getContent) {
+      return res.status(200).json({
+        success: true,
+        data: JSON.parse(getContent),
+      });
+    }
     // get all the courses from database
-    console.log("request ate getcontentss");
+
     const allcontents = await prisma.content.findMany();
+    if (!allcontents) {
+      return res.status(400).json({
+        success: false,
+      });
+    }
+    await redisClient.set("getallcontent", JSON.stringify(allcontents));
+
     return res.status(200).json({
       success: true,
-      allcontents,
+      data: allcontents,
     });
   } catch (error) {
     console.error("Error logging in:", error);
@@ -227,28 +242,28 @@ export const getContentfolder = async (
     await prisma.$disconnect();
   }
 };
-export const CourseContent = async (
-  req: {
-    session: any;
-  },
-  res: {
-    [x: string]: any;
-    status: (code: number) => any;
-    json: (data: any) => any;
-  }
-) => {
-  try {
-    const content = await prisma.content.findMany();
-    const temp: any = content.filter((e) => e.parentId);
-    // console.log("Content in coursebaclemdn", content);
-    // console.log("temp parent", temp);
+// export const CourseContent = async (
+//   req: {
+//     session: any;
+//   },
+//   res: {
+//     [x: string]: any;
+//     status: (code: number) => any;
+//     json: (data: any) => any;
+//   }
+// ) => {
+//   try {
+//     const content = await prisma.content.findMany();
+//     const temp: any = content.filter((e) => e.parentId);
+//     // console.log("Content in coursebaclemdn", content);
+//     // console.log("temp parent", temp);
 
-    // Response with user details
-    const courseContent = await prisma.courseContent.findMany();
+//     // Response with user details
+//     const courseContent = await prisma.courseContent.findMany();
 
-    // console.log("course - content", courseContent);
-    return res.status(200).json({ success: true, courseContent });
-  } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
+//     // console.log("course - content", courseContent);
+//     return res.status(200).json({ success: true, courseContent });
+//   } catch (error) {
+//     return res.status(500).json({ message: "Internal server error" });
+//   }
+// };

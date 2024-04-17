@@ -1,6 +1,7 @@
 import prisma from "../DB/db.config";
 import dotenv from "dotenv";
 import CryptoJS from "crypto-js";
+import redisClient from "../DB/redis.config";
 dotenv.config();
 
 interface RequestBody {
@@ -234,13 +235,30 @@ export const userPurchases = async (
     if (!user || !sessionToken) {
       return res.status(200).json({ success: false, message: "Unauthorized" });
     }
-    // Response with user details
+
+    // Attempt to retrieve user purchases from Redis
+    const userPurchasesCacheKey = `user:${user.id}:purchases`;
+    const cachedPurchases = await redisClient.get(userPurchasesCacheKey);
+    if (cachedPurchases) {
+      const purchases = JSON.parse(cachedPurchases);
+      console.log("Retrieved user purchases from cache", purchases);
+      return res.status(200).json({ success: true, data: purchases });
+    }
+
+    // If purchases are not found in cache, fetch from the database
     const user_purchases = await prisma.userPurchases.findMany({
       where: {
         userId: user.id,
       },
     });
-    console.log("user purchases", user_purchases);
+    console.log("Retrieved user purchases from database", user_purchases);
+
+    // Cache the purchases for future requests
+    await redisClient.set(
+      userPurchasesCacheKey,
+      JSON.stringify(user_purchases)
+    );
+
     return res.status(200).json({ success: true, data: user_purchases });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });

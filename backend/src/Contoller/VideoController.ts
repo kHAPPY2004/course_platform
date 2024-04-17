@@ -1,4 +1,5 @@
 import prisma from "../DB/db.config";
+import redisClient from "../DB/redis.config";
 import dotenv from "dotenv";
 dotenv.config();
 export const addVideoMetadata = async (
@@ -85,12 +86,27 @@ export const getVideoMetadata = async (
   }
 ) => {
   try {
+    const getVideos = await redisClient.get("getallvideos");
+    if (getVideos) {
+      return res.status(200).json({
+        success: true,
+        data: JSON.parse(getVideos),
+      });
+    }
     // get all the courses from database
-    console.log("request ate getcontentss");
+
     const allVideos = await prisma.videoMetadata.findMany();
+    if (!allVideos) {
+      return res.status(400).json({
+        success: false,
+      });
+    }
+
+    await redisClient.set("getallvideos", JSON.stringify(allVideos));
+
     return res.status(200).json({
       success: true,
-      allVideos,
+      data: allVideos,
     });
   } catch (error) {
     console.error("Error logging in:", error);
