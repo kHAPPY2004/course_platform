@@ -51,7 +51,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       setEmail("");
       setPassword("");
       // Update the checkUser selector after successful login
-      setCheckUser(res); // Update the checkUser atom
+      setCheckUser(res.data); // Update the checkUser atom
       toast.success(" Your are logined! ", {
         position: "top-left",
         autoClose: 1500,
