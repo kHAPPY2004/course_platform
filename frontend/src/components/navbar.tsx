@@ -1,13 +1,53 @@
 import { Link } from "react-router-dom";
 import { checkUser } from "../store/atoms/userAuth";
-import { useRecoilValueLoadable } from "recoil";
+import { useRecoilState, useRecoilValueLoadable } from "recoil";
+import { sidebarOpen } from "../store/atoms/sidebar";
 
 const Navbar = () => {
   const check_user = useRecoilValueLoadable(checkUser);
+  const [sidebar, setSidebar] = useRecoilState(sidebarOpen);
+
+  const toggleSidebar = () => {
+    setSidebar((currentState) => !currentState);
+  };
   return (
     <>
       <nav className="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
         <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+          <button onClick={toggleSidebar}>
+            {sidebar ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-6 h-6 text-white"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18 18 6M6 6l12 12"
+                />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-6 h-6 text-white"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                />
+              </svg>
+            )}
+          </button>
+
           <Link
             to="/"
             className="flex items-center space-x-3 rtl:space-x-reverse"

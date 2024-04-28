@@ -222,6 +222,26 @@ async function main() {
         parentId: 6,
         notionMetadataId: 2,
       },
+      {
+        type: "video",
+        title: "Week -0 CSS Basic 01 1-00",
+        hidden: false,
+        description: "description for week -0",
+        thumbnail:
+          "https://d2szwvl7yo497w.cloudfront.net/courseThumbnails/video.png",
+        parentId: 9,
+        notionMetadataId: 3,
+      },
+      {
+        type: "video",
+        title: "Week -1 CSS Basic 01 1-00",
+        hidden: false,
+        description: "description for week -0",
+        thumbnail:
+          "https://d2szwvl7yo497w.cloudfront.net/courseThumbnails/video.png",
+        parentId: 9,
+        notionMetadataId: 3,
+      },
     ];
     const coursecontent = [
       {

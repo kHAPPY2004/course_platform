@@ -9,6 +9,7 @@ interface CourseSlugRedirectorProps1 {
 }
 const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({ params }) => {
   const contentFolder = useRecoilValueLoadable(filteredContentfolder);
+  console.log("Content Folder", contentFolder);
   if (contentFolder.state === "loading") {
     return (
       <>

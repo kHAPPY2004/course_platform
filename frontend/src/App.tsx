@@ -19,6 +19,7 @@ import Video_play from "./courses/video_play";
 import Add_Video_Metadata from "./admin/add_video_metadata";
 import CourseLayout from "./components/courseLayout";
 import Home from "./components/home";
+import CourseFolder from "./components/courseFolder";
 
 function App() {
   return (
@@ -97,7 +98,14 @@ const ProtectedRouteUser = () => {
               path="/signup"
               element={<Navigate to="/dashboard" replace />}
             />
-            <Route path="/course/:id" element={<Course_slug />} />
+            <Route
+              path="/course/:id"
+              element={
+                <CourseFolder>
+                  <Course_slug />
+                </CourseFolder>
+              }
+            />
             <Route path="/course/:id/:hash" element={<Course_slug_Video />} />
             <Route path="/course/:id/:hash/:hash2" element={<Video_play />} />
           </>
