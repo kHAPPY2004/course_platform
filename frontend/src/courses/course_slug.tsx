@@ -1,36 +1,28 @@
-import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { useRecoilValueLoadable } from "recoil";
-import { filteredContentfolder } from "../store/atoms/getcontent";
-import CourseSlugRedirector from "../components/course_protect";
+import React from "react";
+import { Link } from "react-router-dom";
 
 interface CourseSlugRedirectorProps1 {
   params: { id: string; hash: string; hash2: string };
+  contentFolder: any;
 }
-const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({ params }) => {
-  const contentFolder = useRecoilValueLoadable(filteredContentfolder);
-  console.log("Content Folder", contentFolder);
-  if (contentFolder.state === "loading") {
-    return (
-      <>
-        <div>Loading...</div>
-      </>
-    );
-  } else if (contentFolder.state === "hasError") {
-    return (
-      <>
-        <div>Error while fetching data from backend111</div>
-      </>
-    );
-  } else if (
-    contentFolder.state === "hasValue" &&
-    contentFolder.contents.length > 0
-  ) {
+const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
+  params,
+  contentFolder,
+}) => {
+  console.log("Content Folder comes from sidebar", contentFolder);
+  if (!contentFolder) {
+    return <div>Loading...</div>;
+  }
+
+  if (contentFolder.state === "hasError") {
+    return <div>Error while fetching data from backend</div>;
+  }
+  if (contentFolder.state === "hasValue" && contentFolder.contents.length > 0) {
     return (
       <>
         {contentFolder && (
           <div className="max-w-screen-xl justify-between mx-auto p-4 grid grid-cols-1 gap-5 md:grid-cols-3">
-            {contentFolder.contents.map((content) => (
+            {contentFolder.contents.map((content: any) => (
               <div className="bg-slate-400 m-10 p-5" key={content.id}>
                 <img
                   src={content.thumbnail}
@@ -69,15 +61,11 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({ params }) => {
     return <>Error while fetching data from backend end</>;
   }
 };
-const Course_slug: React.FC = () => {
-  const [see, setSee] = useState(false);
-  const params: any = useParams();
-  return (
-    <>
-      <CourseSlugRedirector setSee={setSee} params={params} />
-      {see && <CourseSlugViewer params={params} />}
-    </>
-  );
+const Course_slug: React.FC<{ contentFolder: any; params: any }> = ({
+  contentFolder,
+  params,
+}) => {
+  return <CourseSlugViewer params={params} contentFolder={contentFolder} />;
 };
 
 export default Course_slug;
