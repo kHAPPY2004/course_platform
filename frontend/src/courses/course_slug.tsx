@@ -61,7 +61,7 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
     return <>Error while fetching data from backend end</>;
   }
 };
-const Course_slug: React.FC<{ contentFolder: any; params: any }> = ({
+const Course_slug: React.FC<CourseSlugRedirectorProps1> = ({
   contentFolder,
   params,
 }) => {
