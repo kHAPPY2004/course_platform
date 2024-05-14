@@ -26,11 +26,16 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
 }: any) => {
   const navigate = useNavigate();
   const [sidebar, setSidebar] = useRecoilState(sidebarOpen);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   useEffect(() => {
     if (window.innerWidth < 500) {
       setSidebar(false);
     }
   }, []);
+  useEffect(() => {
+    // Reset openDropdownId when route changes
+    setOpenDropdownId(null);
+  }, [location.pathname]);
   const goBack = () => {
     navigate(-1);
   };
@@ -58,12 +63,16 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
     contentFolder.state === "hasValue" &&
     contentFolder.contents.length > 0
   ) {
-    const HashSet = async (e: { preventDefault: () => void }, id: string) => {
+    const toggleDropdown = async (
+      e: { preventDefault: () => void },
+      id: string
+    ) => {
       e.preventDefault();
       setSlug((prevState) => ({
         ...prevState,
         hash: id,
       }));
+      setOpenDropdownId((prevState) => (prevState === id ? null : id));
     };
     return (
       <>
@@ -72,12 +81,12 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
           {/* Stable side */}
           <div
             className={`${
-              sidebar ? "w-1/6" : "hidden"
-            } bg-gray-600 p-4  pl-3 font-bold  text-white`}
+              sidebar ? "w-1/5" : "hidden"
+            } bg-gray-600 p-3 font-bold  text-white overflow-y-scroll`}
           >
             <button
               onClick={goBack}
-              className="text-white font-bold mt-20 space-x-4 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm flex justify-center py-2 w-full text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="text-white font-bold mt-16 mb-5 space-x-4 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm flex justify-center py-2 w-full text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -96,45 +105,84 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
               <p className="">Go Back</p>
             </button>
             {contentFolder.contents.map((content: any) => (
-              <div key={content.id}>
-                <div>{content.id}</div>
+              <div className="-mx-2" key={content.id}>
                 <div
-                  className="cursor-pointer"
-                  onClick={(e) => HashSet(e, content.id)}
+                  className="cursor-pointer h-12 items-center bg-red-400 hover:underline flex flex-row justify-around"
+                  onClick={(e) => toggleDropdown(e, content.id)}
                 >
                   {content.title}
+                  {openDropdownId !== content.id && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="w-5 h-5"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                  {openDropdownId === content.id && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="w-5 h-5"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M9.47 6.47a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
                 </div>
-                {contentVideo && (
-                  <div className="max-w-screen-xl justify-between mx-auto p-4 grid grid-cols-1 gap-5 md:grid-cols-3">
-                    {contentVideo.contents.map((contentvid: any) => (
-                      <div key={contentvid.id}>
-                        <div className="bg-red-100">{contentvid.id}</div>
-
-                        {/* Add more details if needed */}
-                        <Link
-                          className="bg-blue-400 rounded-md p-2"
-                          to={`/course/${params.id}/${content.id}/${contentvid.id}`}
+                {openDropdownId === content.id && (
+                  <ul>
+                    {contentVideo.contents.length > 0 &&
+                      contentVideo.contents.map((option: any) => (
+                        <div
+                          className="flex flex-row my-1  bg-pink-200 text-sm h-12 items-center px-1 space-x-2"
+                          key={option.id}
                         >
-                          play video
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth="1.5"
+                            stroke="currentColor"
+                            className="w-6 h-6"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"
+                            />
+                          </svg>
+
+                          <Link
+                            className=""
+                            to={`/course/${params.id}/${content.id}/${option.id}`}
+                          >
+                            {option.title}
+                          </Link>
+                        </div>
+                      ))}
+                    {contentVideo.contents.length < 1 && (
+                      <div>No Video ....</div>
+                    )}
+                  </ul>
                 )}
-                {/* Add more details if needed */}
-                <Link
-                  className="bg-blue-400 rounded-md p-2"
-                  to={`/course/${params.id}/${params.hash}/${content.id}`}
-                >
-                  play video
-                </Link>
               </div>
             ))}
           </div>
           {/* Scrollable side */}
           <div
             className={`${
-              sidebar ? "w-5/6" : "w-full"
+              sidebar ? "w-4/5" : "w-full"
             } overflow-y-auto bg-slate-500`}
           >
             <div className="pt-14">
