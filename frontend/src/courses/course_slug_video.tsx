@@ -1,30 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useRecoilValueLoadable } from "recoil";
+import { filteredContentvideo } from "../store/atoms/getcontent";
+import CourseSlugRedirector from "../components/course_protect";
 
 interface CourseSlugRedirectorProps1 {
   params: { id: string; hash: string; hash2: string };
-  contentVideo: any;
 }
 
-const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
-  params,
-  contentVideo,
-}) => {
-  console.log("Content video comes from sidebar", contentVideo);
-  if (!contentVideo) {
-    return <div>Loading...</div>;
-  }
-
-  if (contentVideo.state === "hasError") {
-    return <div>Error while fetching data from backend</div>;
-  }
-
-  if (contentVideo.state === "hasValue" && contentVideo.contents.length > 0) {
+const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({ params }) => {
+  const contentVideo = useRecoilValueLoadable(filteredContentvideo);
+  if (contentVideo.state === "loading") {
+    return (
+      <>
+        <div>Loading...</div>
+      </>
+    );
+  } else if (contentVideo.state === "hasError") {
+    return (
+      <>
+        <div>Error while fetching data from backend</div>
+      </>
+    );
+  } else if (
+    contentVideo.state === "hasValue" &&
+    contentVideo.contents.length > 0
+  ) {
     return (
       <>
         {contentVideo && (
           <div className="max-w-screen-xl justify-between mx-auto p-4 grid grid-cols-1 gap-5 md:grid-cols-3">
-            {contentVideo.contents.map((content: any) => (
+            {contentVideo.contents.map((content) => (
               <div className="bg-slate-400 m-10 p-5" key={content.id}>
                 <img
                   src={content.thumbnail}
@@ -65,10 +71,14 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
 };
 
 const Course_slug_Video: React.FC<CourseSlugRedirectorProps1> = ({
-  contentVideo,
   params,
 }) => {
-  return <CourseSlugViewer params={params} contentVideo={contentVideo} />;
+  const [see, setSee] = useState(false);
+  return (
+    <>
+      <CourseSlugRedirector setSee={setSee} params={params} />
+      {see && <CourseSlugViewer params={params} />}
+    </>
+  );
 };
-
 export default Course_slug_Video;

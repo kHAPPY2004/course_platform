@@ -9,9 +9,9 @@ import {
 import { sidebarOpen } from "../store/atoms/sidebar";
 import { useEffect, useState } from "react";
 import {
-  contentSlug,
+  contentSlugSidebar,
   filteredContentfolder,
-  filteredContentvideo,
+  filteredContentvideoSidebar,
 } from "../store/atoms/getcontent";
 import CourseSlugRedirector from "./course_protect";
 import React from "react";
@@ -28,8 +28,8 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
   const [sidebar, setSidebar] = useRecoilState(sidebarOpen);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const contentFolder = useRecoilValueLoadable(filteredContentfolder);
-  const contentVideo = useRecoilValueLoadable(filteredContentvideo);
-  const setSlug = useSetRecoilState(contentSlug);
+  const contentVideo = useRecoilValueLoadable(filteredContentvideoSidebar);
+  const setSlug = useSetRecoilState(contentSlugSidebar);
 
   useEffect(() => {
     if (window.innerWidth < 500) {
@@ -184,7 +184,6 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
               {params.hash && (
                 <>
                   {React.cloneElement(children, {
-                    contentVideo,
                     params,
                   })}
                 </>

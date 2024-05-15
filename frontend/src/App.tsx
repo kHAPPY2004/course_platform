@@ -123,7 +123,6 @@ const ProtectedRouteUser = () => {
                       hash: "",
                       hash2: "",
                     }}
-                    contentVideo={undefined}
                   />
                 </CourseFolder>
               }

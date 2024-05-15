@@ -1,9 +1,13 @@
 import { atom, selector } from "recoil";
 import axios from "axios";
-import { courseContent } from "./courseContent";
 
 export const contentSlug = atom<ContentSlug>({
   key: "contentSlug",
+  default: { id: null, hash: null, hash2: null }, // Set default values for both id and hash
+});
+
+export const contentSlugSidebar = atom<ContentSlug>({
+  key: "contentSlugSidebar",
   default: { id: null, hash: null, hash2: null }, // Set default values for both id and hash
 });
 export interface ContentSlug {
@@ -51,6 +55,23 @@ export const filteredContentvideo = selector<UserData[]>({
   key: "filteredContentvideo",
   get: ({ get }: any) => {
     const slug = get(contentSlug); // Get the slug from another atom or selector
+    const courses = get(contentState);
+    console.log("slug in filter", slug);
+    console.log(courses);
+    return (
+      courses.success &&
+      courses.data.filter(
+        (content: { type: any; parentId: any }) =>
+          content.type === "video" && content.parentId === parseInt(slug.hash)
+      )
+    );
+  },
+} as any);
+
+export const filteredContentvideoSidebar = selector<UserData[]>({
+  key: "filteredContentvideoSidebar",
+  get: ({ get }: any) => {
+    const slug = get(contentSlugSidebar); // Get the slug from another atom or selector
     const courses = get(contentState);
     console.log("slug in filter", slug);
     console.log(courses);

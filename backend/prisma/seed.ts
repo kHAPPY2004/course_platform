@@ -204,6 +204,26 @@ async function main() {
       },
       {
         type: "video",
+        title: "Week -1 video 00",
+        hidden: false,
+        description: "description for week -0",
+        thumbnail:
+          "https://d2szwvl7yo497w.cloudfront.net/courseThumbnails/video.png",
+        parentId: 2,
+        notionMetadataId: 1,
+      },
+      {
+        type: "video",
+        title: "Week -1 video 01",
+        hidden: false,
+        description: "description for week -0",
+        thumbnail:
+          "https://d2szwvl7yo497w.cloudfront.net/courseThumbnails/video.png",
+        parentId: 2,
+        notionMetadataId: 1,
+      },
+      {
+        type: "video",
         title: "Week -0 CSS Basic 00",
         hidden: false,
         description: "description for week -0",
