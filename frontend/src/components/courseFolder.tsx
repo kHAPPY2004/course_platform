@@ -37,10 +37,10 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
     }
   }, []);
 
-  useEffect(() => {
-    // Reset openDropdownId when route changes
-    setOpenDropdownId(null);
-  }, [location.pathname]);
+  // useEffect(() => {
+  //   // Reset openDropdownId when route changes
+  //   setOpenDropdownId(null);
+  // }, [location.pathname]);
 
   if (contentFolder.state === "loading") {
     return (

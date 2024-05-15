@@ -5,6 +5,7 @@ import { filteredVideostate } from "../store/atoms/getVideos";
 import { useParams } from "react-router-dom";
 
 import CourseSlugRedirector from "../components/course_protect";
+import BreadCrumbs from "../components/breadCrumbs";
 
 const CourseSlugViewer: React.FC = () => {
   const allvid = useRecoilValueLoadable(filteredVideostate);
@@ -281,6 +282,7 @@ const CourseSlugViewer: React.FC = () => {
   // );
   return (
     <>
+      <BreadCrumbs />
       <div>hkdjfhskhs</div>
     </>
   );
