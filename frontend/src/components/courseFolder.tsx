@@ -27,25 +27,20 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
   const navigate = useNavigate();
   const [sidebar, setSidebar] = useRecoilState(sidebarOpen);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const contentFolder = useRecoilValueLoadable(filteredContentfolder);
+  const contentVideo = useRecoilValueLoadable(filteredContentvideo);
+  const setSlug = useSetRecoilState(contentSlug);
+
   useEffect(() => {
     if (window.innerWidth < 500) {
       setSidebar(false);
     }
   }, []);
+
   useEffect(() => {
     // Reset openDropdownId when route changes
     setOpenDropdownId(null);
   }, [location.pathname]);
-  const goBack = () => {
-    navigate(-1);
-  };
-  const contentFolder = useRecoilValueLoadable(filteredContentfolder);
-  console.log("Content Folder in sidebar12313 ", contentFolder);
-
-  const contentVideo = useRecoilValueLoadable(filteredContentvideo);
-  console.log("Content video in sideBar12312", contentVideo);
-
-  const setSlug = useSetRecoilState(contentSlug);
 
   if (contentFolder.state === "loading") {
     return (
@@ -85,7 +80,7 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
             } bg-gray-600 p-3 font-bold  text-white overflow-y-scroll`}
           >
             <button
-              onClick={goBack}
+              onClick={() => navigate(-1)}
               className="text-white font-bold mt-16 mb-5 space-x-4 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm flex justify-center py-2 w-full text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               <svg
@@ -105,9 +100,9 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
               <p className="">Go Back</p>
             </button>
             {contentFolder.contents.map((content: any) => (
-              <div className="-mx-2" key={content.id}>
+              <div className="-mx-2 font-medium" key={content.id}>
                 <div
-                  className="cursor-pointer h-12 items-center bg-red-400 hover:underline flex flex-row justify-around"
+                  className="cursor-pointer h-12 items-center hover:underline flex flex-row justify-between px-2"
                   onClick={(e) => toggleDropdown(e, content.id)}
                 >
                   {content.title}
@@ -145,7 +140,7 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
                     {contentVideo.contents.length > 0 &&
                       contentVideo.contents.map((option: any) => (
                         <div
-                          className="flex flex-row my-1  bg-pink-200 text-sm h-12 items-center px-1 space-x-2"
+                          className="flex flex-row my-1 text-sm h-12 items-center px-1 space-x-2"
                           key={option.id}
                         >
                           <svg
@@ -214,8 +209,6 @@ const CourseFolder: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [see, setSee] = useState(false);
   const params: any = useParams();
-  console.log("para,", params);
-  console.log("89 ", params.hash);
   return (
     <>
       <CourseSlugRedirector setSee={setSee} params={params} />
