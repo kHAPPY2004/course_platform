@@ -11,6 +11,10 @@ const BreadCrumbs = () => {
     .filter((path) => path)
     .slice(0, 2)
     .join("/");
+
+  const highlight = location.pathname === `/${initialPath}`;
+  const highlight2 = location.pathname === `/${initialPath}/${paths.join("/")}`;
+
   return (
     <>
       <nav className="flex mt-8 ml-5" aria-label="Breadcrumb">
@@ -53,7 +57,11 @@ const BreadCrumbs = () => {
               </svg>
               <Link
                 to={`/${initialPath}`}
-                className="inline-flex ms-1 items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
+                className={`${
+                  highlight
+                    ? "dark:text-white"
+                    : "text-gray-700 dark:text-gray-400"
+                } inline-flex ms-1 items-center text-sm font-medium  hover:text-blue-600  dark:hover:text-white`}
               >
                 {location.pathname.includes("/course/1") && <div>0-100</div>}
                 {location.pathname.includes("/course/2") && <div>0-1</div>}
@@ -81,7 +89,13 @@ const BreadCrumbs = () => {
                   />
                 </svg>
                 {index === paths.length - 1 ? (
-                  <span className="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">
+                  <span
+                    className={`${
+                      highlight2
+                        ? "dark:text-black text-white"
+                        : "text-gray-400 dark:text-gray-400"
+                    }} ms-1 text-sm font-medium  md:ms-2`}
+                  >
                     {path}
                   </span>
                 ) : (

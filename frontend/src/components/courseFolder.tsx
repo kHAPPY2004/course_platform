@@ -140,7 +140,7 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
                     {contentVideo.contents.length > 0 &&
                       contentVideo.contents.map((option: any) => (
                         <div
-                          className="flex flex-row my-1 text-sm h-12 items-center px-1 space-x-2"
+                          className="flex hover:dark:text-neutral-400 flex-row my-1 text-sm h-12 items-center px-1 space-x-2"
                           key={option.id}
                         >
                           <svg
