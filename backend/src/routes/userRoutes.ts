@@ -23,6 +23,7 @@ import {
 import session from "express-session";
 import RedisStore from "connect-redis";
 import redisClient from "../DB/redis.config";
+import { sendOtpEmail } from "../Contoller/emailController";
 
 const router = express.Router();
 
@@ -87,6 +88,7 @@ router.post("/course-purchase", coursePurchase);
 router.get("/check-auth", checkAuth);
 router.get("/userPurchases", userPurchases);
 router.get("/getContentfolder", getContentfolder);
+router.post("/sendEmail", sendOtpEmail);
 // router.get("/courseContent", CourseContent);
 
 export default router;
