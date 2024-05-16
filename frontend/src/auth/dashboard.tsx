@@ -25,8 +25,8 @@ const Dashboard: React.FC = () => {
         <h1>Dashboard</h1>
 
         <div>
-          <p>Name: {check_user.contents.user.name}</p>
-          <p>Email: {check_user.contents.user.email}</p>
+          <p>Name: {check_user.contents.data.name}</p>
+          <p>Email: {check_user.contents.data.email}</p>
         </div>
       </div>
     );

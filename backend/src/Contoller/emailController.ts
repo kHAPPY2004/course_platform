@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import nodemailer from "nodemailer";
 import redisClient from "../DB/redis.config";
+import prisma from "../DB/db.config";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -17,14 +18,21 @@ const OTP_EXPIRATION_TIME = 3 * 60; // 2 minutes in seconds
 // Function to send email
 export const sendOtpEmail = async (req: Request, res: Response) => {
   const { email } = req.body;
-  if (!email) {
+
+  const findUser = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (findUser) {
     return res
-      .status(400)
-      .json({ message: "Email is required", success: false });
+      .status(200)
+      .json({ success: false, message: "Email already exists" });
   }
 
   const otp = generateOtp();
-
+  console.log("generated otp", otp);
   // Store the OTP and expiration time in Redis
   await redisClient.setEx(email, OTP_EXPIRATION_TIME, otp);
 
@@ -81,7 +89,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
   }
 
   if (otp !== storedOtp) {
-    return res.status(400).json({ message: "Invalid OTP", success: false });
+    return res.status(200).json({ message: "Invalid OTP", success: false });
   }
 
   // OTP is valid, optionally delete the OTP after successful verification

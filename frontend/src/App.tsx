@@ -20,8 +20,6 @@ import Add_Video_Metadata from "./admin/add_video_metadata";
 import CourseLayout from "./components/courseLayout";
 import Home from "./components/home";
 import CourseFolder from "./components/courseFolder";
-import Nodemailerr from "./components/nodemailer";
-
 function App() {
   return (
     <RecoilRoot>
@@ -129,7 +127,6 @@ const ProtectedRouteUser = () => {
               }
             />
             <Route path="/course/:id/:hash/:hash2" element={<Video_play />} />
-            <Route path="/nodemailer" element={<Nodemailerr />} />
           </>
         ) : (
           <>
@@ -153,7 +150,10 @@ const ProtectedRouteUser = () => {
               path="/login"
               element={<Login completeUrl={location.pathname} />}
             />
-            <Route path="/signup" element={<Signup />} />
+            <Route
+              path="/signup"
+              element={<Signup completeUrl={location.pathname} />}
+            />
           </>
         )}
       </Routes>

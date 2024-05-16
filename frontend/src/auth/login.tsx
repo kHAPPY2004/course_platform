@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { checkUser } from "../store/atoms/userAuth";
 
@@ -46,8 +46,6 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
         theme: "colored",
       });
     } else {
-      console.log(res);
-
       setEmail("");
       setPassword("");
       // Update the checkUser selector after successful login
@@ -84,7 +82,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-              Create an account
+              Login to account
             </h1>
             <form
               onSubmit={handleSubmit}
@@ -161,13 +159,13 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
                 Login
               </button>
               <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                Already have an account?{" "}
-                {/* <Link
-                  to="/login"
+                Create a new account?{" "}
+                <Link
+                  to="/Signup"
                   className="font-medium text-gray-600 hover:underline dark:text-gray-500"
                 >
-                  Login here
-                </Link> */}
+                  Signup
+                </Link>
               </p>
             </form>
           </div>
