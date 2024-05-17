@@ -3,6 +3,7 @@ import {
   checkAuth,
   createUser,
   loginUser,
+  logout,
   userPurchases,
 } from "../Contoller/UserController";
 import {
@@ -28,7 +29,7 @@ import { sendOtpEmail, verifyOtp } from "../Contoller/emailController";
 const router = express.Router();
 
 // Initialize store.
-let redisStore = new RedisStore({
+export let redisStore = new RedisStore({
   client: redisClient,
   prefix: "myapp:",
 });
@@ -90,6 +91,7 @@ router.get("/userPurchases", userPurchases);
 router.get("/getContentfolder", getContentfolder);
 router.post("/sendEmail", sendOtpEmail);
 router.post("/verifyOtp", verifyOtp);
+router.post("/logout", logout);
 // router.get("/courseContent", CourseContent);
 
 export default router;

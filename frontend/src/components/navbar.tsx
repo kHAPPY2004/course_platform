@@ -1,9 +1,16 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { checkUser } from "../store/atoms/userAuth";
-import { useRecoilState, useRecoilValueLoadable } from "recoil";
+import {
+  useRecoilState,
+  useRecoilValueLoadable,
+  useSetRecoilState,
+} from "recoil";
 import { sidebarOpen } from "../store/atoms/sidebar";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const toggleButtonHidden =
     location.pathname === "/" ||
@@ -12,13 +19,73 @@ const Navbar = () => {
     location.pathname === "/purchases";
 
   const check_user = useRecoilValueLoadable(checkUser);
+  const setCheckUser = useSetRecoilState(checkUser);
   const [sidebar, setSidebar] = useRecoilState(sidebarOpen);
 
   const toggleSidebar = () => {
     setSidebar((currentState) => !currentState);
   };
+
+  const logout = async (
+    email: string,
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+
+    try {
+      const res = await axios.post("/api/logout", { email });
+      if (res.data.success) {
+        toast.warn(res.data.message, {
+          position: "top-left",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+      } else {
+        toast.success(res.data.message, {
+          position: "top-left",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+        navigate("/");
+        setCheckUser(res.data); // Update the checkUser atom
+      }
+    } catch (error) {
+      toast.error("Error! Please try after some time", {
+        position: "top-left",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    }
+  };
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <nav className="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
         <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
           {!toggleButtonHidden && (
@@ -79,6 +146,12 @@ const Navbar = () => {
                 >
                   Dashboard
                 </Link>
+                <button
+                  onClick={(e) => logout(check_user.contents.data.email, e)}
+                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  Logout
+                </button>
               </div>
             )}
             {check_user.state === "hasValue" &&

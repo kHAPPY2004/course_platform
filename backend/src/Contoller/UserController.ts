@@ -2,6 +2,7 @@ import prisma from "../DB/db.config";
 import dotenv from "dotenv";
 import CryptoJS from "crypto-js";
 import redisClient from "../DB/redis.config";
+import { redisStore } from "../routes/userRoutes";
 dotenv.config();
 
 interface RequestBody {
@@ -178,6 +179,43 @@ export const loginUser = async (
     await prisma.$disconnect();
   }
 };
+
+export const logout = async (
+  req: {
+    sessionID: any;
+    body: { email: string };
+  },
+  res: {
+    [x: string]: any;
+    status: (code: number) => any;
+    json: (data: any) => any;
+  }
+) => {
+  const email = req.body.email;
+  const sessionId = req.sessionID;
+  const seee = `${redisStore.prefix}${sessionId}`;
+  const setemailredis = `${redisStore.prefix}email:${email}`;
+
+  try {
+    if (setemailredis && seee && email && sessionId) {
+      await redisClient.del(seee);
+      await redisClient.del(setemailredis);
+      return res.status(200).json({
+        success: false, // as when our mission of logout complete then checkuser contain no user so success false
+        message: "Logout successfully ...",
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        message: "Logout failed....",
+      });
+    }
+  } catch (err) {
+    console.error("Redis get error:", err);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 export const checkAuth = async (
   req: {
     session: any;
