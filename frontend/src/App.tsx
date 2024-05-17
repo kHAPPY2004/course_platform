@@ -20,6 +20,7 @@ import Add_Video_Metadata from "./admin/add_video_metadata";
 import CourseLayout from "./components/courseLayout";
 import Home from "./components/home";
 import CourseFolder from "./components/courseFolder";
+import My_purchases from "./components/my_purchases";
 function App() {
   return (
     <RecoilRoot>
@@ -127,6 +128,14 @@ const ProtectedRouteUser = () => {
               }
             />
             <Route path="/course/:id/:hash/:hash2" element={<Video_play />} />
+            <Route
+              path="/purchases"
+              element={
+                <CourseLayout>
+                  <My_purchases />
+                </CourseLayout>
+              }
+            />
           </>
         ) : (
           <>
@@ -144,6 +153,10 @@ const ProtectedRouteUser = () => {
             />
             <Route
               path="/dashboard"
+              element={<Navigate to="/login" replace />}
+            />
+            <Route
+              path="/purchases"
               element={<Navigate to="/login" replace />}
             />
             <Route

@@ -54,7 +54,7 @@ export const New_Courses_slug: React.FC = () => {
           });
           navigate("/login");
         } else {
-          toast.success(res.data.data.success, {
+          toast.success(res.data.message, {
             position: "top-left",
             autoClose: 1500,
             hideProgressBar: false,

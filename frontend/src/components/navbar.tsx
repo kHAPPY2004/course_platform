@@ -6,7 +6,10 @@ import { sidebarOpen } from "../store/atoms/sidebar";
 const Navbar = () => {
   const location = useLocation();
   const toggleButtonHidden =
-    location.pathname === "/" || location.pathname.startsWith("/new-courses");
+    location.pathname === "/" ||
+    location.pathname.startsWith("/new-courses") ||
+    location.pathname === "/dashboard" ||
+    location.pathname === "/purchases";
 
   const check_user = useRecoilValueLoadable(checkUser);
   const [sidebar, setSidebar] = useRecoilState(sidebarOpen);
