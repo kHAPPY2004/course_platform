@@ -6,10 +6,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import {
-  filteredUserPurchases,
-  purchaseStatusSelector,
-} from "../store/atoms/userPurchases";
+import { fetchUserPurchases } from "../store/atoms/userPurchases";
 import { contentSlug } from "../store/atoms/getcontent";
 
 export const New_Courses_slug: React.FC = () => {
@@ -18,7 +15,7 @@ export const New_Courses_slug: React.FC = () => {
 
   const setSlug = useSetRecoilState(contentSlug);
   const course = useRecoilValueLoadable(filteredCoursesState);
-  const setPurchases = useSetRecoilState(purchaseStatusSelector);
+  const setUserPurchases = useSetRecoilState(fetchUserPurchases);
 
   useEffect(() => {
     setSlug({ id: params.id, hash: params.hash, hash2: params.hash2 }); // Set both slug values in one useEffect
@@ -45,7 +42,7 @@ export const New_Courses_slug: React.FC = () => {
         });
 
         if (!res.data.success) {
-          toast.success("You are not Authorized", {
+          toast.success(res.data.message, {
             position: "top-left",
             autoClose: 1500,
             hideProgressBar: false,
@@ -57,10 +54,7 @@ export const New_Courses_slug: React.FC = () => {
           });
           navigate("/login");
         } else {
-          // Update the purchase status to trigger a re-fetch of userPurchases
-          console.log(res.data);
-          setPurchases(res.data.course_added.courseId);
-          toast.success("course purchased successfully...", {
+          toast.success(res.data.data.success, {
             position: "top-left",
             autoClose: 1500,
             hideProgressBar: false,
@@ -70,9 +64,12 @@ export const New_Courses_slug: React.FC = () => {
             progress: undefined,
             theme: "colored",
           });
+          setUserPurchases((prevPurchases) => [
+            ...prevPurchases,
+            ...res.data.data,
+          ]);
         }
       } catch (error) {
-        console.error("Error fetching user data:", error);
         toast.error("Error fetching user data:", {
           position: "top-left",
           autoClose: 1500,
@@ -137,13 +134,7 @@ const PurchaseButton: React.FC<PurchaseButtonProps> = ({
   id,
   course,
 }: any) => {
-  const check_user_purchases = useRecoilValueLoadable(filteredUserPurchases);
-
-  const data = Object.values(check_user_purchases.contents);
-  const filteredPurchases = data.filter(
-    (purchase: any) => purchase.courseId === course.contents[0].id
-  );
-
+  const check_user_purchases = useRecoilValueLoadable(fetchUserPurchases);
   if (check_user_purchases.state === "loading") {
     return (
       <>
@@ -157,6 +148,11 @@ const PurchaseButton: React.FC<PurchaseButtonProps> = ({
       </>
     );
   } else if (check_user_purchases.state === "hasValue") {
+    const data = Object.values(check_user_purchases.contents || []);
+    const filteredPurchases = data.filter(
+      (purchase: any) => purchase.courseId === course.contents[0].id
+    );
+
     return (
       <div>
         {filteredPurchases.length == 0 && (

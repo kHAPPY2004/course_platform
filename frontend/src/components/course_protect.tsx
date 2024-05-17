@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
 import { contentSlug } from "../store/atoms/getcontent";
-import { filteredUserPurchases } from "../store/atoms/userPurchases";
+import { fetchUserPurchases } from "../store/atoms/userPurchases";
 
 interface CourseSlugRedirectorProps {
   setSee: React.Dispatch<React.SetStateAction<boolean>>;
@@ -13,7 +13,7 @@ const CourseSlugRedirector: React.FC<CourseSlugRedirectorProps> = ({
   params,
 }) => {
   const setSlug = useSetRecoilState(contentSlug);
-  const filterUser = useRecoilValueLoadable(filteredUserPurchases);
+  const filterUser = useRecoilValueLoadable(fetchUserPurchases);
   const navigate = useNavigate();
 
   useEffect(() => {

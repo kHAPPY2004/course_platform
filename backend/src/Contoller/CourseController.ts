@@ -143,7 +143,9 @@ export const coursePurchase = async (
     // Fetch user details from the session
     const { user, sessionToken } = req.session;
     if (!user || !sessionToken) {
-      return res.status(200).json({ success: false, message: "Unauthorized" });
+      return res
+        .status(200)
+        .json({ success: false, data: user, message: "Unauthorized" });
     }
 
     // delete the redis key before adding new course purchase to user
@@ -171,7 +173,8 @@ export const coursePurchase = async (
     // Response with user details
     return res.status(200).json({
       success: true,
-      course_added,
+      data: [course_added],
+      message: "Course Purchase success...",
     });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
