@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,7 +10,6 @@ interface LoginProps {
 }
 const Signup: React.FC<LoginProps> = ({ completeUrl }) => {
   const setCheckUser = useSetRecoilState(checkUser);
-  console.log("complete url in signup", completeUrl);
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,16 +22,30 @@ const Signup: React.FC<LoginProps> = ({ completeUrl }) => {
   const [isEmail, setIsEmail] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
 
+  const timerId = useRef<number | undefined>(undefined);
+  const timeoutId = useRef<number | undefined>(undefined);
+
   const startCountdown = () => {
-    let timerId = setInterval(() => {
+    setCountdown(30); // Reset countdown
+    timerId.current = window.setInterval(() => {
       setCountdown((prevCount) => prevCount - 1);
     }, 1000);
 
-    setTimeout(() => {
-      clearInterval(timerId);
+    timeoutId.current = window.setTimeout(() => {
+      if (timerId.current !== undefined) {
+        clearInterval(timerId.current);
+      }
     }, 30000);
   };
 
+  const clearCountdown = () => {
+    if (timerId.current !== undefined) {
+      clearInterval(timerId.current);
+    }
+    if (timeoutId.current !== undefined) {
+      clearTimeout(timeoutId.current);
+    }
+  };
   const handleChange = (e: {
     target: { name: string; value: React.SetStateAction<string> };
   }) => {
@@ -450,7 +463,13 @@ const Signup: React.FC<LoginProps> = ({ completeUrl }) => {
             {!isVerified && isEmail && (
               <>
                 <div className="flex flex-row justify-between">
-                  <button onClick={() => setIsEmail(false)}>
+                  <button
+                    onClick={() => {
+                      setIsEmail(false);
+                      setOtp("");
+                      clearCountdown();
+                    }}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 20 20"
@@ -514,8 +533,11 @@ const Signup: React.FC<LoginProps> = ({ completeUrl }) => {
                       <>Request new OTP in {countdown} seconds</>
                     ) : (
                       <button
+                        disabled={isDisabled}
                         onClick={sendOtptoUser}
-                        className="hover:text-blue-400"
+                        className={`${
+                          isDisabled ? "cursor-not-allowed" : "cursor-pointer"
+                        } hover:text-blue-400`}
                       >
                         RESEND
                       </button>

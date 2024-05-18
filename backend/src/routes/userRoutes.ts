@@ -1,8 +1,9 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import {
   checkAuth,
   createUser,
   forgotPassword,
+  isUserPresent,
   loginUser,
   logout,
   userPurchases,
@@ -27,9 +28,10 @@ import RedisStore from "connect-redis";
 import redisClient from "../DB/redis.config";
 import {
   sendOtpEmail,
-  sendOtpforgotEmail,
+  sendOtp_login_forgot_Email,
   verifyOtp,
   verifyOtpForgot,
+  verifyOtpandLogin,
 } from "../Contoller/emailController";
 
 const router = express.Router();
@@ -90,8 +92,10 @@ router.get("/check-auth", checkAuth);
 router.get("/userPurchases", userPurchases);
 router.get("/getContentfolder", getContentfolder);
 router.post("/sendEmail", sendOtpEmail);
-router.post("/sendotpforgot", sendOtpforgotEmail);
+router.post("/sendotp_for_login_forgot", sendOtp_login_forgot_Email);
 router.post("/verifyOtp", verifyOtp);
+router.post("/verifyOtpAndLogin", verifyOtpandLogin);
+router.post("/isuserpresent", isUserPresent);
 router.post("/verifyOtpforgot", verifyOtpForgot);
 router.post("/logout", logout);
 // router.get("/courseContent", CourseContent);

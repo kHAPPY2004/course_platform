@@ -4,6 +4,10 @@ import redisClient from "../DB/redis.config";
 import prisma from "../DB/db.config";
 import { redisStore } from "../routes/userRoutes";
 import dotenv from "dotenv";
+import {
+  calculateExpirationDate,
+  generateSessionToken,
+} from "./UserController";
 dotenv.config();
 
 // Function to generate a random OTP
@@ -69,7 +73,10 @@ export const sendOtpEmail = async (req: Request, res: Response) => {
       .json({ message: "Failed to send OTP", success: false });
   }
 };
-export const sendOtpforgotEmail = async (req: Request, res: Response) => {
+export const sendOtp_login_forgot_Email = async (
+  req: Request,
+  res: Response
+) => {
   const { email } = req.body;
 
   const findUser = await prisma.user.findUnique({
@@ -85,7 +92,7 @@ export const sendOtpforgotEmail = async (req: Request, res: Response) => {
   const otp = generateOtp();
   console.log("generated otp", otp);
   // Store the OTP and expiration time in Redis
-  const setemailredis = `${redisStore.prefix}otpforgot:${email}`;
+  const setemailredis = `${redisStore.prefix}otpforgot_login:${email}`;
   await redisClient.setEx(setemailredis, OTP_EXPIRATION_TIME, otp);
 
   // Create a transporter object using the default SMTP transport
@@ -158,8 +165,8 @@ export const verifyOtpForgot = async (req: Request, res: Response) => {
   }
 
   // Retrieve the OTP from Redis
-  const setemailredis = `${redisStore.prefix}otpforgot:${email}`;
-  const storedOtp = await redisClient.get(setemailredis);
+  const otpgetfromredis = `${redisStore.prefix}otpforgot_login:${email}`;
+  const storedOtp = await redisClient.get(otpgetfromredis);
   if (!storedOtp) {
     return res
       .status(400)
@@ -171,9 +178,98 @@ export const verifyOtpForgot = async (req: Request, res: Response) => {
   }
 
   // OTP is valid, optionally delete the OTP after successful verification
-  await redisClient.del(email);
+  await redisClient.del(otpgetfromredis);
 
   return res
     .status(200)
     .json({ message: "OTP verified successfully", success: true });
+};
+
+export const verifyOtpandLogin = async (
+  req: {
+    session: any;
+    body: { email: string; otp: string; allCookies: any };
+  },
+  res: {
+    [x: string]: any;
+    status: (code: number) => any;
+    json: (data: any) => any;
+  }
+) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) {
+    return res
+      .status(400)
+      .json({ message: "Email and OTP are required", success: false });
+  }
+
+  //login process
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+    include: {
+      sessions: {
+        select: {
+          sessionToken: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    return res.status(200).json({ success: false, message: "User not found" });
+  }
+
+  // Retrieve the OTP from Redis
+  const otpgetfromredis = `${redisStore.prefix}otpforgot_login:${email}`;
+  const storedOtp = await redisClient.get(otpgetfromredis);
+  if (!storedOtp) {
+    return res
+      .status(400)
+      .json({ message: "OTP expired or not found", success: false });
+  }
+
+  if (otp !== storedOtp) {
+    return res.status(200).json({ message: "Invalid OTP", success: false });
+  }
+
+  // Expire existing session if it exists
+  if (user.sessions.length > 0) {
+    try {
+      // Delete existing session(s) associated with the user ID
+      await prisma.session.deleteMany({
+        where: {
+          userId: user.id,
+        },
+      });
+    } catch (error) {
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  // If the user is authenticated, set session variables
+  const sessionToken = generateSessionToken();
+  const expirationDate = calculateExpirationDate();
+
+  await prisma.session.create({
+    data: {
+      sessionToken,
+      expires: expirationDate,
+      user: { connect: { id: user.id } },
+    },
+  });
+
+  req.session.sessionToken = sessionToken;
+  req.session.user = user;
+  req.session.save();
+
+  // OTP is valid, optionally delete the OTP after successful verification
+  await redisClient.del(otpgetfromredis);
+
+  return res.status(200).json({
+    message: "OTP verified and Login Successfully",
+    data: user,
+    success: true,
+  });
 };

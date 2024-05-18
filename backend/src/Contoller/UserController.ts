@@ -11,6 +11,48 @@ interface RequestBody {
   password: string;
   phoneNumber: string;
 }
+export const isUserPresent = async (
+  req: {
+    body: { email: string };
+  },
+  res: {
+    [x: string]: any;
+    status: (code: number) => any;
+    json: (data: any) => any;
+  }
+) => {
+  try {
+    const { email } = req.body;
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+      include: {
+        sessions: {
+          select: {
+            sessionToken: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(200)
+        .json({ success: false, message: "User not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User found",
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+
 export const createUser = async (
   req: {
     session: any;
@@ -111,7 +153,7 @@ export const loginUser = async (
 
     if (password !== decryptedPassword) {
       return res
-        .status(401)
+        .status(200)
         .json({ success: false, message: "Incorrect password" });
     }
 
@@ -125,36 +167,15 @@ export const loginUser = async (
           },
         });
       } catch (error) {
-        console.error("Error expiring existing session(s):", error);
-        // Handle error if needed
+        return res.status(500).json({ message: "Internal server error" });
       }
-
-      // try {
-      //   const redisClient = createClient();
-      //   redisClient.connect().catch(console.error);
-      //   console.log("redis client added: ");
-      //   // Loop through existing sessions and delete them from Redis
-      //   const ans: any = await redisClient.get(
-      //     `myapp:3MQpKpaUw5fqb5XTYcYDROTuzIFQSKSz`
-      //   );
-
-      //   if (ans.user.email == email) {
-      //     console.log("delete the toek");
-      //     await redisClient.del(`myapp:3MQpKpaUw5fqb5XTYcYDROTuzIFQSKSz`);
-      //   }
-
-      //   redisClient.quit();
-      // } catch (error) {
-      //   console.error("Error deleting existing session(s):", error);
-      //   // Handle error if needed
-      // }
     }
 
     // If the user is authenticated, set session variables
     const sessionToken = generateSessionToken();
     const expirationDate = calculateExpirationDate();
 
-    const userSession = await prisma.session.create({
+    await prisma.session.create({
       data: {
         sessionToken,
         expires: expirationDate,
@@ -168,12 +189,10 @@ export const loginUser = async (
 
     return res.status(200).json({
       success: true,
-      // data: { user, userSession },
       data: user,
       message: "User logged in successfully",
     });
   } catch (error) {
-    console.error("Error logging in:", error);
     return res.status(500).json({ message: "Internal server error" });
   } finally {
     await prisma.$disconnect();
@@ -295,7 +314,6 @@ export const logout = async (
       });
     }
   } catch (err) {
-    console.error("Redis get error:", err);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -346,7 +364,6 @@ export const userPurchases = async (
     const cachedPurchases = await redisClient.get(userPurchasesCacheKey);
     if (cachedPurchases) {
       const purchases = JSON.parse(cachedPurchases);
-      console.log("Retrieved user purchases from cache", purchases);
       return res.status(200).json({ success: true, data: purchases });
     }
 
@@ -356,7 +373,6 @@ export const userPurchases = async (
         userId: user.id,
       },
     });
-    console.log("Retrieved user purchases from database", user_purchases);
 
     // Cache the purchases for future requests
     await redisClient.set(
@@ -370,7 +386,7 @@ export const userPurchases = async (
   }
 };
 // Function to generate session token
-function generateSessionToken() {
+export function generateSessionToken() {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const length = 64;
@@ -382,7 +398,7 @@ function generateSessionToken() {
 }
 
 // Function to calculate expiration date for session
-function calculateExpirationDate() {
+export function calculateExpirationDate() {
   const expirationDuration = 24 * 60 * 60 * 1000; // 1 day in milliseconds
   const currentTime = new Date();
   return new Date(currentTime.getTime() + expirationDuration);

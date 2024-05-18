@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,15 +12,16 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ completeUrl }) => {
   const setCheckUser = useSetRecoilState(checkUser);
   const navigate = useNavigate();
-  console.log("complete url", completeUrl);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmPassword] = useState("");
   const [isVerified, setIsVerified] = useState(false);
-  const [isEmail, setIsEmail] = useState(false);
+  const [isUser, setIsUser] = useState(false);
+  const [login_pass, setLogin_pass] = useState(false);
+  const [login_otp, setLogin_otp] = useState(false);
+  const [forgotpassword, setForgotpassword] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
-  const [forgotpopup, setForgotpopup] = useState(false);
   const [otp, setOtp] = useState("");
   const [countdown, setCountdown] = useState(30);
 
@@ -39,16 +40,65 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
     }
   };
 
+  const timerId = useRef<number | undefined>(undefined);
+  const timeoutId = useRef<number | undefined>(undefined);
+
   const startCountdown = () => {
-    let timerId = setInterval(() => {
+    setCountdown(30); // Reset countdown
+    timerId.current = window.setInterval(() => {
       setCountdown((prevCount) => prevCount - 1);
     }, 1000);
 
-    setTimeout(() => {
-      clearInterval(timerId);
+    timeoutId.current = window.setTimeout(() => {
+      if (timerId.current !== undefined) {
+        clearInterval(timerId.current);
+      }
     }, 30000);
   };
-  const handleSubmit = async (e: { preventDefault: () => void }) => {
+
+  const clearCountdown = () => {
+    if (timerId.current !== undefined) {
+      clearInterval(timerId.current);
+    }
+    if (timeoutId.current !== undefined) {
+      clearTimeout(timeoutId.current);
+    }
+  };
+
+  const isUserh = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    let res = await axios.post("/api/isuserpresent", {
+      email,
+    });
+    if (!res.data.success) {
+      toast.warn(res.data.message, {
+        position: "top-left",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    } else {
+      setIsUser(true);
+      toast.success(res.data.message, {
+        position: "top-left",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    }
+  };
+
+  const handleSubmit_through_pass = async (e: {
+    preventDefault: () => void;
+  }) => {
     e.preventDefault();
     let res = await axios.post("/api/login", {
       email,
@@ -70,6 +120,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       setPassword("");
       // Update the checkUser selector after successful login
       setCheckUser(res.data); // Update the checkUser atom
+      setLogin_pass(false);
       toast.success(res.data.message, {
         position: "top-left",
         autoClose: 1500,
@@ -83,6 +134,105 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       navigate(completeUrl);
     }
   };
+
+  const sendOtpandlogin = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    try {
+      setIsDisabled(true);
+      const res = await axios.post("/api/sendotp_for_login_forgot", {
+        email,
+      });
+      setIsDisabled(false);
+      if (!res.data.success) {
+        toast.warn(res.data.message, {
+          position: "top-left",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+      } else {
+        setLogin_otp(true);
+        startCountdown();
+        toast.success(res.data.message, {
+          position: "top-left",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+      }
+    } catch (error) {
+      toast.error("Error while sending otp ...", {
+        position: "top-left",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    }
+  };
+  const handleSubmit_through_otp = async (e: {
+    preventDefault: () => void;
+  }) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post("/api/verifyOtpAndLogin", {
+        email,
+        otp,
+      });
+      if (!res.data.success) {
+        toast.warn(res.data.message, {
+          position: "top-left",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+      } else {
+        setEmail("");
+        setOtp("");
+        // Update the checkUser selector after successful login
+        setCheckUser(res.data); // Update the checkUser atom
+        setLogin_otp(false);
+        toast.success(res.data.message, {
+          position: "top-left",
+          autoClose: 1500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        });
+        navigate(completeUrl);
+      }
+    } catch (error) {
+      toast.error("Error ! please retry from initial step...", {
+        position: "top-left",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    }
+  };
+
   const Forgot = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     let res = await axios.post("/api/forgot", {
@@ -116,11 +266,12 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       navigate(completeUrl);
     }
   };
-  const sendOtptoUser = async (e: { preventDefault: () => void }) => {
+  const sendOtp_forgot = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
+
     try {
       setIsDisabled(true);
-      const res = await axios.post("/api/sendotpforgot", {
+      const res = await axios.post("/api/sendotp_for_login_forgot", {
         email,
       });
       setIsDisabled(false);
@@ -136,7 +287,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
           theme: "colored",
         });
       } else {
-        setIsEmail(true);
+        setForgotpassword(true);
         startCountdown();
         toast.success(res.data.message, {
           position: "top-left",
@@ -162,14 +313,14 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       });
     }
   };
-  const verifyOtp = async (e: { preventDefault: () => void }) => {
+
+  const verifyOtp_forgot = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
       const res = await axios.post("/api/verifyOtpforgot", {
         email,
         otp,
       });
-      console.log("res55---", res);
       if (!res.data.success) {
         toast.warn(res.data.message, {
           position: "top-left",
@@ -182,7 +333,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
           theme: "colored",
         });
       } else {
-        setIsEmail(false);
+        setIsUser(false);
         setIsVerified(true);
         toast.success(res.data.message, {
           position: "top-left",
@@ -225,274 +376,400 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-            {/* shows login page */}
-            {!isVerified && !isEmail && !forgotpopup && (
-              <>
-                <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                  Login to account
-                </h1>
-                <form
-                  onSubmit={handleSubmit}
-                  className="space-y-4 md:space-y-6"
-                  method="POST"
-                >
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Your email
-                    </label>
-                    <input
-                      value={email}
-                      onChange={handleChange}
-                      type="email"
-                      name="email"
-                      id="email"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder="name@company.com"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="password"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Password
-                    </label>
-                    <input
-                      value={password}
-                      onChange={handleChange}
-                      type="password"
-                      name="password"
-                      id="password"
-                      placeholder="••••••••"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      required
-                    />
-                  </div>
-
-                  <div className="flex items-start">
-                    <div className="flex items-center h-5">
+            {/* shows only email field */}
+            {!isVerified &&
+              !isUser &&
+              !login_pass &&
+              !login_otp &&
+              !forgotpassword && (
+                <>
+                  <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                    Login to account
+                  </h1>
+                  <form
+                    onSubmit={isUserh}
+                    className="space-y-4 md:space-y-6"
+                    method="POST"
+                  >
+                    <div>
+                      <label
+                        htmlFor="email"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        Your email
+                      </label>
                       <input
-                        id="terms"
-                        aria-describedby="terms"
-                        type="checkbox"
-                        className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-gray-600 dark:ring-offset-gray-800"
+                        value={email}
+                        onChange={handleChange}
+                        type="email"
+                        name="email"
+                        id="email"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="name@company.com"
                         required
                       />
                     </div>
-                    <div className="ml-3 text-sm">
-                      <label
-                        htmlFor="terms"
-                        className="font-light text-gray-500 dark:text-gray-300"
-                      >
-                        I accept the{" "}
-                        <a
-                          className="font-medium text-gray-600 hover:underline dark:text-gray-500"
-                          href="#"
-                        >
-                          Terms and Conditions
-                        </a>
-                      </label>
-                    </div>
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
-                  >
-                    Login
-                  </button>
-                  <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                    Create a new account?{" "}
-                    <Link
-                      to="/Signup"
-                      className="font-medium text-gray-600 hover:underline dark:text-gray-500"
-                    >
-                      Signup
-                    </Link>
-                  </p>
-                </form>
-                <button
-                  onClick={() => setForgotpopup(true)}
-                  className="text-sm font-light hover:text-white text-gray-500 dark:text-gray-400"
-                >
-                  Forgot Password
-                </button>
-              </>
-            )}
-            {/* forgot page shows */}
-            {!isVerified && !isEmail && forgotpopup && (
-              <>
-                <div className="flex flex-row justify-between">
-                  <button onClick={() => setForgotpopup(false)}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      className="w-5 h-5"
-                    >
-                      <g clipPath="url(#a)">
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.25-7.25a.75.75 0 0 0 0-1.5H8.66l2.1-1.95a.75.75 0 1 0-1.02-1.1l-3.5 3.25a.75.75 0 0 0 0 1.1l3.5 3.25a.75.75 0 0 0 1.02-1.1l-2.1-1.95h4.59Z"
-                          clipRule="evenodd"
-                        />
-                      </g>
-                      <defs>
-                        <clipPath id="a">
-                          <path d="M0 0h20v20H0z" />
-                        </clipPath>
-                      </defs>
-                    </svg>
-                  </button>
-                  <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                    Send Otp
-                  </h1>
-                  <div></div>
-                </div>
 
-                <form
-                  onSubmit={sendOtptoUser}
-                  className="space-y-4 md:space-y-6"
-                  method="POST"
-                >
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    <div className="flex items-start">
+                      <div className="flex items-center h-5">
+                        <input
+                          id="terms"
+                          aria-describedby="terms"
+                          type="checkbox"
+                          className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-gray-600 dark:ring-offset-gray-800"
+                          required
+                        />
+                      </div>
+                      <div className="ml-3 text-sm">
+                        <label
+                          htmlFor="terms"
+                          className="font-light text-gray-500 dark:text-gray-300"
+                        >
+                          I accept the{" "}
+                          <a
+                            className="font-medium text-gray-600 hover:underline dark:text-gray-500"
+                            href="#"
+                          >
+                            Terms and Conditions
+                          </a>
+                        </label>
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      className="w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
                     >
-                      Your email
-                    </label>
-                    <input
-                      value={email}
-                      onChange={handleChange}
-                      type="email"
-                      name="email"
-                      id="email"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder="name@company.com"
-                      required
-                    />
+                      Next
+                    </button>
+                    <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+                      Create a new account?{" "}
+                      <Link
+                        to="/Signup"
+                        className="font-medium text-gray-600 hover:underline dark:text-gray-500"
+                      >
+                        Signup
+                      </Link>
+                    </p>
+                  </form>
+                </>
+              )}
+            {/* shows choose page */}
+            {!isVerified &&
+              isUser &&
+              !login_pass &&
+              !login_otp &&
+              !forgotpassword && (
+                <>
+                  <div className="flex flex-row justify-between">
+                    <button onClick={() => setIsUser(false)}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <g clipPath="url(#a)">
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.25-7.25a.75.75 0 0 0 0-1.5H8.66l2.1-1.95a.75.75 0 1 0-1.02-1.1l-3.5 3.25a.75.75 0 0 0 0 1.1l3.5 3.25a.75.75 0 0 0 1.02-1.1l-2.1-1.95h4.59Z"
+                            clipRule="evenodd"
+                          />
+                        </g>
+                        <defs>
+                          <clipPath id="a">
+                            <path d="M0 0h20v20H0z" />
+                          </clipPath>
+                        </defs>
+                      </svg>
+                    </button>
+                    <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                      Login to your Account
+                    </h1>
+                    <div></div>
                   </div>
-                  <div className="flex items-start">
-                    <div className="flex items-center h-5">
+                  <div className="flex justify-center p-2 m-4 mt-10 text-white bg-blue-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
+                    <button onClick={() => setLogin_pass(true)}>
+                      Login with Password
+                    </button>
+                  </div>
+                  <div className="flex justify-center p-2 m-4 text-white bg-blue-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
+                    <button
+                      disabled={isDisabled}
+                      onClick={sendOtpandlogin}
+                      className={`${
+                        isDisabled ? "cursor-not-allowed" : "cursor-pointer"
+                      }`}
+                    >
+                      Login with OTP
+                    </button>
+                  </div>
+                  <div className="flex justify-center p-2 m-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                    <button
+                      disabled={isDisabled}
+                      onClick={sendOtp_forgot}
+                      className={`${
+                        isDisabled ? "cursor-not-allowed" : "cursor-pointer"
+                      } text-sm font-light hover:text-white text-gray-500 dark:text-gray-400`}
+                    >
+                      Forgot Password
+                    </button>
+                  </div>
+                </>
+              )}
+            {/* Login with password */}
+            {!isVerified &&
+              isUser &&
+              login_pass &&
+              !login_otp &&
+              !forgotpassword && (
+                <>
+                  <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                    Login to account
+                  </h1>
+                  <form
+                    onSubmit={handleSubmit_through_pass}
+                    className="space-y-4 md:space-y-6"
+                    method="POST"
+                  >
+                    <div>
+                      <label
+                        htmlFor="email"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        Your email
+                      </label>
                       <input
-                        id="terms"
-                        aria-describedby="terms"
-                        type="checkbox"
-                        className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-gray-600 dark:ring-offset-gray-800"
+                        value={email}
+                        onChange={handleChange}
+                        type="email"
+                        name="email"
+                        id="email"
+                        readOnly
+                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="name@company.com"
                         required
                       />
                     </div>
-                    <div className="ml-3 text-sm">
+                    <div>
                       <label
-                        htmlFor="terms"
-                        className="font-light text-gray-500 dark:text-gray-300"
+                        htmlFor="password"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                       >
-                        I accept the{" "}
-                        <a
-                          className="font-medium text-gray-600 hover:underline dark:text-gray-500"
-                          href="#"
-                        >
-                          Terms and Conditions
-                        </a>
+                        Password
                       </label>
+                      <input
+                        value={password}
+                        onChange={handleChange}
+                        type="password"
+                        name="password"
+                        id="password"
+                        placeholder="••••••••"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        required
+                      />
                     </div>
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={isDisabled}
-                    className={`${
-                      isDisabled ? "cursor-not-allowed" : "cursor-pointer"
-                    } w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800`}
-                  >
-                    Next
-                  </button>
-                </form>
-              </>
-            )}
-
-            {/* otp verification page */}
-            {!isVerified && isEmail && (
-              <>
-                <div className="flex flex-row justify-between">
-                  <button onClick={() => setIsEmail(false)}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      className="w-5 h-5"
+                    <button
+                      type="submit"
+                      className="w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
                     >
-                      <g clipPath="url(#a)">
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.25-7.25a.75.75 0 0 0 0-1.5H8.66l2.1-1.95a.75.75 0 1 0-1.02-1.1l-3.5 3.25a.75.75 0 0 0 0 1.1l3.5 3.25a.75.75 0 0 0 1.02-1.1l-2.1-1.95h4.59Z"
-                          clipRule="evenodd"
-                        />
-                      </g>
-                      <defs>
-                        <clipPath id="a">
-                          <path d="M0 0h20v20H0z" />
-                        </clipPath>
-                      </defs>
-                    </svg>
-                  </button>
-                  <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                    Verify OTP
-                  </h1>
-                  <div></div>
-                </div>
-                <form
-                  onSubmit={verifyOtp}
-                  className="space-y-4 md:space-y-6"
-                  method="POST"
-                >
-                  <div>
-                    <label
-                      htmlFor="otp"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Enter OTP
-                    </label>
-                    <input
-                      value={otp}
-                      onChange={handleChange}
-                      type="text"
-                      name="otp"
-                      id="otp"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder="Enter your OTP"
-                      required
-                    />
-                  </div>
-                  <div className="bg-green-200 p-2 rounded-lg">
-                    We’ve sent an OTP to your email
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
-                  >
-                    Submit
-                  </button>
-                  <div className="text-sm flex justify-center mt-2 border p-2">
-                    {countdown > 0 ? (
-                      <>Request new OTP in {countdown} seconds</>
-                    ) : (
-                      <button
-                        onClick={sendOtptoUser}
-                        className="hover:text-blue-400"
+                      Login
+                    </button>
+                    <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+                      Create a new account?{" "}
+                      <Link
+                        to="/Signup"
+                        className="font-medium text-gray-600 hover:underline dark:text-gray-500"
                       >
-                        RESEND
-                      </button>
-                    )}
+                        Signup
+                      </Link>
+                    </p>
+                  </form>
+                </>
+              )}
+
+            {/* Login with otp */}
+            {!isVerified &&
+              isUser &&
+              !login_pass &&
+              login_otp &&
+              !forgotpassword && (
+                <>
+                  <div className="flex flex-row justify-between">
+                    <button
+                      onClick={() => {
+                        setLogin_otp(false);
+                        setOtp("");
+                        clearCountdown();
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <g clipPath="url(#a)">
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.25-7.25a.75.75 0 0 0 0-1.5H8.66l2.1-1.95a.75.75 0 1 0-1.02-1.1l-3.5 3.25a.75.75 0 0 0 0 1.1l3.5 3.25a.75.75 0 0 0 1.02-1.1l-2.1-1.95h4.59Z"
+                            clipRule="evenodd"
+                          />
+                        </g>
+                        <defs>
+                          <clipPath id="a">
+                            <path d="M0 0h20v20H0z" />
+                          </clipPath>
+                        </defs>
+                      </svg>
+                    </button>
+                    <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                      Verify OTP
+                    </h1>
+                    <div></div>
                   </div>
-                </form>
-              </>
-            )}
+                  <form
+                    onSubmit={handleSubmit_through_otp}
+                    className="space-y-4 md:space-y-6"
+                    method="POST"
+                  >
+                    <div>
+                      <label
+                        htmlFor="otp"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        Enter OTP
+                      </label>
+                      <input
+                        value={otp}
+                        onChange={handleChange}
+                        type="text"
+                        name="otp"
+                        id="otp"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="Enter your OTP"
+                        required
+                      />
+                    </div>
+                    <div className="bg-green-200 p-2 rounded-lg">
+                      We’ve sent an OTP to your email
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+                    >
+                      Submit
+                    </button>
+                    <div className="text-sm flex justify-center mt-2 border p-2">
+                      {countdown > 0 ? (
+                        <>Request new OTP in {countdown} seconds</>
+                      ) : (
+                        <button
+                          disabled={isDisabled}
+                          onClick={sendOtpandlogin}
+                          className={`${
+                            isDisabled ? "cursor-not-allowed" : "cursor-pointer"
+                          } hover:text-blue-400`}
+                        >
+                          RESEND
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                </>
+              )}
+
+            {/* otp verification for forgot password */}
+            {!isVerified &&
+              isUser &&
+              !login_pass &&
+              !login_otp &&
+              forgotpassword && (
+                <>
+                  <div className="flex flex-row justify-between">
+                    <button
+                      onClick={() => {
+                        setForgotpassword(false);
+                        setOtp("");
+                        clearCountdown();
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-5 h-5"
+                      >
+                        <g clipPath="url(#a)">
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.25-7.25a.75.75 0 0 0 0-1.5H8.66l2.1-1.95a.75.75 0 1 0-1.02-1.1l-3.5 3.25a.75.75 0 0 0 0 1.1l3.5 3.25a.75.75 0 0 0 1.02-1.1l-2.1-1.95h4.59Z"
+                            clipRule="evenodd"
+                          />
+                        </g>
+                        <defs>
+                          <clipPath id="a">
+                            <path d="M0 0h20v20H0z" />
+                          </clipPath>
+                        </defs>
+                      </svg>
+                    </button>
+                    <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                      Verify OTP
+                    </h1>
+                    <div></div>
+                  </div>
+                  <form
+                    onSubmit={verifyOtp_forgot}
+                    className="space-y-4 md:space-y-6"
+                    method="POST"
+                  >
+                    <div>
+                      <label
+                        htmlFor="otp"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        Enter OTP
+                      </label>
+                      <input
+                        value={otp}
+                        onChange={handleChange}
+                        type="text"
+                        name="otp"
+                        id="otp"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="Enter your OTP"
+                        required
+                      />
+                    </div>
+                    <div className="bg-green-200 p-2 rounded-lg">
+                      We’ve sent an OTP to your email
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+                    >
+                      Submit
+                    </button>
+                    <div className="text-sm flex justify-center mt-2 border p-2">
+                      {countdown > 0 ? (
+                        <>Request new OTP in {countdown} seconds</>
+                      ) : (
+                        <button
+                          disabled={isDisabled}
+                          onClick={sendOtp_forgot}
+                          className={`${
+                            isDisabled ? "cursor-not-allowed" : "cursor-pointer"
+                          } hover:text-blue-400`}
+                        >
+                          RESEND
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                </>
+              )}
 
             {isVerified && (
               <>
@@ -559,31 +836,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
                       required
                     />
                   </div>
-                  <div className="flex items-start">
-                    <div className="flex items-center h-5">
-                      <input
-                        id="terms"
-                        aria-describedby="terms"
-                        type="checkbox"
-                        className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-gray-600 dark:ring-offset-gray-800"
-                        required
-                      />
-                    </div>
-                    <div className="ml-3 text-sm">
-                      <label
-                        htmlFor="terms"
-                        className="font-light text-gray-500 dark:text-gray-300"
-                      >
-                        I accept the{" "}
-                        <a
-                          className="font-medium text-gray-600 hover:underline dark:text-gray-500"
-                          href="#"
-                        >
-                          Terms and Conditions
-                        </a>
-                      </label>
-                    </div>
-                  </div>
+
                   <button
                     type="submit"
                     className="w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
