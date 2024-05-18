@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import {
   checkAuth,
   createUser,
+  forgotPassword,
   loginUser,
   logout,
   userPurchases,
@@ -24,7 +25,12 @@ import {
 import session from "express-session";
 import RedisStore from "connect-redis";
 import redisClient from "../DB/redis.config";
-import { sendOtpEmail, verifyOtp } from "../Contoller/emailController";
+import {
+  sendOtpEmail,
+  sendOtpforgotEmail,
+  verifyOtp,
+  verifyOtpForgot,
+} from "../Contoller/emailController";
 
 const router = express.Router();
 
@@ -73,6 +79,7 @@ const checkExistingSession = async (req: Request, res: Response, next: any) => {
 
 router.post("/signup", checkExistingSession, createUser);
 router.post("/login", checkExistingSession, loginUser);
+router.post("/forgot", checkExistingSession, forgotPassword);
 router.get("/new-courses", getallCourses);
 router.post("/new-courses", addnewCourse); // admin part
 router.post("/add-course-content", addCourseContent); // admin part
@@ -83,7 +90,9 @@ router.get("/check-auth", checkAuth);
 router.get("/userPurchases", userPurchases);
 router.get("/getContentfolder", getContentfolder);
 router.post("/sendEmail", sendOtpEmail);
+router.post("/sendotpforgot", sendOtpforgotEmail);
 router.post("/verifyOtp", verifyOtp);
+router.post("/verifyOtpforgot", verifyOtpForgot);
 router.post("/logout", logout);
 // router.get("/courseContent", CourseContent);
 

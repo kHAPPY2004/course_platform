@@ -179,7 +179,91 @@ export const loginUser = async (
     await prisma.$disconnect();
   }
 };
+export const forgotPassword = async (
+  req: {
+    session: any;
+    body: { email: string; password: string; allCookies: any };
+  },
+  res: {
+    [x: string]: any;
+    status: (code: number) => any;
+    json: (data: any) => any;
+  }
+) => {
+  try {
+    const { email, password } = req.body;
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+      include: {
+        sessions: {
+          select: {
+            sessionToken: true,
+          },
+        },
+      },
+    });
 
+    if (!user) {
+      return res
+        .status(200)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Expire existing session if it exists
+    if (user.sessions.length > 0) {
+      try {
+        // Delete existing session(s) associated with the user ID
+        await prisma.session.deleteMany({
+          where: {
+            userId: user.id,
+          },
+        });
+      } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+      }
+    }
+
+    // Explicitly cast the data object to UserCreateInput
+    const encryptedPassword = CryptoJS.AES.encrypt(
+      password,
+      process.env.CRYPTO_SECRET || ""
+    ).toString();
+
+    // Update the user's password
+    const updatedUser = await prisma.user.update({
+      where: { email },
+      data: { password: encryptedPassword },
+    });
+
+    // If the user is authenticated, set session variables
+    const sessionToken = generateSessionToken();
+    const expirationDate = calculateExpirationDate();
+
+    await prisma.session.create({
+      data: {
+        sessionToken,
+        expires: expirationDate,
+        user: { connect: { id: user.id } },
+      },
+    });
+
+    req.session.sessionToken = sessionToken;
+    req.session.user = user;
+    req.session.save();
+
+    return res.status(200).json({
+      success: true,
+      data: updatedUser,
+      message: "Password updated and user logged in successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  } finally {
+    await prisma.$disconnect();
+  }
+};
 export const logout = async (
   req: {
     sessionID: any;
