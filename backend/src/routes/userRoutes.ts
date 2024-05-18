@@ -44,33 +44,26 @@ router.use(
     cookie: { secure: false, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 },
   })
 );
-
+const expiration_email_key = 24 * 60 * 60; // in seconds
 const checkExistingSession = async (req: Request, res: Response, next: any) => {
   const email = req.body.email;
   const sessionId = req.sessionID;
   const seee = `${redisStore.prefix}${sessionId}`;
+  const setemailredis = `${redisStore.prefix}email:${email}`;
 
   // get first then set
-  const setemailredis = `${redisStore.prefix}email:${email}`;
-  const existingSessionIdtttt: any = await redisClient.get(setemailredis);
-  const existingSessionsdfsf = await redisClient.set(setemailredis, seee);
-  // Set the expiration time for the key "mykey" to 10 seconds
-  await redisClient.expire(email, 24 * 60 * 60);
-  console.log(existingSessionsdfsf);
+  const get_exiting_email = await redisClient.get(setemailredis);
+  await redisClient.setEx(setemailredis, expiration_email_key, seee);
 
   if (email && sessionId) {
     try {
-      console.log("existingSessionIdtttt", existingSessionIdtttt);
-      if (existingSessionIdtttt) {
-        console.log("budding destroy session");
-        const dess = await redisClient.del(existingSessionIdtttt);
-        console.log("des", dess);
+      if (get_exiting_email) {
+        await redisClient.del(get_exiting_email);
         next();
       } else {
         next();
       }
     } catch (err) {
-      console.error("Redis get error:", err);
       return res.status(500).json({ message: "Internal Server Error" });
     }
   } else {
