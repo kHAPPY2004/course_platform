@@ -66,6 +66,13 @@ export const createUser = async (
         .json({ message: "Credientials are missing...", success: false });
     }
 
+    const { user } = await fetchUserDetails(email);
+
+    if (user) {
+      return res
+        .status(200)
+        .json({ success: false, message: "Email Already Exits..." });
+    }
     // Explicitly cast the data object to UserCreateInput
     const encryptedPassword = CryptoJS.AES.encrypt(
       password,
@@ -281,6 +288,7 @@ export const forgotPassword = async (
 export const logout = async (
   req: {
     sessionID: any;
+    session: any;
     body: { email: string };
   },
   res: {
@@ -295,6 +303,13 @@ export const logout = async (
       .status(400)
       .json({ message: "Email is required", success: false });
   }
+
+  // Fetch user details from the session
+  const { user, sessionToken } = req.session;
+  if (!user || !sessionToken) {
+    return res.status(200).json({ success: false, message: "Unauthorized" });
+  }
+
   const sessionId = req.sessionID;
   const seee = `${redisStore.prefix}${sessionId}`;
   const setemailredis = `${redisStore.prefix}email:${email}`;

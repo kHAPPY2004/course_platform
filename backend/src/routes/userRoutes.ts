@@ -81,7 +81,7 @@ const checkExistingSession = async (req: Request, res: Response, next: any) => {
 
 router.post("/signup", checkExistingSession, createUser);
 router.post("/login", checkExistingSession, loginUser);
-router.post("/forgot", forgotPassword);
+router.post("/forgot", checkExistingSession, forgotPassword);
 router.get("/new-courses", getallCourses);
 router.post("/new-courses", addnewCourse); // admin part
 router.post("/add-course-content", addCourseContent); // admin part

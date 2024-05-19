@@ -107,12 +107,6 @@ export const getallCourses = async (
   }
 ) => {
   try {
-    // Fetch user details from the session
-    const { user, sessionToken } = req.session;
-    if (!user || !sessionToken) {
-      return res.status(200).json({ success: false, message: "Unauthorized" });
-    }
-
     const getallcourses = `data:courses`;
     const all_courses = await redisClient.get(getallcourses);
     if (all_courses) {
