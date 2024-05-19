@@ -1,10 +1,12 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { checkUser } from "../store/atoms/userAuth";
+import { showToast } from "../util/toast";
+import useCountdown from "../util/countdown";
 
 interface LoginProps {
   completeUrl: string;
@@ -23,7 +25,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
   const [forgotpassword, setForgotpassword] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [otp, setOtp] = useState("");
-  const [countdown, setCountdown] = useState(30);
+  const { countdown, startCountdown, clearCountdown } = useCountdown(30);
 
   const handleChange = (e: {
     target: { name: string; value: React.SetStateAction<string> };
@@ -39,102 +41,71 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       setOtp(value);
     }
   };
-
-  const timerId = useRef<number | undefined>(undefined);
-  const timeoutId = useRef<number | undefined>(undefined);
-
-  const startCountdown = () => {
-    setCountdown(30); // Reset countdown
-    timerId.current = window.setInterval(() => {
-      setCountdown((prevCount) => prevCount - 1);
-    }, 1000);
-
-    timeoutId.current = window.setTimeout(() => {
-      if (timerId.current !== undefined) {
-        clearInterval(timerId.current);
-      }
-    }, 30000);
-  };
-
-  const clearCountdown = () => {
-    if (timerId.current !== undefined) {
-      clearInterval(timerId.current);
-    }
-    if (timeoutId.current !== undefined) {
-      clearTimeout(timeoutId.current);
-    }
-  };
-
+  //check user is present in database
   const isUserh = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    let res = await axios.post("/api/isuserpresent", {
-      email,
-    });
-    if (!res.data.success) {
-      toast.warn(res.data.message, {
-        position: "top-left",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
+    try {
+      const res = await axios.post("/api/isuserpresent", {
+        email,
       });
-    } else {
-      setIsUser(true);
-      toast.success(res.data.message, {
-        position: "top-left",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      if (res.data.success) {
+        setIsUser(true);
+        showToast("success", res.data.message);
+      } else {
+        showToast("warn", res.data.message);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          showToast("error", error.response.data.message);
+        } else {
+          showToast(
+            "error",
+            "An unexpected error occurred. Please try again later."
+          );
+        }
+      } else {
+        showToast("error", "Server Down. Please try after some time.");
+      }
     }
   };
-
+  // option to login through password
   const handleSubmit_through_pass = async (e: {
     preventDefault: () => void;
   }) => {
     e.preventDefault();
-    let res = await axios.post("/api/login", {
-      email,
-      password,
-    });
-    if (!res.data.success) {
-      toast.warn(res.data.message, {
-        position: "top-left",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
+    try {
+      const res = await axios.post("/api/login", {
+        email,
+        password,
       });
-    } else {
-      setEmail("");
-      setPassword("");
-      // Update the checkUser selector after successful login
-      setCheckUser(res.data); // Update the checkUser atom
-      setLogin_pass(false);
-      toast.success(res.data.message, {
-        position: "top-left",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
-      navigate(completeUrl);
+      if (res.data.success) {
+        setEmail("");
+        setPassword("");
+        // Update the checkUser selector after successful login
+        setCheckUser(res.data); // Update the checkUser atom
+        setLogin_pass(false);
+        showToast("success", res.data.message);
+        navigate(completeUrl);
+      } else {
+        showToast("warn", res.data.message);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          showToast("error", error.response.data.message);
+        } else {
+          showToast(
+            "error",
+            "An unexpected error occurred. Please try again later."
+          );
+        }
+      } else {
+        showToast("error", "Server Down. Please try after some time.");
+      }
     }
   };
-
+  // send otp for login
   const sendOtpandlogin = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
@@ -143,44 +114,29 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
         email,
       });
       setIsDisabled(false);
-      if (!res.data.success) {
-        toast.warn(res.data.message, {
-          position: "top-left",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
-      } else {
+      if (res.data.success) {
         setLogin_otp(true);
         startCountdown();
-        toast.success(res.data.message, {
-          position: "top-left",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        showToast("success", res.data.message);
+      } else {
+        showToast("warn", res.data.message);
       }
     } catch (error) {
-      toast.error("Error while sending otp ...", {
-        position: "top-left",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          showToast("error", error.response.data.message);
+        } else {
+          showToast(
+            "error",
+            "An unexpected error occurred. Please try again later."
+          );
+        }
+      } else {
+        showToast("error", "Server Down. Please try after some time.");
+      }
     }
   };
+  // verify otp and login
   const handleSubmit_through_otp = async (e: {
     preventDefault: () => void;
   }) => {
@@ -190,130 +146,102 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
         email,
         otp,
       });
-      if (!res.data.success) {
-        toast.warn(res.data.message, {
-          position: "top-left",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
-      } else {
+      if (res.data.success) {
         setEmail("");
         setOtp("");
         // Update the checkUser selector after successful login
         setCheckUser(res.data); // Update the checkUser atom
         setLogin_otp(false);
-        toast.success(res.data.message, {
-          position: "top-left",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        showToast("success", res.data.message);
         navigate(completeUrl);
+      } else {
+        showToast("warn", res.data.message);
       }
     } catch (error) {
-      toast.error("Error ! please retry from initial step...", {
-        position: "top-left",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          if (error.response.status === 401) {
+            showToast("error", error.response.data.message);
+            // Perform specific actions for 401 status code
+            setOtp("");
+            setLogin_otp(false);
+          } else if (error.response.status === 500) {
+            showToast("error", error.response.data.message);
+          }
+        } else {
+          showToast(
+            "error",
+            "An unexpected error occurred. Please try again later."
+          );
+        }
+      } else {
+        showToast("error", "Server Down. Please try after some time.");
+      }
     }
   };
-
+  // reset_password and login
   const Forgot = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    let res = await axios.post("/api/forgot", {
-      email,
-      password,
-    });
-    if (!res.data.success) {
-      toast.warn(res.data.message, {
-        position: "top-left",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
+    try {
+      const res = await axios.post("/api/forgot", {
+        email,
+        password,
       });
-    } else {
-      // Update the checkUser selector after successful login
-      setCheckUser(res.data); // Update the checkUser atom
-      toast.success(res.data.message, {
-        position: "top-left",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
-      navigate(completeUrl);
+      if (res.data.success) {
+        // Update the checkUser selector after successful login
+        setCheckUser(res.data); // Update the checkUser atom
+        showToast("success", res.data.message);
+        navigate(completeUrl);
+      } else {
+        showToast("warn", res.data.message);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          showToast("error", error.response.data.message);
+        } else {
+          showToast(
+            "error",
+            "An unexpected error occurred. Please try again later."
+          );
+        }
+      } else {
+        showToast("error", "Server Down. Please try after some time.");
+      }
     }
   };
+  // send otp for forgot_password
   const sendOtp_forgot = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-
     try {
       setIsDisabled(true);
       const res = await axios.post("/api/sendotp_for_login_forgot", {
         email,
       });
       setIsDisabled(false);
-      if (!res.data.success) {
-        toast.warn(res.data.message, {
-          position: "top-left",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
-      } else {
+      if (res.data.success) {
         setForgotpassword(true);
         startCountdown();
-        toast.success(res.data.message, {
-          position: "top-left",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        showToast("success", res.data.message);
+      } else {
+        showToast("warn", res.data.message);
       }
     } catch (error) {
-      toast.error("Error while sending otp ...", {
-        position: "top-left",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          showToast("error", error.response.data.message);
+        } else {
+          showToast(
+            "error",
+            "An unexpected error occurred. Please try again later."
+          );
+        }
+      } else {
+        showToast("error", "Server Down. Please try after some time.");
+      }
     }
   };
-
+  // verify otp for forgot_password
   const verifyOtp_forgot = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
@@ -321,44 +249,36 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
         email,
         otp,
       });
-      if (!res.data.success) {
-        toast.warn(res.data.message, {
-          position: "top-left",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
-      } else {
+      if (res.data.success) {
         setIsUser(false);
         setIsVerified(true);
-        toast.success(res.data.message, {
-          position: "top-left",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        showToast("success", res.data.message);
+      } else {
+        showToast("warn", res.data.message);
       }
     } catch (error) {
-      toast.error("Error ! please retry from initial step...", {
-        position: "top-left",
-        autoClose: 1500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          if (error.response.status === 401) {
+            showToast("error", error.response.data.message);
+            // Perform specific actions for 401 status code
+            setOtp("");
+            setForgotpassword(false);
+          } else if (error.response.status === 500) {
+            showToast("error", error.response.data.message);
+          }
+        } else {
+          showToast(
+            "error",
+            "An unexpected error occurred. Please try again later."
+          );
+        }
+      } else {
+        showToast("error", "Server Down. Please try after some time.");
+      }
     }
   };
+
   return (
     <section className="text-gray-600">
       <ToastContainer

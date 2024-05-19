@@ -1,4 +1,5 @@
 import prisma from "../DB/db.config";
+import { Request, Response } from "express";
 import dotenv from "dotenv";
 import CryptoJS from "crypto-js";
 import redisClient from "../DB/redis.config";
@@ -11,18 +12,14 @@ interface RequestBody {
   password: string;
   phoneNumber: string;
 }
-export const isUserPresent = async (
-  req: {
-    body: { email: string };
-  },
-  res: {
-    [x: string]: any;
-    status: (code: number) => any;
-    json: (data: any) => any;
-  }
-) => {
+export const isUserPresent = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
+    if (!email) {
+      return res
+        .status(400)
+        .json({ message: "Email is required", success: false });
+    }
     const user = await prisma.user.findUnique({
       where: {
         email,
@@ -47,7 +44,9 @@ export const isUserPresent = async (
       message: "User found",
     });
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   } finally {
     await prisma.$disconnect();
   }
@@ -126,6 +125,11 @@ export const loginUser = async (
 ) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required", success: false });
+    }
     const user = await prisma.user.findUnique({
       where: {
         email,
@@ -193,7 +197,9 @@ export const loginUser = async (
       message: "User logged in successfully",
     });
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   } finally {
     await prisma.$disconnect();
   }
@@ -211,6 +217,11 @@ export const forgotPassword = async (
 ) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email and Password are required", success: false });
+    }
     const user = await prisma.user.findUnique({
       where: {
         email,

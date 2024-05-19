@@ -27,9 +27,9 @@ import session from "express-session";
 import RedisStore from "connect-redis";
 import redisClient from "../DB/redis.config";
 import {
-  sendOtpEmail,
+  sendOtp_signup,
   sendOtp_login_forgot_Email,
-  verifyOtp,
+  verifyOtp_signup,
   verifyOtpForgot,
   verifyOtpandLogin,
 } from "../Contoller/emailController";
@@ -81,7 +81,7 @@ const checkExistingSession = async (req: Request, res: Response, next: any) => {
 
 router.post("/signup", checkExistingSession, createUser);
 router.post("/login", checkExistingSession, loginUser);
-router.post("/forgot", checkExistingSession, forgotPassword);
+router.post("/forgot", forgotPassword);
 router.get("/new-courses", getallCourses);
 router.post("/new-courses", addnewCourse); // admin part
 router.post("/add-course-content", addCourseContent); // admin part
@@ -91,9 +91,9 @@ router.post("/course-purchase", coursePurchase);
 router.get("/check-auth", checkAuth);
 router.get("/userPurchases", userPurchases);
 router.get("/getContentfolder", getContentfolder);
-router.post("/sendEmail", sendOtpEmail);
+router.post("/sendEmail", sendOtp_signup);
 router.post("/sendotp_for_login_forgot", sendOtp_login_forgot_Email);
-router.post("/verifyOtp", verifyOtp);
+router.post("/verifyOtp", verifyOtp_signup);
 router.post("/verifyOtpAndLogin", verifyOtpandLogin);
 router.post("/isuserpresent", isUserPresent);
 router.post("/verifyOtpforgot", verifyOtpForgot);
