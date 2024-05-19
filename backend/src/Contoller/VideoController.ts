@@ -77,12 +77,24 @@ export const addVideoMetadata = async (
     await prisma.$disconnect();
   }
 };
-export const getVideoMetadata = async (res: {
-  [x: string]: any;
-  status: (code: number) => any;
-  json: (data: any) => any;
-}) => {
+export const getVideoMetadata = async (
+  req: {
+    session: any;
+  },
+  res: {
+    [x: string]: any;
+    status: (code: number) => any;
+    json: (data: any) => any;
+  }
+) => {
   try {
+    // Fetch user details from the session
+    const { user, sessionToken } = req.session;
+    if (!user || !sessionToken) {
+      return res
+        .status(200)
+        .json({ success: false, data: user, message: "Unauthorized" });
+    }
     const getallvideos = `data:videometadata`;
     const getVideos = await redisClient.get(getallvideos);
     if (getVideos) {

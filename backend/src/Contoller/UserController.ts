@@ -8,6 +8,7 @@ import {
   calculateExpirationDate,
   generateSessionToken,
 } from "../lib/gen_session";
+import { fetchUserDetails } from "../lib/user_util";
 dotenv.config();
 
 interface RequestBody {
@@ -24,18 +25,8 @@ export const isUserPresent = async (req: Request, res: Response) => {
         .status(400)
         .json({ message: "Email is required", success: false });
     }
-    const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-      include: {
-        sessions: {
-          select: {
-            sessionToken: true,
-          },
-        },
-      },
-    });
+
+    const { user } = await fetchUserDetails(email);
 
     if (!user) {
       return res
@@ -140,18 +131,7 @@ export const loginUser = async (
         .status(400)
         .json({ message: "Email and password are required", success: false });
     }
-    const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-      include: {
-        sessions: {
-          select: {
-            sessionToken: true,
-          },
-        },
-      },
-    });
+    const { user } = await fetchUserDetails(email);
 
     if (!user) {
       return res
@@ -232,18 +212,8 @@ export const forgotPassword = async (
         .status(400)
         .json({ message: "Email and Password are required", success: false });
     }
-    const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-      include: {
-        sessions: {
-          select: {
-            sessionToken: true,
-          },
-        },
-      },
-    });
+
+    const { user } = await fetchUserDetails(email);
 
     if (!user) {
       return res
@@ -270,6 +240,10 @@ export const forgotPassword = async (
       password,
       process.env.CRYPTO_SECRET || ""
     ).toString();
+
+    // delete the user before updating it
+    const cacheKey = `data:user:${email}`;
+    await redisClient.del(cacheKey);
 
     // Update the user's password
     const updatedUser = await prisma.user.update({
@@ -389,6 +363,7 @@ export const userPurchases = async (
     const userPurchasesCacheKey = `data:userpurchases:${user.id}`;
     const cachedPurchases = await redisClient.get(userPurchasesCacheKey);
     if (cachedPurchases) {
+      console.log("Retrieved User Purchases from cache ...");
       const purchases = JSON.parse(cachedPurchases);
       return res.status(200).json({ success: true, data: purchases });
     }
@@ -405,7 +380,7 @@ export const userPurchases = async (
       userPurchasesCacheKey,
       JSON.stringify(user_purchases)
     );
-
+    console.log("Retrieved User Purchases from database ...");
     return res.status(200).json({ success: true, data: user_purchases });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });

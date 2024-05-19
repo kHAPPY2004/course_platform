@@ -8,6 +8,7 @@ import {
   calculateExpirationDate,
   generateSessionToken,
 } from "../lib/gen_session";
+import { fetchUserDetails } from "../lib/user_util";
 
 dotenv.config();
 
@@ -58,12 +59,10 @@ export const sendOtp_signup = async (req: Request, res: Response) => {
         .status(400)
         .json({ message: "Email is required", success: false });
     }
-    const findUser = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-    });
-    if (findUser) {
+
+    const { user } = await fetchUserDetails(email);
+
+    if (user) {
       return res
         .status(200)
         .json({ success: false, message: "Email already exists" });
@@ -114,12 +113,9 @@ export const sendOtp_login_forgot_Email = async (
         .status(400)
         .json({ message: "Email is required", success: false });
     }
-    const findUser = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-    });
-    if (!findUser) {
+    const { user } = await fetchUserDetails(email);
+
+    if (!user) {
       return res
         .status(200)
         .json({ success: false, message: "User Not Found" });
@@ -170,12 +166,9 @@ export const verifyOtp_signup = async (req: Request, res: Response) => {
         .status(400)
         .json({ message: "Email and OTP are required", success: false });
     }
-    const findUser = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-    });
-    if (findUser) {
+    const { user } = await fetchUserDetails(email);
+
+    if (user) {
       return res
         .status(200)
         .json({ success: false, message: "Email already exists" });
@@ -217,13 +210,9 @@ export const verifyOtpForgot = async (req: Request, res: Response) => {
         .status(400)
         .json({ message: "Email and OTP are required", success: false });
     }
+    const { user } = await fetchUserDetails(email);
 
-    const findUser = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-    });
-    if (!findUser) {
+    if (!user) {
       return res
         .status(200)
         .json({ success: false, message: "User Not Found" });
@@ -277,18 +266,7 @@ export const verifyOtpandLogin = async (
     }
 
     //login process
-    const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-      include: {
-        sessions: {
-          select: {
-            sessionToken: true,
-          },
-        },
-      },
-    });
+    const { user } = await fetchUserDetails(email);
 
     if (!user) {
       return res
