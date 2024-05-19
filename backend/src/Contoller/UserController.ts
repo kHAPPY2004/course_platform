@@ -4,6 +4,10 @@ import dotenv from "dotenv";
 import CryptoJS from "crypto-js";
 import redisClient from "../DB/redis.config";
 import { redisStore } from "../routes/userRoutes";
+import {
+  calculateExpirationDate,
+  generateSessionToken,
+} from "../lib/gen_session";
 dotenv.config();
 
 interface RequestBody {
@@ -65,6 +69,11 @@ export const createUser = async (
 ) => {
   try {
     const { name, email, password, phoneNumber } = req.body;
+    if (!name || !email || !password || !phoneNumber) {
+      return res
+        .status(400)
+        .json({ message: "Credientials are missing...", success: false });
+    }
 
     // Explicitly cast the data object to UserCreateInput
     const encryptedPassword = CryptoJS.AES.encrypt(
@@ -85,7 +94,7 @@ export const createUser = async (
     const sessionToken = generateSessionToken();
     const expirationDate = calculateExpirationDate();
 
-    const newUserSession = await prisma.session.create({
+    await prisma.session.create({
       data: {
         sessionToken,
         expires: expirationDate,
@@ -94,14 +103,15 @@ export const createUser = async (
     });
 
     if (!req.session) {
-      return res.status(400).json({ message: "Session is not initialized" });
+      return res
+        .status(400)
+        .json({ message: "Session is not initialized", success: false });
     }
     req.session.sessionToken = sessionToken;
     req.session.user = newUser;
     req.session.save();
 
     return res.status(200).json({
-      // data: { newUser, newUserSession },
       data: newUser,
       success: true,
       message: "User created successfully",
@@ -306,6 +316,11 @@ export const logout = async (
   }
 ) => {
   const email = req.body.email;
+  if (!email) {
+    return res
+      .status(400)
+      .json({ message: "Email is required", success: false });
+  }
   const sessionId = req.sessionID;
   const seee = `${redisStore.prefix}${sessionId}`;
   const setemailredis = `${redisStore.prefix}email:${email}`;
@@ -367,7 +382,7 @@ export const userPurchases = async (
     // Fetch user details from the session
     const { user, sessionToken } = req.session;
     if (!user || !sessionToken) {
-      return res.status(200).json({ success: false, message: "Unauthorized" });
+      return res.status(400).json({ success: false, message: "Unauthorized" });
     }
 
     // Attempt to retrieve user purchases from Redis
@@ -396,21 +411,3 @@ export const userPurchases = async (
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-// Function to generate session token
-export function generateSessionToken() {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const length = 64;
-  let token = "";
-  for (let i = 0; i < length; i++) {
-    token += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return token;
-}
-
-// Function to calculate expiration date for session
-export function calculateExpirationDate() {
-  const expirationDuration = 24 * 60 * 60 * 1000; // 1 day in milliseconds
-  const currentTime = new Date();
-  return new Date(currentTime.getTime() + expirationDuration);
-}

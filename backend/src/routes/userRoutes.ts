@@ -98,6 +98,5 @@ router.post("/verifyOtpAndLogin", verifyOtpandLogin);
 router.post("/isuserpresent", isUserPresent);
 router.post("/verifyOtpforgot", verifyOtpForgot);
 router.post("/logout", logout);
-// router.get("/courseContent", CourseContent);
 
 export default router;

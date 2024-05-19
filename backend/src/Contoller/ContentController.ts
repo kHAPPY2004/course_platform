@@ -34,9 +34,13 @@ dotenv.config();
 //     json: (data: any) => any;
 //   }
 // ) => {
-//   console.log("addnewcourse in backend");
 //   try {
 //     const addcourse = await req.body;
+// if (!addcourse) {
+//   return res
+//     .status(400)
+//     .json({ message: "Invalid Information...", success: false });
+// }
 //     const {
 //       adminSecret,
 //       title,
@@ -47,7 +51,6 @@ dotenv.config();
 //       parentId,
 //       notionMetadataId,
 //     } = addcourse;
-//     console.log("hidden", typeof hidden, hidden);
 //     if (adminSecret !== process.env.ADMIN_SECRET) {
 //       return res
 //         .status(200)
@@ -96,7 +99,6 @@ dotenv.config();
 //       message: "User logged in successfully",
 //     });
 //   } catch (error) {
-//     console.error("Error logging in:", error);
 //     return res.status(500).json({ message: "Internal server error" });
 //   } finally {
 //     await prisma.$disconnect();
@@ -135,9 +137,13 @@ export const addCourseContent = async (
     json: (data: any) => any;
   }
 ) => {
-  console.log("addnewcourse in backend");
   try {
     const addcourse = await req.body;
+    if (!addcourse) {
+      return res
+        .status(400)
+        .json({ message: "Invalid Information...", success: false });
+    }
     const {
       adminSecret,
       title,
@@ -148,7 +154,7 @@ export const addCourseContent = async (
       parentId,
       notionMetadataId,
     } = addcourse;
-    console.log("hidden", typeof hidden, hidden);
+
     if (adminSecret !== process.env.ADMIN_SECRET) {
       return res
         .status(200)
@@ -197,22 +203,16 @@ export const addCourseContent = async (
       message: "User logged in successfully",
     });
   } catch (error) {
-    console.error("Error logging in:", error);
     return res.status(500).json({ message: "Internal server error" });
   } finally {
     await prisma.$disconnect();
   }
 };
-export const getContentfolder = async (
-  req: {
-    session: any;
-  },
-  res: {
-    [x: string]: any;
-    status: (code: number) => any;
-    json: (data: any) => any;
-  }
-) => {
+export const getContentfolder = async (res: {
+  [x: string]: any;
+  status: (code: number) => any;
+  json: (data: any) => any;
+}) => {
   try {
     const getallcontent = `data:content`;
     const getContent = await redisClient.get(getallcontent);
@@ -240,34 +240,8 @@ export const getContentfolder = async (
       data: allcontents,
     });
   } catch (error) {
-    console.error("Error logging in:", error);
     return res.status(500).json({ message: "Internal server error" });
   } finally {
     await prisma.$disconnect();
   }
 };
-// export const CourseContent = async (
-//   req: {
-//     session: any;
-//   },
-//   res: {
-//     [x: string]: any;
-//     status: (code: number) => any;
-//     json: (data: any) => any;
-//   }
-// ) => {
-//   try {
-//     const content = await prisma.content.findMany();
-//     const temp: any = content.filter((e) => e.parentId);
-//     // console.log("Content in coursebaclemdn", content);
-//     // console.log("temp parent", temp);
-
-//     // Response with user details
-//     const courseContent = await prisma.courseContent.findMany();
-
-//     // console.log("course - content", courseContent);
-//     return res.status(200).json({ success: true, courseContent });
-//   } catch (error) {
-//     return res.status(500).json({ message: "Internal server error" });
-//   }
-// };

@@ -7,7 +7,8 @@ import dotenv from "dotenv";
 import {
   calculateExpirationDate,
   generateSessionToken,
-} from "./UserController";
+} from "../lib/gen_session";
+
 dotenv.config();
 
 // Function to generate a random OTP
@@ -46,7 +47,7 @@ export const createMailOptions = (
   };
 };
 
-const OTP_EXPIRATION_TIME = 1 * 60; // 2 minutes in seconds
+const OTP_EXPIRATION_TIME = 3 * 60; // 2 minutes in seconds
 
 // Function to send email
 export const sendOtp_signup = async (req: Request, res: Response) => {

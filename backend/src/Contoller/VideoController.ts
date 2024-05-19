@@ -27,9 +27,13 @@ export const addVideoMetadata = async (
     json: (data: any) => any;
   }
 ) => {
-  console.log("add video in backend");
   try {
     const addVideo = await req.body;
+    if (!addVideo) {
+      return res
+        .status(400)
+        .json({ message: "Video is required", success: false });
+    }
     const {
       adminSecret,
       video_360p_1,
@@ -61,7 +65,6 @@ export const addVideoMetadata = async (
         content: { connect: { id: contentId } },
       },
     });
-    console.log("course added successfully in frontend");
 
     return res.status(200).json({
       success: true,
@@ -69,22 +72,16 @@ export const addVideoMetadata = async (
       message: "User logged in successfully",
     });
   } catch (error) {
-    console.error("Error logging in:", error);
     return res.status(500).json({ message: "Internal server error" });
   } finally {
     await prisma.$disconnect();
   }
 };
-export const getVideoMetadata = async (
-  req: {
-    session: any;
-  },
-  res: {
-    [x: string]: any;
-    status: (code: number) => any;
-    json: (data: any) => any;
-  }
-) => {
+export const getVideoMetadata = async (res: {
+  [x: string]: any;
+  status: (code: number) => any;
+  json: (data: any) => any;
+}) => {
   try {
     const getallvideos = `data:videometadata`;
     const getVideos = await redisClient.get(getallvideos);
@@ -112,7 +109,6 @@ export const getVideoMetadata = async (
       data: allVideos,
     });
   } catch (error) {
-    console.error("Error logging in:", error);
     return res.status(500).json({ message: "Internal server error" });
   } finally {
     await prisma.$disconnect();

@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import dotenv from "dotenv";
 import routes from "./routes/index";
 
@@ -7,9 +7,9 @@ dotenv.config();
 
 const port: number | string | undefined = process.env.PORT;
 
-app.get("/", (req: Request, res: Response) => {
-  return res.send("Hello there...");
-});
+// app.get("/", (req: Request, res: Response) => {
+//   return res.send("Hello there...");
+// });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

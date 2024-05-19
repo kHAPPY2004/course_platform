@@ -8,6 +8,7 @@ import {
 import { sidebarOpen } from "../store/atoms/sidebar";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import { showToast } from "../util/toast";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -31,31 +32,12 @@ const Navbar = () => {
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-
     try {
       const res = await axios.post("/api/logout", { email });
       if (res.data.success) {
-        toast.warn(res.data.message, {
-          position: "top-left",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        showToast("warn", res.data.message);
       } else {
-        toast.success(res.data.message, {
-          position: "top-left",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        showToast("success", res.data.message);
         navigate("/");
         setCheckUser(res.data); // Update the checkUser atom
       }

@@ -35,9 +35,13 @@ export const addnewCourse = async (
     json: (data: any) => any;
   }
 ) => {
-  console.log("addnewcourse in backend");
   try {
     const addcourse = await req.body;
+    if (!addcourse) {
+      return res
+        .status(400)
+        .json({ message: "Course is required to add ...", success: false });
+    }
     const {
       adminSecret,
       title,
@@ -78,22 +82,16 @@ export const addnewCourse = async (
       message: "User logged in successfully",
     });
   } catch (error) {
-    console.error("Error logging in:", error);
     return res.status(500).json({ message: "Internal server error" });
   } finally {
     await prisma.$disconnect();
   }
 };
-export const getallCourses = async (
-  req: {
-    session: any;
-  },
-  res: {
-    [x: string]: any;
-    status: (code: number) => any;
-    json: (data: any) => any;
-  }
-) => {
+export const getallCourses = async (res: {
+  [x: string]: any;
+  status: (code: number) => any;
+  json: (data: any) => any;
+}) => {
   try {
     const getallcourses = `data:courses`;
     const all_courses = await redisClient.get(getallcourses);
@@ -120,7 +118,6 @@ export const getallCourses = async (
       data: new_courses,
     });
   } catch (error) {
-    console.error("Error logging in:", error);
     return res.status(500).json({ message: "Internal server error" });
   } finally {
     await prisma.$disconnect();
@@ -139,7 +136,11 @@ export const coursePurchase = async (
 ) => {
   try {
     const { id } = req.body;
-
+    if (!id) {
+      return res
+        .status(400)
+        .json({ message: "Invalid information...", success: false });
+    }
     // Fetch user details from the session
     const { user, sessionToken } = req.session;
     if (!user || !sessionToken) {
@@ -169,7 +170,6 @@ export const coursePurchase = async (
         user: { connect: { id: user.id } },
       },
     });
-    console.log("course added successfully in frontend");
     // Response with user details
     return res.status(200).json({
       success: true,
@@ -178,5 +178,7 @@ export const coursePurchase = async (
     });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
+  } finally {
+    await prisma.$disconnect();
   }
 };

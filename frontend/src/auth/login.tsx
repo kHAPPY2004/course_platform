@@ -7,6 +7,8 @@ import { useSetRecoilState } from "recoil";
 import { checkUser } from "../store/atoms/userAuth";
 import { showToast } from "../util/toast";
 import useCountdown from "../util/countdown";
+import OtpForm from "../util/reuse_component/otp_form_filling";
+import EmailForm from "../util/reuse_component/email_form";
 
 interface LoginProps {
   completeUrl: string;
@@ -306,71 +308,21 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
                   <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                     Login to account
                   </h1>
-                  <form
+                  <EmailForm
                     onSubmit={isUserh}
-                    className="space-y-4 md:space-y-6"
-                    method="POST"
-                  >
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                      >
-                        Your email
-                      </label>
-                      <input
-                        value={email}
-                        onChange={handleChange}
-                        type="email"
-                        name="email"
-                        id="email"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        placeholder="name@company.com"
-                        required
-                      />
-                    </div>
-
-                    <div className="flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="terms"
-                          aria-describedby="terms"
-                          type="checkbox"
-                          className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-gray-600 dark:ring-offset-gray-800"
-                          required
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label
-                          htmlFor="terms"
-                          className="font-light text-gray-500 dark:text-gray-300"
-                        >
-                          I accept the{" "}
-                          <a
-                            className="font-medium text-gray-600 hover:underline dark:text-gray-500"
-                            href="#"
-                          >
-                            Terms and Conditions
-                          </a>
-                        </label>
-                      </div>
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+                    email={email}
+                    handleChange={handleChange}
+                    isDisabled={isDisabled}
+                  />
+                  <div className="text-sm font-light text-gray-500 dark:text-gray-400">
+                    Create a new account?{" "}
+                    <Link
+                      to="/Signup"
+                      className="font-medium text-gray-600 hover:underline dark:text-gray-500"
                     >
-                      Next
-                    </button>
-                    <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                      Create a new account?{" "}
-                      <Link
-                        to="/Signup"
-                        className="font-medium text-gray-600 hover:underline dark:text-gray-500"
-                      >
-                        Signup
-                      </Link>
-                    </p>
-                  </form>
+                      Signup
+                    </Link>
+                  </div>
                 </>
               )}
             {/* shows choose page */}
@@ -543,59 +495,18 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
                       </svg>
                     </button>
                     <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                      Verify OTP
+                      Verify OTP to login
                     </h1>
                     <div></div>
                   </div>
-                  <form
-                    onSubmit={handleSubmit_through_otp}
-                    className="space-y-4 md:space-y-6"
-                    method="POST"
-                  >
-                    <div>
-                      <label
-                        htmlFor="otp"
-                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                      >
-                        Enter OTP
-                      </label>
-                      <input
-                        value={otp}
-                        onChange={handleChange}
-                        type="text"
-                        name="otp"
-                        id="otp"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        placeholder="Enter your OTP"
-                        required
-                      />
-                    </div>
-                    <div className="bg-green-200 p-2 rounded-lg">
-                      We’ve sent an OTP to your email
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
-                    >
-                      Submit
-                    </button>
-                    <div className="text-sm flex justify-center mt-2 border p-2">
-                      {countdown > 0 ? (
-                        <>Request new OTP in {countdown} seconds</>
-                      ) : (
-                        <button
-                          disabled={isDisabled}
-                          onClick={sendOtpandlogin}
-                          className={`${
-                            isDisabled ? "cursor-not-allowed" : "cursor-pointer"
-                          } hover:text-blue-400`}
-                        >
-                          RESEND
-                        </button>
-                      )}
-                    </div>
-                  </form>
+                  <OtpForm
+                    otp={otp}
+                    handleChange={handleChange}
+                    handleSubmit={handleSubmit_through_otp}
+                    countdown={countdown}
+                    sendOtp={sendOtpandlogin}
+                    isDisabled={isDisabled}
+                  />
                 </>
               )}
 
@@ -635,59 +546,18 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
                       </svg>
                     </button>
                     <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                      Verify OTP
+                      Verify to reset the password
                     </h1>
                     <div></div>
                   </div>
-                  <form
-                    onSubmit={verifyOtp_forgot}
-                    className="space-y-4 md:space-y-6"
-                    method="POST"
-                  >
-                    <div>
-                      <label
-                        htmlFor="otp"
-                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                      >
-                        Enter OTP
-                      </label>
-                      <input
-                        value={otp}
-                        onChange={handleChange}
-                        type="text"
-                        name="otp"
-                        id="otp"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        placeholder="Enter your OTP"
-                        required
-                      />
-                    </div>
-                    <div className="bg-green-200 p-2 rounded-lg">
-                      We’ve sent an OTP to your email
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
-                    >
-                      Submit
-                    </button>
-                    <div className="text-sm flex justify-center mt-2 border p-2">
-                      {countdown > 0 ? (
-                        <>Request new OTP in {countdown} seconds</>
-                      ) : (
-                        <button
-                          disabled={isDisabled}
-                          onClick={sendOtp_forgot}
-                          className={`${
-                            isDisabled ? "cursor-not-allowed" : "cursor-pointer"
-                          } hover:text-blue-400`}
-                        >
-                          RESEND
-                        </button>
-                      )}
-                    </div>
-                  </form>
+                  <OtpForm
+                    otp={otp}
+                    handleChange={handleChange}
+                    handleSubmit={verifyOtp_forgot}
+                    countdown={countdown}
+                    sendOtp={sendOtp_forgot}
+                    isDisabled={isDisabled}
+                  />
                 </>
               )}
 
