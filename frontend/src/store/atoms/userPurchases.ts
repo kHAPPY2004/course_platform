@@ -1,17 +1,23 @@
 import { atom, selector } from "recoil";
 import axios from "axios";
 import { coursesState } from "./getcourses";
+import { checkUser } from "./userAuth";
 
 export const fetchUserPurchases = atom<PurchaseData[]>({
   key: "fetchUserPurchases",
   default: selector({
     key: "fetchUserPurchases/Default",
-    get: async () => {
+    get: async ({ get }: any) => {
       try {
-        const res = await axios.get("/api/userPurchases", {
-          withCredentials: true,
-        });
-        return res.data.data;
+        const isUserExits = get(checkUser);
+        if (isUserExits.success) {
+          const res = await axios.get("/api/userPurchases", {
+            withCredentials: true,
+          });
+          return res.data.data;
+        } else {
+          return [];
+        }
       } catch (error) {
         return [];
       }
