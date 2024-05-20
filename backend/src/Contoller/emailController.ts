@@ -85,7 +85,7 @@ export const sendOtp_signup = async (req: Request, res: Response) => {
 
     // Send mail with defined transport object
     try {
-      await transporter.sendMail(mailOptions);
+      // await transporter.sendMail(mailOptions);
       return res
         .status(200)
         .json({ message: "OTP sent successfully", success: true });
@@ -139,7 +139,7 @@ export const sendOtp_login_forgot_Email = async (
 
     // Send mail with defined transport object
     try {
-      await transporter.sendMail(mailOptions);
+      // await transporter.sendMail(mailOptions);
       return res
         .status(200)
         .json({ message: "OTP sent successfully", success: true });

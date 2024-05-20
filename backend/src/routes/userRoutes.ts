@@ -33,6 +33,7 @@ import {
   verifyOtpForgot,
   verifyOtpandLogin,
 } from "../Contoller/emailController";
+import createRateLimiter from "../lib/rate_limit";
 
 const router = express.Router();
 
@@ -79,6 +80,26 @@ const checkExistingSession = async (req: Request, res: Response, next: any) => {
   }
 };
 
+// Middleware for Component A
+const sendOtp_ratelimit = createRateLimiter(
+  10 * 60,
+  3,
+  "data:ratelimit:sentOtp"
+);
+// Middleware for Component B
+const verifyOtp_ratelimit_login = createRateLimiter(
+  10 * 60, // durationInSeconds for ratelimit
+  4, // numberOfRequestsAllowed
+  "data:ratelimit:verifyOtp_login"
+);
+
+// Middleware for Component C
+const verifyOtp_ratelimit_forgot = createRateLimiter(
+  10 * 60, // durationInSeconds for ratelimit
+  3, // numberOfRequestsAllowed
+  "data:ratelimit:verifyOtp_forgot"
+);
+
 router.post("/signup", checkExistingSession, createUser);
 router.post("/login", checkExistingSession, loginUser);
 router.post("/forgot", checkExistingSession, forgotPassword);
@@ -92,11 +113,15 @@ router.get("/check-auth", checkAuth);
 router.get("/userPurchases", userPurchases);
 router.get("/getContentfolder", getContentfolder);
 router.post("/sendEmail", sendOtp_signup);
-router.post("/sendotp_for_login_forgot", sendOtp_login_forgot_Email);
+router.post(
+  "/sendotp_for_login_forgot",
+  sendOtp_ratelimit,
+  sendOtp_login_forgot_Email
+);
 router.post("/verifyOtp", verifyOtp_signup);
-router.post("/verifyOtpAndLogin", verifyOtpandLogin);
+router.post("/verifyOtpAndLogin", verifyOtp_ratelimit_login, verifyOtpandLogin);
 router.post("/isuserpresent", isUserPresent);
-router.post("/verifyOtpforgot", verifyOtpForgot);
+router.post("/verifyOtpforgot", verifyOtp_ratelimit_forgot, verifyOtpForgot);
 router.post("/logout", logout);
 
 export default router;
