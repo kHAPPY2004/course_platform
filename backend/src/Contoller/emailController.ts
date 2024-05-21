@@ -48,8 +48,8 @@ export const createMailOptions = (
   };
 };
 
-const OTP_EXPIRATION_TIME = 3 * 60; // 2 minutes in seconds
-
+const OTP_EXPIRATION_TIME = 3 * 60; // 3 minutes in seconds
+const UNIQUE_EXPIRATION_TIME = 3 * 60; // 3 minutes in seconds
 // Function to send email
 export const sendOtp_signup = async (req: Request, res: Response) => {
   try {
@@ -121,6 +121,20 @@ export const sendOtp_login_forgot_Email = async (
         .json({ success: false, message: "User Not Found" });
     }
 
+    // Generate a unique key
+    const uniqueKey = `uid_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(7)}`;
+
+    // Store the unique key in Redis with an appropriate expiration time if needed
+    const uniqueKeyRedisKey = `${redisStore.prefix}unique_key_sendOtp:${email}`;
+
+    await redisClient.setEx(
+      uniqueKeyRedisKey,
+      UNIQUE_EXPIRATION_TIME,
+      uniqueKey
+    );
+
     const otp = generateOtp();
     console.log("generated otp", otp);
 
@@ -140,9 +154,11 @@ export const sendOtp_login_forgot_Email = async (
     // Send mail with defined transport object
     try {
       // await transporter.sendMail(mailOptions);
-      return res
-        .status(200)
-        .json({ message: "OTP sent successfully", success: true });
+      return res.status(200).json({
+        message: "OTP sent successfully",
+        success: true,
+        key: uniqueKey,
+      });
     } catch (error) {
       return res
         .status(500)
@@ -234,9 +250,24 @@ export const verifyOtpForgot = async (req: Request, res: Response) => {
     // OTP is valid, optionally delete the OTP after successful verification
     await redisClient.del(otpgetfromredis);
 
-    return res
-      .status(200)
-      .json({ message: "OTP verified successfully", success: true });
+    // Generate a unique key
+    const uniqueKey = `uid_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(7)}`;
+
+    // Store the unique key in Redis with an appropriate expiration time if needed
+    const uniqueKeyRedisKey = `${redisStore.prefix}unique_key_verifyOtpForgot:${email}`;
+
+    await redisClient.setEx(
+      uniqueKeyRedisKey,
+      UNIQUE_EXPIRATION_TIME,
+      uniqueKey
+    );
+    return res.status(200).json({
+      message: "OTP verified successfully",
+      success: true,
+      key: uniqueKey,
+    });
   } catch (error) {
     return res
       .status(500)
@@ -249,7 +280,12 @@ export const verifyOtpForgot = async (req: Request, res: Response) => {
 export const verifyOtpandLogin = async (
   req: {
     session: any;
-    body: { email: string; otp: string; allCookies: any };
+    body: {
+      email: string;
+      unique_key_sendOtp: string;
+      otp: string;
+      allCookies: any;
+    };
   },
   res: {
     [x: string]: any;
@@ -258,8 +294,8 @@ export const verifyOtpandLogin = async (
   }
 ) => {
   try {
-    const { email, otp } = req.body;
-    if (!email || !otp) {
+    const { email, otp, unique_key_sendOtp } = req.body;
+    if (!email || !otp || !unique_key_sendOtp) {
       return res
         .status(400)
         .json({ message: "Email and OTP are required", success: false });
@@ -272,6 +308,20 @@ export const verifyOtpandLogin = async (
       return res
         .status(200)
         .json({ success: false, message: "User not found" });
+    }
+
+    // Get Unique key from redis
+    const uniqueKeyRedisKey = `${redisStore.prefix}unique_key_sendOtp:${email}`;
+    const uniq_key = await redisClient.get(uniqueKeyRedisKey);
+    // Verify unique key
+    if (uniq_key === unique_key_sendOtp) {
+      // key verified then no need of key in redis so delete it
+      await redisClient.del(uniqueKeyRedisKey);
+    } else {
+      return res.status(400).json({
+        message: "Session Expired , Please try again from initial step",
+        success: false,
+      });
     }
 
     // Retrieve the OTP from Redis

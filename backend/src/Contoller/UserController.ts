@@ -204,7 +204,12 @@ export const loginUser = async (
 export const forgotPassword = async (
   req: {
     session: any;
-    body: { email: string; password: string; allCookies: any };
+    body: {
+      email: string;
+      unique_key_forgot: string;
+      password: string;
+      allCookies: any;
+    };
   },
   res: {
     [x: string]: any;
@@ -213,8 +218,8 @@ export const forgotPassword = async (
   }
 ) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
+    const { email, password, unique_key_forgot } = req.body;
+    if (!email || !password || !unique_key_forgot) {
       return res
         .status(400)
         .json({ message: "Email and Password are required", success: false });
@@ -228,8 +233,21 @@ export const forgotPassword = async (
         .json({ success: false, message: "User not found" });
     }
 
-    // Expire existing session if it exists
+    // Get Unique key from redis
+    const uniqueKeyRedisKey = `${redisStore.prefix}unique_key_verifyOtpForgot:${email}`;
+    const uniq_key = await redisClient.get(uniqueKeyRedisKey);
+
+    if (uniq_key === unique_key_forgot) {
+      // key verified then no need of key in redis so delete it
+      await redisClient.del(uniqueKeyRedisKey);
+    } else {
+      return res.status(400).json({
+        message: "Session Expired , Please try again from initial step",
+        success: false,
+      });
+    }
     if (user.sessions.length > 0) {
+      // Expire existing session if it exists
       try {
         // Delete existing session(s) associated with the user ID
         await prisma.session.deleteMany({

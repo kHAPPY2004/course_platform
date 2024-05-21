@@ -26,6 +26,8 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
   const [login_otp, setLogin_otp] = useState(false);
   const [forgotpassword, setForgotpassword] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [unique_key_forgot, setUnique_key_forgot] = useState("");
+  const [unique_key_sendOtp, setUnique_key_sendOtp] = useState("");
   const [otp, setOtp] = useState("");
   const { countdown, startCountdown, clearCountdown } = useCountdown(30);
   const [attemptLeftforSendOtp, setAttemptLeftforSendOtp] = useState<
@@ -126,6 +128,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       setIsDisabled(false);
       if (res.data.success) {
         setLogin_otp(true);
+        setUnique_key_sendOtp(res.data.key);
         startCountdown();
         showToast("success", res.data.message);
       } else {
@@ -167,6 +170,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       const res = await axios.post("/api/verifyOtpAndLogin", {
         email,
         otp,
+        unique_key_sendOtp,
       });
       setIsDisabled(false);
       if (res.data.success) {
@@ -219,6 +223,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       const res = await axios.post("/api/forgot", {
         email,
         password,
+        unique_key_forgot,
       });
       if (res.data.success) {
         // Update the checkUser selector after successful login
@@ -231,7 +236,18 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          showToast("error", error.response.data.message);
+          if (error.response.status === 429) {
+            showToast("error", error.response.data.message);
+            // Perform specific actions for 401 status code
+            setForgotpassword(false);
+            setIsUser(true);
+            setIsVerified(false);
+          } else if (
+            error.response.status === 500 ||
+            error.response.status === 400
+          ) {
+            showToast("error", error.response.data.message);
+          }
         } else {
           showToast(
             "error",
@@ -296,6 +312,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       if (res.data.success) {
         setIsUser(false);
         setIsVerified(true);
+        setUnique_key_forgot(res.data.key);
         showToast("success", res.data.message);
       } else {
         showToast("warn", res.data.message);
@@ -443,7 +460,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
                   {attemptLeftforSendOtp !== undefined &&
                     attemptLeftforSendOtp !== "0" && (
                       <div className="text-red-300">
-                        {attemptLeftforSendOtp} attempts Left
+                        {attemptLeftforSendOtp} attempts Left to send OTP
                       </div>
                     )}
                 </>

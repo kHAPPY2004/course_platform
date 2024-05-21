@@ -100,9 +100,21 @@ const verifyOtp_ratelimit_forgot = createRateLimiter(
   "data:ratelimit:verifyOtp_forgot"
 );
 
+// Middleware for Component D
+const forgotpassword_ratelimit = createRateLimiter(
+  10 * 60, // durationInSeconds for ratelimit
+  2, // numberOfRequestsAllowed
+  "data:ratelimit:forgot_password"
+);
+
 router.post("/signup", checkExistingSession, createUser);
 router.post("/login", checkExistingSession, loginUser);
-router.post("/forgot", checkExistingSession, forgotPassword);
+router.post(
+  "/forgot",
+  forgotpassword_ratelimit,
+  checkExistingSession,
+  forgotPassword
+);
 router.get("/new-courses", getallCourses);
 router.post("/new-courses", addnewCourse); // admin part
 router.post("/add-course-content", addCourseContent); // admin part
