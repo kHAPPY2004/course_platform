@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link, useNavigate } from "react-router-dom";
 import { checkUser } from "../store/atoms/userAuth";
@@ -25,6 +25,8 @@ const Signup: React.FC<LoginProps> = ({ completeUrl }) => {
   const [isEmail, setIsEmail] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const { countdown, startCountdown, clearCountdown } = useCountdown(30);
+  const [unique_key_verifyOtp_signup, setUnique_key_verifyOtp_signup] =
+    useState("");
 
   const handleChange = (e: {
     target: { name: string; value: React.SetStateAction<string> };
@@ -59,6 +61,7 @@ const Signup: React.FC<LoginProps> = ({ completeUrl }) => {
         email,
         password,
         phoneNumber,
+        unique_key_verifyOtp_signup,
       });
       if (res.data.success) {
         setCheckUser(res.data); // Update the checkUser atom
@@ -128,6 +131,7 @@ const Signup: React.FC<LoginProps> = ({ completeUrl }) => {
       if (res.data.success) {
         setIsEmail(false);
         setIsVerified(true);
+        setUnique_key_verifyOtp_signup(res.data.key);
         showToast("success", res.data.message);
       } else {
         showToast("warn", res.data.message);

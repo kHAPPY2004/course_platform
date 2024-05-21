@@ -206,9 +206,25 @@ export const verifyOtp_signup = async (req: Request, res: Response) => {
     // OTP is valid, optionally delete the OTP after successful verification
     await redisClient.del(getotpredis);
 
-    return res
-      .status(200)
-      .json({ message: "OTP verified successfully", success: true });
+    // Generate a unique key
+    const uniqueKey = `uid_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(7)}`;
+
+    // Store the unique key in Redis with an appropriate expiration time
+    const uniqueKeyRedisKey = `${redisStore.prefix}unique_key_verifyOtp_signup:${email}`;
+
+    await redisClient.setEx(
+      uniqueKeyRedisKey,
+      UNIQUE_EXPIRATION_TIME,
+      uniqueKey
+    );
+
+    return res.status(200).json({
+      message: "OTP verified successfully",
+      success: true,
+      key: uniqueKey,
+    });
   } catch (error) {
     return res
       .status(500)

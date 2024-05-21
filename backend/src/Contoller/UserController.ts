@@ -50,7 +50,13 @@ export const isUserPresent = async (req: Request, res: Response) => {
 export const createUser = async (
   req: {
     session: any;
-    body: RequestBody;
+    body: {
+      name: string;
+      email: string;
+      password: string;
+      phoneNumber: string;
+      unique_key_verifyOtp_signup: string;
+    };
   },
   res: {
     [x: string]: any;
@@ -59,8 +65,15 @@ export const createUser = async (
   }
 ) => {
   try {
-    const { name, email, password, phoneNumber } = req.body;
-    if (!name || !email || !password || !phoneNumber) {
+    const { name, email, password, phoneNumber, unique_key_verifyOtp_signup } =
+      req.body;
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !phoneNumber ||
+      !unique_key_verifyOtp_signup
+    ) {
       return res
         .status(400)
         .json({ message: "Credientials are missing...", success: false });
@@ -73,6 +86,21 @@ export const createUser = async (
         .status(200)
         .json({ success: false, message: "Email Already Exits..." });
     }
+
+    // Get Unique key from redis
+    const uniqueKeyRedisKey = `${redisStore.prefix}unique_key_verifyOtp_signup:${email}`;
+    const uniq_key = await redisClient.get(uniqueKeyRedisKey);
+    // Verify unique key
+    if (uniq_key === unique_key_verifyOtp_signup) {
+      // key verified then no need of key in redis so delete it
+      await redisClient.del(uniqueKeyRedisKey);
+    } else {
+      return res.status(400).json({
+        message: "Session Expired , Please try again from initial step",
+        success: false,
+      });
+    }
+
     // Explicitly cast the data object to UserCreateInput
     const encryptedPassword = CryptoJS.AES.encrypt(
       password,
