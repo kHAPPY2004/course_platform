@@ -28,6 +28,14 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
   const [isDisabled, setIsDisabled] = useState(false);
   const [otp, setOtp] = useState("");
   const { countdown, startCountdown, clearCountdown } = useCountdown(30);
+  const [attemptLeftforSendOtp, setAttemptLeftforSendOtp] = useState<
+    string | undefined
+  >(undefined);
+  const [attemptLeftforVerifyOtp, setAttemptLeftforVerifyOtp] = useState<
+    string | undefined
+  >(undefined);
+  const [attemptLeftforVerifyOtpforgot, setAttemptLeftforVerifyOtpforgot] =
+    useState<string | undefined>(undefined);
 
   const handleChange = (e: {
     target: { name: string; value: React.SetStateAction<string> };
@@ -123,10 +131,21 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       } else {
         showToast("warn", res.data.message);
       }
+      setAttemptLeftforSendOtp(res.headers["x-ratelimit-attempts-left"]);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          showToast("error", error.response.data.message);
+          if (error.response.status === 429) {
+            showToast("error", error.response.data.message);
+            // Perform specific actions for 429 status code
+            setIsDisabled(false);
+            setLogin_otp(false);
+          } else if (
+            error.response.status === 500 ||
+            error.response.status === 400
+          ) {
+            showToast("error", error.response.data.message);
+          }
         } else {
           showToast(
             "error",
@@ -144,10 +163,12 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
   }) => {
     e.preventDefault();
     try {
+      setIsDisabled(true);
       const res = await axios.post("/api/verifyOtpAndLogin", {
         email,
         otp,
       });
+      setIsDisabled(false);
       if (res.data.success) {
         setEmail("");
         setOtp("");
@@ -159,6 +180,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       } else {
         showToast("warn", res.data.message);
       }
+      setAttemptLeftforVerifyOtp(res.headers["x-ratelimit-attempts-left"]);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
@@ -167,8 +189,17 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
             // Perform specific actions for 401 status code
             setOtp("");
             setLogin_otp(false);
-          } else if (error.response.status === 500) {
+          } else if (
+            error.response.status === 500 ||
+            error.response.status === 400
+          ) {
             showToast("error", error.response.data.message);
+          } else if (error.response.status === 429) {
+            showToast("error", error.response.data.message);
+            // Perform specific actions for 401 status code
+            setOtp("");
+            setIsDisabled(false);
+            setLogin_otp(false);
           }
         } else {
           showToast(
@@ -228,10 +259,21 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       } else {
         showToast("warn", res.data.message);
       }
+      setAttemptLeftforSendOtp(res.headers["x-ratelimit-attempts-left"]);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          showToast("error", error.response.data.message);
+          if (error.response.status === 429) {
+            showToast("error", error.response.data.message);
+            // Perform specific actions for 401 status code
+            setIsDisabled(false);
+            setForgotpassword(false);
+          } else if (
+            error.response.status === 500 ||
+            error.response.status === 400
+          ) {
+            showToast("error", error.response.data.message);
+          }
         } else {
           showToast(
             "error",
@@ -258,6 +300,9 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
       } else {
         showToast("warn", res.data.message);
       }
+      setAttemptLeftforVerifyOtpforgot(
+        res.headers["x-ratelimit-attempts-left"]
+      );
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
@@ -266,8 +311,17 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
             // Perform specific actions for 401 status code
             setOtp("");
             setForgotpassword(false);
-          } else if (error.response.status === 500) {
+          } else if (
+            error.response.status === 500 ||
+            error.response.status === 400
+          ) {
             showToast("error", error.response.data.message);
+          } else if (error.response.status === 429) {
+            showToast("error", error.response.data.message);
+            // Perform specific actions for 401 status code
+            setOtp("");
+            setIsDisabled(false);
+            setForgotpassword(false);
           }
         } else {
           showToast(
@@ -386,6 +440,12 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
                       Forgot Password
                     </button>
                   </div>
+                  {attemptLeftforSendOtp !== undefined &&
+                    attemptLeftforSendOtp !== "0" && (
+                      <div className="text-red-300">
+                        {attemptLeftforSendOtp} attempts Left
+                      </div>
+                    )}
                 </>
               )}
             {/* Login with password */}
@@ -507,6 +567,12 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
                     sendOtp={sendOtpandlogin}
                     isDisabled={isDisabled}
                   />
+                  {attemptLeftforVerifyOtp !== undefined &&
+                    attemptLeftforVerifyOtp !== "0" && (
+                      <div className="text-red-300">
+                        {attemptLeftforVerifyOtp} attempts Left
+                      </div>
+                    )}
                 </>
               )}
 
@@ -558,13 +624,19 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
                     sendOtp={sendOtp_forgot}
                     isDisabled={isDisabled}
                   />
+                  {attemptLeftforVerifyOtpforgot !== undefined &&
+                    attemptLeftforVerifyOtpforgot !== "0" && (
+                      <div className="text-red-300">
+                        {attemptLeftforVerifyOtpforgot} attempts Left
+                      </div>
+                    )}
                 </>
               )}
 
             {isVerified && (
               <>
                 <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                  Create a New Password
+                  Update Credentials
                 </h1>
                 <form
                   onSubmit={Forgot}
