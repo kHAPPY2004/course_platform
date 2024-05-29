@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useRecoilValueLoadable } from "recoil";
 import { filteredContentvideo } from "../store/atoms/getcontent";
 import CourseSlugRedirector from "../components/course_protect";
-import BreadCrumbs from "../components/breadCrumbs";
 
 interface CourseSlugRedirectorProps1 {
   params: { id: string; hash: string; hash2: string };
@@ -29,7 +28,6 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({ params }) => {
   ) {
     return (
       <>
-        <BreadCrumbs />
         {contentVideo && (
           <div className="max-w-screen-xl justify-between mx-auto p-4 grid grid-cols-1 gap-5 md:grid-cols-3">
             {contentVideo.contents.map((content) => (

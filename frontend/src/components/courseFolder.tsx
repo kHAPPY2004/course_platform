@@ -15,6 +15,7 @@ import {
 } from "../store/atoms/getcontent";
 import CourseSlugRedirector from "./course_protect";
 import React from "react";
+import BreadCrumbs from "../components/breadCrumbs";
 
 interface CourseSlugRedirectorProps1 {
   params: { id: string; hash: string; hash2: string };
@@ -178,6 +179,7 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
             } overflow-y-auto bg-slate-500`}
           >
             <div className="pt-14">
+              <BreadCrumbs />
               {params.hash && (
                 <>
                   {React.cloneElement(children, {

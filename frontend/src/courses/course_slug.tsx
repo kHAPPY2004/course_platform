@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import BreadCrumbs from "../components/breadCrumbs";
 
 interface CourseSlugRedirectorProps1 {
   params: { id: string; hash: string; hash2: string };
@@ -21,7 +20,6 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
   if (contentFolder.state === "hasValue" && contentFolder.contents.length > 0) {
     return (
       <>
-        <BreadCrumbs />
         {contentFolder && (
           <div className="max-w-screen-xl justify-between mx-auto p-4 grid grid-cols-1 gap-5 md:grid-cols-3">
             {contentFolder.contents.map((content: any) => (

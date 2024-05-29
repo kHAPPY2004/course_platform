@@ -16,7 +16,7 @@ export interface ContentSlug {
   hash2: string | null;
 }
 
-export const contentState = atom<UserData[]>({
+export const contentState = atom({
   key: "contentState",
   default: selector({
     key: "contentState/Default",
