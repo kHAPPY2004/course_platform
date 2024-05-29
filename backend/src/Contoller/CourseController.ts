@@ -70,25 +70,42 @@ export const addnewCourse = async (
         .json({ message: "Error while talking to redis..." });
     }
 
-    // create a new course in the database
-    const course_added = await prisma.course.create({
-      data: {
-        appxCourseId: parseInt(appxCourseId), // Your appx course ID
-        discordRoleId, // Your Discord role ID
-        title,
-        imageUrl,
-        description,
-        openToEveryone: false, // Whether the course is open to everyone or not
-        slug,
-        sellingPrice: parseInt(sellingPrice),
-        listPrice: parseInt(listPrice),
-      },
+    // Start a transaction
+    const result = await prisma.$transaction(async (prisma) => {
+      // create a new course in the database
+      const course_added = await prisma.course.create({
+        data: {
+          appxCourseId: parseInt(appxCourseId), // Your appx course ID
+          discordRoleId, // Your Discord role ID
+          title,
+          imageUrl,
+          description,
+          openToEveryone: false, // Whether the course is open to everyone or not
+          slug,
+          sellingPrice: parseInt(sellingPrice),
+          listPrice: parseInt(listPrice),
+        },
+      });
+
+      // create a field in the coursecontent
+      await prisma.courseContent.create({
+        data: {
+          content: {
+            connect: {
+              id: course_added.id, // Connect using course id
+            },
+          },
+          course: { connect: { id: course_added.id } },
+        },
+      });
+
+      return course_added;
     });
 
     return res.status(200).json({
       success: true,
-      data: { course_added },
-      message: "User logged in successfully",
+      data: { course_added: result },
+      message: "Course added successfully",
     });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });

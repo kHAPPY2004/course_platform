@@ -60,7 +60,7 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
       </>
     );
   } else {
-    return <>Error while fetching data from backend end</>;
+    return <>No data...</>;
   }
 };
 const Course_slug: React.FC<CourseSlugRedirectorProps1> = ({

@@ -54,10 +54,7 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
         <div>Error while fetching data from backend111</div>
       </>
     );
-  } else if (
-    contentFolder.state === "hasValue" &&
-    contentFolder.contents.length > 0
-  ) {
+  } else if (contentFolder.state === "hasValue") {
     const toggleDropdown = async (
       e: { preventDefault: () => void },
       id: string

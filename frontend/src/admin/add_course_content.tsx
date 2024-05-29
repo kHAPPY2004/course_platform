@@ -210,23 +210,6 @@ const Add_Course_Content: React.FC = () => {
                   required
                 />
               </div>
-              {/* <div>
-                <label
-                  htmlFor="hidden"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  hidden
-                </label>
-                <input
-                  checked={addCourse.hidden}
-                  onChange={handleChange}
-                  type="checkbox"
-                  name="hidden"
-                  id="hidden"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="false / true"
-                />
-              </div> */}
               <div>
                 <label
                   htmlFor="hidden"
@@ -280,23 +263,26 @@ const Add_Course_Content: React.FC = () => {
                   placeholder="thumbnail"
                 />
               </div>
-              <div>
-                <label
-                  htmlFor="parentId"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  parentId
-                </label>
-                <input
-                  value={addCourse.parentId}
-                  onChange={handleChange}
-                  type="number"
-                  name="parentId"
-                  id="parentId"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="parentId"
-                />
-              </div>
+              {addCourse.type === "video" && (
+                <div>
+                  <label
+                    htmlFor="parentId"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    parentId
+                  </label>
+                  <input
+                    value={addCourse.parentId}
+                    onChange={handleChange}
+                    type="number"
+                    name="parentId"
+                    id="parentId"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="parentId"
+                  />
+                </div>
+              )}
+
               <div>
                 <label
                   htmlFor="notionMetadataId"
