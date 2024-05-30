@@ -3,11 +3,11 @@ import { useRecoilValueLoadable, useSetRecoilState } from "recoil";
 import { filteredCoursesState } from "../store/atoms/getcourses";
 import { useEffect } from "react";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { fetchUserPurchases } from "../store/atoms/userPurchases";
 import { contentSlug } from "../store/atoms/getcontent";
+import ToastConfig from "../util/toastcontainer";
+import { showToast } from "../util/toast";
 
 export const New_Courses_slug: React.FC = () => {
   const params: any = useParams();
@@ -42,61 +42,22 @@ export const New_Courses_slug: React.FC = () => {
         });
 
         if (!res.data.success) {
-          toast.success(res.data.message, {
-            position: "top-left",
-            autoClose: 1500,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-          });
+          showToast("success", res.data.message);
           navigate("/login");
         } else {
-          toast.success(res.data.message, {
-            position: "top-left",
-            autoClose: 1500,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-          });
+          showToast("success", res.data.message);
           setUserPurchases((prevPurchases) => [
             ...prevPurchases,
             ...res.data.data,
           ]);
         }
       } catch (error) {
-        toast.error("Error fetching user data:", {
-          position: "top-left",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
+        showToast("error", "Error fetching user data:");
       }
     };
     return (
       <>
-        {" "}
-        <ToastContainer
-          position="top-right"
-          autoClose={1500}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-        />
+        <ToastConfig />
         {/* <div>slug: {slug.id}</div> */}
         <div>id: {course.contents[0].id}</div>
         <div>appxCourseId: {course.contents[0].appxCourseId}</div>

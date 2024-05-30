@@ -70,16 +70,16 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
     return (
       <>
         <Navbar />
-        <section className="flex h-screen">
+        <section className="flex h-screen select-none">
           {/* Stable side */}
           <div
             className={`${
-              sidebar ? "w-1/5" : "hidden"
-            } bg-gray-600 p-3 font-bold  text-white overflow-y-scroll`}
+              sidebar ? "w-1/3 md:w-1/4 lg:w-1/4 xl:w-1/5" : "hidden"
+            } bg-blue-50 bg-opacity-80 md:p-3 font-medium lg:font-normal pt-16 lg:text-base md:pt-20 p-1 text-xs text-gray-900 dark:text-white overflow-y-scroll dark:bg-gray-900 transform transition duration-500`}
           >
             <button
               onClick={() => navigate(-1)}
-              className="text-white font-bold mt-16 mb-5 space-x-4 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm flex justify-center py-2 w-full text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="text-white md:mb-5 mb-3 md:text-sm md:space-x-4 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg flex justify-center md:py-2 py-1 w-full text-center dark:bg-blue-900 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -87,7 +87,7 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
                 viewBox="0 0 24 24"
                 strokeWidth="1.5"
                 stroke="currentColor"
-                className="w-6 h-6"
+                className="w-6 h-6 hidden md:block"
               >
                 <path
                   strokeLinecap="round"
@@ -95,21 +95,26 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
                   d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"
                 />
               </svg>
-              <p className="">Go Back</p>
+              <p>Go Back</p>
             </button>
             {contentFolder.contents.map((content: any) => (
-              <div className="-mx-2 font-medium" key={content.id}>
+              <div className="-mx-2" key={content.id}>
                 <div
-                  className="cursor-pointer h-12 items-center hover:underline flex flex-row justify-between px-2"
+                  className="cursor-pointer h-10 md:h-12 items-center hover:underline flex flex-row justify-between px-2"
                   onClick={(e) => toggleDropdown(e, content.id)}
                 >
-                  {content.title}
+                  <p className="sm:hidden block">
+                    {content.title.length > 15
+                      ? content.title.substring(0, 15) + "..."
+                      : content.title}
+                  </p>
+                  <p className="sm:block hidden">{content.title}</p>
                   {openDropdownId !== content.id && (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 20 20"
                       fill="currentColor"
-                      className="w-5 h-5"
+                      className="w-3 h-3 md:w-5 md:h-5"
                     >
                       <path
                         fillRule="evenodd"
@@ -123,7 +128,7 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 20 20"
                       fill="currentColor"
-                      className="w-5 h-5"
+                      className="w-3 h-3 md:w-5 md:h-5"
                     >
                       <path
                         fillRule="evenodd"
@@ -138,7 +143,7 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
                     {contentVideo.contents.length > 0 &&
                       contentVideo.contents.map((option: any) => (
                         <div
-                          className="flex hover:dark:text-neutral-400 flex-row my-1 text-sm h-12 items-center px-1 space-x-2"
+                          className="flex hover:dark:text-neutral-400 font-light md:text-sm flex-row h-9 md:h-12 items-center px-2 space-x-1 md:space-x-2"
                           key={option.id}
                         >
                           <svg
@@ -147,7 +152,7 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
                             viewBox="0 0 24 24"
                             strokeWidth="1.5"
                             stroke="currentColor"
-                            className="w-6 h-6"
+                            className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5"
                           >
                             <path
                               strokeLinecap="round"
@@ -157,15 +162,28 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
                           </svg>
 
                           <Link
-                            className=""
                             to={`/course/${params.id}/${content.id}/${option.id}`}
                           >
-                            {option.title}
+                            <p className="md:hidden block">
+                              {option.title.length > 12
+                                ? option.title.substring(0, 12) + "..."
+                                : option.title}
+                            </p>
+                            <p className="md:block hidden lg:hidden">
+                              {option.title.length > 20
+                                ? option.title.substring(0, 20) + "..."
+                                : option.title}
+                            </p>
+                            <p className="lg:block hidden">
+                              {option.title.length > 25
+                                ? option.title.substring(0, 25) + "..."
+                                : option.title}
+                            </p>
                           </Link>
                         </div>
                       ))}
                     {contentVideo.contents.length < 1 && (
-                      <div>No Video ....</div>
+                      <div className="px-2">No Video ....</div>
                     )}
                   </ul>
                 )}
@@ -175,11 +193,13 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
           {/* Scrollable side */}
           <div
             className={`${
-              sidebar ? "w-4/5" : "w-full"
-            } overflow-y-auto bg-slate-500`}
+              sidebar ? "w-2/3 md:w-3/4 lg:w-3/4 xl:w-4/5" : "w-full"
+            } overflow-y-auto bg-white dark:bg-gray-950 text-gray-800 dark:text-white`}
           >
-            <div className="pt-14">
-              <BreadCrumbs />
+            <div className="md:pt-14 pt-10">
+              <div className="md:px-4 mb-5">
+                <BreadCrumbs />
+              </div>
               {params.hash && (
                 <>
                   {React.cloneElement(children, {

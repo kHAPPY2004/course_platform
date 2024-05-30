@@ -49,12 +49,12 @@ const BreadCrumbs = () => {
 
     return (
       <>
-        <nav className="flex mt-8 ml-5" aria-label="Breadcrumb">
+        <nav className="flex mt-8 md:ml-5" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
             <li className="inline-flex items-center">
               <Link
                 to="/"
-                className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
+                className="inline-flex items-center text-xs md:text-sm font-medium text-gray-400 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
               >
                 <svg
                   className="w-3 h-3 me-2.5"
@@ -69,9 +69,9 @@ const BreadCrumbs = () => {
               </Link>
             </li>
             {location.pathname.includes("/course/") && (
-              <li className="inline-flex items-center">
+              <li className="inline-flex items-center text-xs md:text-sm md:font-medium">
                 <svg
-                  className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1"
+                  className="rtl:rotate-180 w-2 h-2 md:h-3 md:w-3 text-gray-400 mx-1"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -89,9 +89,9 @@ const BreadCrumbs = () => {
                   to={`/${initialPath}`}
                   className={`${
                     highlight
-                      ? "dark:text-white"
-                      : "text-gray-700 dark:text-gray-400"
-                  } inline-flex ms-1 items-center text-sm font-medium  hover:text-blue-600  dark:hover:text-white`}
+                      ? "text-black dark:text-white"
+                      : "text-gray-400 dark:text-gray-400"
+                  } inline-flex sm:ms-1 items-center hover:text-blue-600 dark:hover:text-white`}
                 >
                   {course.contents[0].title}
                 </Link>
@@ -100,9 +100,9 @@ const BreadCrumbs = () => {
 
             {paths.map((path, index) => (
               <li key={index}>
-                <div className="flex items-center">
+                <div className="flex items-center text-xs sm:text-sm md:font-medium">
                   <svg
-                    className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1"
+                    className="rtl:rotate-180 w-2 h-2 md:h-3 md:w-3 text-gray-400 mx-1"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -120,9 +120,9 @@ const BreadCrumbs = () => {
                     <span
                       className={`${
                         highlight2
-                          ? "dark:text-black text-white"
+                          ? "dark:text-white text-black"
                           : "text-gray-400 dark:text-gray-400"
-                      }} ms-1 text-sm font-medium  md:ms-2`}
+                      }}`}
                     >
                       {getTitle(path)}
                     </span>
@@ -131,7 +131,7 @@ const BreadCrumbs = () => {
                       to={`/${initialPath}/${paths
                         .slice(0, index + 1)
                         .join("/")}`}
-                      className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
+                      className="ms-1 text-gray-400 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
                     >
                       {getTitle(path)}
                     </Link>

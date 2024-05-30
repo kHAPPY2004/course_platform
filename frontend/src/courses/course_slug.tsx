@@ -21,37 +21,20 @@ const CourseSlugViewer: React.FC<CourseSlugRedirectorProps1> = ({
     return (
       <>
         {contentFolder && (
-          <div className="max-w-screen-xl justify-between mx-auto p-4 grid grid-cols-1 gap-5 md:grid-cols-3">
+          <div className="max-w-screen-xl mx-auto p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {contentFolder.contents.map((content: any) => (
-              <div className="bg-slate-400 m-10 p-5" key={content.id}>
+              <Link
+                to={`/course/${params.id}/${content.id}`}
+                className="md:text-base font-light lg:text-base text-sm dark:text-gray-200 text-slate-600 rounded-lg overflow-hidden transform transition duration-500 hover:scale-105"
+                key={content.id}
+              >
                 <img
                   src={content.thumbnail}
                   alt={content.title}
-                  style={{ maxWidth: "100%" }}
-                  className="m-2 mb-4"
+                  className="max-w-full rounded-lg"
                 />
-                <div>{content.id}</div>
-                <div>{content.title}</div>
-                <div className="bg-red-200 m-2">
-                  Content type: {content.type}
-                </div>
-                <div className="bg-pink-300 m-2">
-                  description:{content.description}
-                </div>
-                <div className="bg-pink-400 m-2">hidden:{content.hidden}</div>
-                <div className="bg-red-100 m-2">
-                  notionMetadataId:{content.notionMetadataId}
-                </div>
-                <div>parentid : {content.parentId}</div>
-
-                {/* Add more details if needed */}
-                <Link
-                  className="bg-blue-400 rounded-md p-2"
-                  to={`/course/${params.id}/${content.id}`}
-                >
-                  View Details
-                </Link>
-              </div>
+                <h2 className="p-2">{content.title}</h2>
+              </Link>
             ))}
           </div>
         )}

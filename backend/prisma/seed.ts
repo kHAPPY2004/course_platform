@@ -18,8 +18,9 @@ async function main() {
         discordRoleId: "discord role id",
         title: "Live 0-100 Complete",
         imageUrl:
-          "https://appx-wsb.kaxa.in/teachcode/admin/COURSE/cover/1699610005757WhatsApp-Image-2023-11-10-at-3.16.18-PM.jpeg",
-        description: "test course 1 description ...",
+          "https://appx-wsb-gcp.akamai.net.in/teachcode/admin/COURSE/cover/1699610005757WhatsApp-Image-2023-11-10-at-3.16.18-PM.jpeg",
+        description:
+          "Learn basics to advanced MERN, Basics to advanced Devops, System design and build 3 projects through this journey",
         openToEveryone: false,
         slug: "8-live-0-100-complete",
         sellingPrice: 4999,
@@ -30,8 +31,9 @@ async function main() {
         discordRoleId: "discord role id",
         title: "Live 0-1",
         imageUrl:
-          "https://appx-wsb.kaxa.in/teachcode/admin/COURSE/cover/1699610063563WhatsApp-Image-2023-11-08-at-8.31.14-PM.jpeg",
-        description: "test course 2 description ...",
+          "https://appx-wsb-gcp.akamai.net.in/teachcode/admin/COURSE/cover/1699610063563WhatsApp-Image-2023-11-08-at-8.31.14-PM.jpeg",
+        description:
+          "Learn the MERN Stack Beginner to advanced with the basics of devops with open source contributions and building projects.",
         openToEveryone: false,
         slug: "6-live-0-1",
         sellingPrice: 3499,
@@ -42,8 +44,9 @@ async function main() {
         discordRoleId: "discord role id",
         title: "Live 1-100",
         imageUrl:
-          "https://appx-wsb.kaxa.in/teachcode/admin/COURSE/cover/1699610081268WhatsApp-Image-2023-11-08-at-8.31.13-PM.jpeg",
-        description: "test course 2 description ...",
+          "https://appx-wsb-gcp.akamai.net.in/teachcode/admin/COURSE/cover/1699610081268WhatsApp-Image-2023-11-08-at-8.31.13-PM.jpeg",
+        description:
+          "In the 1-100 journey, learn advanced Backend communication, Advanced Devops, System design and setup real world open source projects. Also build 2 capstone projects, a trading app and a zapier clone",
         openToEveryone: false,
         slug: "7-live-1-100",
         sellingPrice: 3999,
