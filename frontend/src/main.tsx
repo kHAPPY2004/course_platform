@@ -5,7 +5,7 @@ import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <div className="select-none">
+    <div id="main-content" className="select-none">
       <App />
     </div>
   </React.StrictMode>

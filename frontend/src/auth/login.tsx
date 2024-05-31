@@ -1,22 +1,17 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { checkUser } from "../store/atoms/userAuth";
 import { showToast } from "../util/toast";
 import useCountdown from "../util/countdown";
 import OtpForm from "../util/reuse_component/otp_form_filling";
 import EmailForm from "../util/reuse_component/email_form";
+import usePopupState from "../components/popupState";
+import ToastConfig from "../util/toastcontainer";
 
-interface LoginProps {
-  completeUrl: string;
-}
-const Login: React.FC<LoginProps> = ({ completeUrl }) => {
+const Login: React.FC = () => {
   const setCheckUser = useSetRecoilState(checkUser);
-  const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmPassword] = useState("");
@@ -38,6 +33,8 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
   >(undefined);
   const [attemptLeftforVerifyOtpforgot, setAttemptLeftforVerifyOtpforgot] =
     useState<string | undefined>(undefined);
+
+  const { closeLogin, openSignup } = usePopupState();
 
   const handleChange = (e: {
     target: { name: string; value: React.SetStateAction<string> };
@@ -98,7 +95,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
         setCheckUser(res.data); // Update the checkUser atom
         setLogin_pass(false);
         showToast("success", res.data.message);
-        navigate(completeUrl);
+        closeLogin();
       } else {
         showToast("warn", res.data.message);
       }
@@ -180,7 +177,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
         setCheckUser(res.data); // Update the checkUser atom
         setLogin_otp(false);
         showToast("success", res.data.message);
-        navigate(completeUrl);
+        closeLogin();
       } else {
         showToast("warn", res.data.message);
       }
@@ -229,7 +226,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
         // Update the checkUser selector after successful login
         setCheckUser(res.data); // Update the checkUser atom
         showToast("success", res.data.message);
-        navigate(completeUrl);
+        closeLogin();
       } else {
         showToast("warn", res.data.message);
       }
@@ -354,20 +351,9 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
 
   return (
     <section className="text-gray-600">
-      <ToastContainer
-        position="top-right"
-        autoClose={1500}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
+      <ToastConfig />
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-        <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+        <div className="w-full bg-gray-100 rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             {/* shows only email field */}
             {!isVerified &&
@@ -376,9 +362,29 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
               !login_otp &&
               !forgotpassword && (
                 <>
-                  <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                    Login to account
-                  </h1>
+                  <div className="flex flex-row justify-between">
+                    <div></div>
+                    <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                      Login to account
+                    </h1>
+                    <button onClick={closeLogin}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        className="h-6 w-6 md:w-7 md:h-7 text-black dark:text-white"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 18 18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+
                   <EmailForm
                     onSubmit={isUserh}
                     email={email}
@@ -387,12 +393,15 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
                   />
                   <div className="text-sm font-light text-gray-500 dark:text-gray-400">
                     Create a new account?{" "}
-                    <Link
-                      to="/Signup"
+                    <button
+                      onClick={() => {
+                        closeLogin();
+                        openSignup();
+                      }}
                       className="font-medium text-gray-600 hover:underline dark:text-gray-500"
                     >
                       Signup
-                    </Link>
+                    </button>
                   </div>
                 </>
               )}
@@ -492,7 +501,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
                         onChange={handleChange}
                         type="email"
                         name="email"
-                        id="email"
+                        id="email2"
                         readOnly
                         className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         placeholder="name@company.com"
@@ -672,7 +681,7 @@ const Login: React.FC<LoginProps> = ({ completeUrl }) => {
                       onChange={handleChange}
                       type="email"
                       name="email"
-                      id="email"
+                      id="email3"
                       readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder="name@company.com"

@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import Navbar from "./navbar";
+import { checkUser } from "../store/atoms/userAuth";
+import { useRecoilValueLoadable } from "recoil";
 
 const CourseLayout = ({ children }: any) => {
   const location = useLocation();
@@ -8,6 +10,8 @@ const CourseLayout = ({ children }: any) => {
   const isHome = location.pathname === "/";
   const isCourses = location.pathname === "/new-courses";
   const isPurchases = location.pathname === "/purchases";
+
+  const check_user = useRecoilValueLoadable(checkUser);
   return (
     <>
       <Navbar />
@@ -50,25 +54,28 @@ const CourseLayout = ({ children }: any) => {
             </svg>
             <div className="ml-4">Courses</div>
           </Link>
-
-          <hr className="h-px mt-8 bg-gray-400 border-0 dark:bg-gray-100" />
-          <Link
-            className={`flex mt-8 ${
-              isPurchases ? "text-blue-600 dark:text-blue-300" : ""
-            }`}
-            to="/purchases"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="w-5 h-5"
-            >
-              <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />
-              <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
-            </svg>
-            <div className="ml-4">Purchases</div>
-          </Link>
+          {check_user.state === "hasValue" && check_user.contents.success && (
+            <>
+              <hr className="h-px mt-8 bg-gray-400 border-0 dark:bg-gray-100" />
+              <Link
+                className={`flex mt-8 ${
+                  isPurchases ? "text-blue-600 dark:text-blue-300" : ""
+                }`}
+                to="/purchases"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />
+                  <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
+                </svg>
+                <div className="ml-4">Purchases</div>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Scrollable side */}
@@ -110,23 +117,25 @@ const CourseLayout = ({ children }: any) => {
               </svg>
               <div className="md:ml-4 ml-2">Courses</div>
             </Link>
-            <Link
-              className={`flex ${
-                isPurchases ? "text-blue-600 dark:text-blue-300" : ""
-              }`}
-              to="/purchases"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-4 h-4 md:w-6 md:h-6"
+            {check_user.state === "hasValue" && check_user.contents.success && (
+              <Link
+                className={`flex ${
+                  isPurchases ? "text-blue-600 dark:text-blue-300" : ""
+                }`}
+                to="/purchases"
               >
-                <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />
-                <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
-              </svg>
-              <div className="md:ml-4 ml-2">Purchases</div>
-            </Link>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-4 h-4 md:w-6 md:h-6"
+                >
+                  <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />
+                  <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
+                </svg>
+                <div className="md:ml-4 ml-2">Purchases</div>
+              </Link>
+            )}
           </div>
           <div>{children}</div>
         </div>

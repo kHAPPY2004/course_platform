@@ -11,6 +11,11 @@ import { showToast } from "../util/toast";
 import useTheme from "../util/usetheme";
 import ToastConfig from "../util/toastcontainer";
 import { useState } from "react";
+import usePopupState from "./popupState";
+import {
+  LoginModal,
+  SignupModal,
+} from "../util/reuse_component/signupandloginmodel";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -23,6 +28,8 @@ const Navbar = () => {
 
   const check_user = useRecoilValueLoadable(checkUser);
   const setCheckUser = useSetRecoilState(checkUser);
+
+  const { showLogin, openLogin, showSignup, openSignup } = usePopupState();
   const [sidebar, setSidebar] = useRecoilState(sidebarOpen);
   const [theme, toggleTheme] = useTheme();
 
@@ -92,6 +99,10 @@ const Navbar = () => {
   return (
     <>
       <ToastConfig />
+
+      {showLogin && <LoginModal />}
+      {showSignup && <SignupModal />}
+
       <nav className="bg-white bg-opacity-90 dark:bg-gray-950 dark:bg-opacity-90 fixed w-full z-20 top-0 start-0 backdrop-blur shadow-lg dark:shadow-slate-900 transform transition duration-500">
         <div className="flex flex-wrap items-center justify-between px-1 md:px-4 py-2 md:py-4">
           <div className="flex space-x-4 md:space-x-5">
@@ -230,25 +241,29 @@ const Navbar = () => {
                     </>
                   ) : (
                     <>
-                      <Link
-                        to="/signup"
+                      <button
                         className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        onClick={closeDropdown}
+                        onClick={() => {
+                          closeDropdown();
+                          openSignup();
+                        }}
                       >
                         Signup
-                      </Link>
-                      <Link
-                        to="/login"
+                      </button>
+                      <button
                         className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        onClick={closeDropdown}
+                        onClick={() => {
+                          closeDropdown();
+                          openLogin();
+                        }}
                       >
                         Login
-                      </Link>
+                      </button>
                     </>
                   )}
                 </div>
               )}
-            </div>{" "}
+            </div>
           </div>
         </div>
       </nav>

@@ -1,11 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate,
-} from "react-router-dom";
-import Signup from "./auth/signup";
-import Login from "./auth/login";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Dashboard from "./auth/dashboard";
 import New_Courses from "./courses/new-courses";
 import { New_Courses_slug } from "./courses/new-courses-slug";
@@ -21,6 +14,7 @@ import CourseLayout from "./components/courseLayout";
 import Home from "./components/home";
 import CourseFolder from "./components/courseFolder";
 import My_purchases from "./components/my_purchases";
+import { LoginModal } from "./util/reuse_component/signupandloginmodel";
 function App() {
   return (
     <RecoilRoot>
@@ -91,14 +85,6 @@ const ProtectedRouteUser = () => {
               }
             />
             <Route
-              path="/login"
-              element={<Navigate to="/dashboard" replace />}
-            />
-            <Route
-              path="/signup"
-              element={<Navigate to="/dashboard" replace />}
-            />
-            <Route
               path="/course/:id"
               element={
                 <CourseFolder>
@@ -139,34 +125,11 @@ const ProtectedRouteUser = () => {
           </>
         ) : (
           <>
-            <Route
-              path="/course/:id"
-              element={<Navigate to="/login" replace />}
-            />
-            <Route
-              path="/course/:id/:hash"
-              element={<Navigate to="/login" replace />}
-            />
-            <Route
-              path="/course/:id/:hash/:hash2"
-              element={<Navigate to="/login" replace />}
-            />
-            <Route
-              path="/dashboard"
-              element={<Navigate to="/login" replace />}
-            />
-            <Route
-              path="/purchases"
-              element={<Navigate to="/login" replace />}
-            />
-            <Route
-              path="/login"
-              element={<Login completeUrl={location.pathname} />}
-            />
-            <Route
-              path="/signup"
-              element={<Signup completeUrl={location.pathname} />}
-            />
+            <Route path="/course/:id" element={<LoginModal />} />
+            <Route path="/course/:id/:hash" element={<LoginModal />} />
+            <Route path="/course/:id/:hash/:hash2" element={<LoginModal />} />
+            <Route path="/dashboard" element={<LoginModal />} />
+            <Route path="/purchases" element={<LoginModal />} />
           </>
         )}
       </Routes>

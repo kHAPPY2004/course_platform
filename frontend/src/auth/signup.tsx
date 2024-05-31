@@ -1,20 +1,16 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { Link, useNavigate } from "react-router-dom";
 import { checkUser } from "../store/atoms/userAuth";
 import { useSetRecoilState } from "recoil";
 import useCountdown from "../util/countdown";
 import OtpForm from "../util/reuse_component/otp_form_filling";
 import EmailForm from "../util/reuse_component/email_form";
 import { showToast } from "../util/toast";
-interface LoginProps {
-  completeUrl: string;
-}
-const Signup: React.FC<LoginProps> = ({ completeUrl }) => {
+import usePopupState from "../components/popupState";
+import ToastConfig from "../util/toastcontainer";
+
+const Signup = () => {
   const setCheckUser = useSetRecoilState(checkUser);
-  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,6 +23,7 @@ const Signup: React.FC<LoginProps> = ({ completeUrl }) => {
   const { countdown, startCountdown, clearCountdown } = useCountdown(30);
   const [unique_key_verifyOtp_signup, setUnique_key_verifyOtp_signup] =
     useState("");
+  const { openLogin, closeSignup } = usePopupState();
 
   const handleChange = (e: {
     target: { name: string; value: React.SetStateAction<string> };
@@ -72,7 +69,7 @@ const Signup: React.FC<LoginProps> = ({ completeUrl }) => {
         setPassword("");
         setConfirmPassword("");
         setPhoneNumber("");
-        navigate(completeUrl);
+        closeSignup();
       } else {
         showToast("warn", res.data.message);
       }
@@ -158,29 +155,38 @@ const Signup: React.FC<LoginProps> = ({ completeUrl }) => {
       }
     }
   };
+
   return (
     <section className="text-gray-600">
-      <ToastContainer
-        position="top-right"
-        autoClose={1500}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
+      <ToastConfig />
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             {/* show only email page */}
             {!isVerified && !isEmail && (
               <>
-                <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                  Create an account
-                </h1>
+                <div className="flex flex-row justify-between">
+                  <div></div>
+                  <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                    Create an account
+                  </h1>
+                  <button onClick={closeSignup}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="h-6 w-6 md:w-7 md:h-7 text-black dark:text-white"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 18 18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
                 <EmailForm
                   onSubmit={sendOtptoUser}
                   email={email}
@@ -189,12 +195,15 @@ const Signup: React.FC<LoginProps> = ({ completeUrl }) => {
                 />
                 <div className="text-sm font-light text-gray-500 dark:text-gray-400">
                   Already have an account?{" "}
-                  <Link
-                    to="/login"
+                  <button
+                    onClick={() => {
+                      closeSignup();
+                      openLogin();
+                    }}
                     className="font-medium text-gray-600 hover:underline dark:text-gray-500"
                   >
                     Login here
-                  </Link>
+                  </button>
                 </div>
               </>
             )}
@@ -377,15 +386,6 @@ const Signup: React.FC<LoginProps> = ({ completeUrl }) => {
                   >
                     Create an account
                   </button>
-                  <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                    Already have an account?{" "}
-                    {/* <Link
-                    to="/login"
-                    className="font-medium text-gray-600 hover:underline dark:text-gray-500"
-                  >
-                    Login here
-                  </Link> */}
-                  </p>
                 </form>
               </>
             )}

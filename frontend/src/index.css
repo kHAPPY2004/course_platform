@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Apply blur effect to the main content */
+body.body-blur #main-content {
+  overflow: hidden;
+}

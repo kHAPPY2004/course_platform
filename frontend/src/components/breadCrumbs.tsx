@@ -49,7 +49,7 @@ const BreadCrumbs = () => {
 
     return (
       <>
-        <nav className="flex mt-8 md:ml-5" aria-label="Breadcrumb">
+        <nav className="flex mt-8 md:ml-5 ml-2" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
             <li className="inline-flex items-center">
               <Link

@@ -8,15 +8,23 @@ import { fetchUserPurchases } from "../store/atoms/userPurchases";
 import { contentSlug } from "../store/atoms/getcontent";
 import ToastConfig from "../util/toastcontainer";
 import { showToast } from "../util/toast";
+import usePopupState from "../components/popupState";
+import { LoginModal } from "../util/reuse_component/signupandloginmodel";
+import { checkUser } from "../store/atoms/userAuth";
+interface PurchaseButtonProps {
+  handleSubmit: any;
+  id: any;
+  course: any;
+}
 
 export const New_Courses_slug: React.FC = () => {
   const params: any = useParams();
   const navigate = useNavigate();
-
+  const { showLogin, openLogin } = usePopupState();
   const setSlug = useSetRecoilState(contentSlug);
   const course = useRecoilValueLoadable(filteredCoursesState);
   const setUserPurchases = useSetRecoilState(fetchUserPurchases);
-
+  const check_user = useRecoilValueLoadable(checkUser);
   useEffect(() => {
     setSlug({ id: params.id, hash: params.hash, hash2: params.hash2 }); // Set both slug values in one useEffect
   }, [params.id, params.hash, params.hash2, setSlug]);
@@ -42,8 +50,8 @@ export const New_Courses_slug: React.FC = () => {
         });
 
         if (!res.data.success) {
-          showToast("success", res.data.message);
-          navigate("/login");
+          showToast("warn", res.data.message);
+          navigate("/");
         } else {
           showToast("success", res.data.message);
           setUserPurchases((prevPurchases) => [
@@ -58,7 +66,8 @@ export const New_Courses_slug: React.FC = () => {
     return (
       <>
         <ToastConfig />
-        {/* <div>slug: {slug.id}</div> */}
+        {showLogin && <LoginModal />}
+
         <div>id: {course.contents[0].id}</div>
         <div>appxCourseId: {course.contents[0].appxCourseId}</div>
         <div>{course.contents[0].description}</div>
@@ -74,22 +83,30 @@ export const New_Courses_slug: React.FC = () => {
           {" % off"}
         </div>
         <div>{course.contents[0].slug}</div>
-        <PurchaseButton
-          handleSubmit={handleSubmit}
-          id={course.contents[0].id}
-          course={course}
-        />
+        {check_user.state === "hasValue" && check_user.contents.success && (
+          <PurchaseButton
+            handleSubmit={handleSubmit}
+            id={course.contents[0].id}
+            course={course}
+          />
+        )}
+        {check_user.state === "hasValue" && !check_user.contents.success && (
+          <button
+            className="bg-blue-400 rounded-md p-1 m-1 px-3"
+            onClick={() => {
+              openLogin();
+            }}
+          >
+            Buy Now
+          </button>
+        )}
       </>
     );
   } else {
     return <div>No course found for the provided slug</div>;
   }
 };
-interface PurchaseButtonProps {
-  handleSubmit: any;
-  id: any;
-  course: any;
-}
+
 const PurchaseButton: React.FC<PurchaseButtonProps> = ({
   handleSubmit,
   id,
