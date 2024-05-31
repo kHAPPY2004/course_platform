@@ -20,7 +20,7 @@ interface PurchaseButtonProps {
 export const New_Courses_slug: React.FC = () => {
   const params: any = useParams();
   const navigate = useNavigate();
-  const { showLogin, openLogin } = usePopupState();
+  const { showLogin1, openLogin1 } = usePopupState();
   const setSlug = useSetRecoilState(contentSlug);
   const course = useRecoilValueLoadable(filteredCoursesState);
   const setUserPurchases = useSetRecoilState(fetchUserPurchases);
@@ -66,7 +66,8 @@ export const New_Courses_slug: React.FC = () => {
     return (
       <>
         <ToastConfig />
-        {showLogin && <LoginModal />}
+
+        {showLogin1 && <LoginModal />}
 
         <div>id: {course.contents[0].id}</div>
         <div>appxCourseId: {course.contents[0].appxCourseId}</div>
@@ -94,7 +95,7 @@ export const New_Courses_slug: React.FC = () => {
           <button
             className="bg-blue-400 rounded-md p-1 m-1 px-3"
             onClick={() => {
-              openLogin();
+              openLogin1();
             }}
           >
             Buy Now

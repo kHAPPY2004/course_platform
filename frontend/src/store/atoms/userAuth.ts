@@ -23,6 +23,11 @@ export const loginPopupState = atom<boolean>({
   default: false,
 });
 
+export const loginPopupState1 = atom<boolean>({
+  key: "loginPopupState1",
+  default: false,
+});
+
 export const signupPopupState = atom<boolean>({
   key: "signupPopupState",
   default: false,

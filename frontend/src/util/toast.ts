@@ -5,7 +5,7 @@ type ToastType = "success" | "warn" | "error";
 
 export const showToast = (type: ToastType, message: string) => {
   toast[type](message, {
-    position: "top-left",
+    position: "bottom-right",
     autoClose: 1500,
     hideProgressBar: false,
     closeOnClick: true,
