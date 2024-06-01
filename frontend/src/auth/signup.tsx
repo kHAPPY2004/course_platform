@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import axios from "axios";
 import { checkUser } from "../store/atoms/userAuth";
 import { useSetRecoilState } from "recoil";
@@ -8,15 +8,18 @@ import EmailForm from "../util/reuse_component/email_form";
 import { showToast } from "../util/toast";
 import usePopupState from "../components/popupState";
 import ToastConfig from "../util/toastcontainer";
+import { emailSchema, passwordSchema, phoneSchema } from "../util/zod";
 
 const Signup = () => {
   const setCheckUser = useSetRecoilState(checkUser);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmpassword, setConfirmPassword] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [otp, setOtp] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmpassword: "",
+    phoneNumber: "",
+    otp: "",
+  });
   const [isVerified, setIsVerified] = useState(false);
   const [isEmail, setIsEmail] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
@@ -24,29 +27,55 @@ const Signup = () => {
   const [unique_key_verifyOtp_signup, setUnique_key_verifyOtp_signup] =
     useState("");
   const { openLogin, closeSignup } = usePopupState();
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+  const [phoneErrorMessage, setPhoneErrorMessage] = useState("");
 
-  const handleChange = (e: {
-    target: { name: string; value: React.SetStateAction<string> };
-  }) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
 
-    if (name === "name") {
-      setName(value);
-    } else if (name === "email") {
-      setEmail(value);
+    if (name === "email") {
+      const result = emailSchema.safeParse(value);
+      if (result.success) {
+        setIsDisabled(false);
+        setEmailErrorMessage("");
+      } else {
+        setIsDisabled(true);
+        const errorMessages = result.error.errors.map(
+          (error: any) => error.message
+        );
+        setEmailErrorMessage(errorMessages.join(", "));
+      }
     } else if (name === "password") {
-      setPassword(value);
-    } else if (name === "confirmpassword") {
-      setConfirmPassword(value);
+      const result = passwordSchema.safeParse(value);
+      if (result.success) {
+        setIsDisabled(false);
+        setPasswordErrorMessage("");
+      } else {
+        setIsDisabled(true);
+        const errorMessages = result.error.errors.map(
+          (error: any) => error.message
+        );
+        setPasswordErrorMessage(errorMessages.join(", "));
+      }
     } else if (name === "phoneNumber") {
-      setPhoneNumber(value);
-    } else if (name === "otp") {
-      setOtp(value);
+      const result = phoneSchema.safeParse(value);
+      if (result.success) {
+        setIsDisabled(false);
+        setPhoneErrorMessage(""); // Clear previous phone number error message
+      } else {
+        setIsDisabled(true);
+        const errorMessages = result.error.errors.map(
+          (error: any) => error.message
+        );
+        setPhoneErrorMessage(errorMessages.join(", "));
+      }
     }
   };
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-
+    const { name, email, password, confirmpassword, phoneNumber } = formData;
     if (password !== confirmpassword) {
       showToast("warn", "Passwords do not match");
       return; // Stop the function if passwords do not match
@@ -64,11 +93,14 @@ const Signup = () => {
         setCheckUser(res.data); // Update the checkUser atom
         showToast("success", res.data.message);
         // after request, clean the fields
-        setName("");
-        setEmail("");
-        setPassword("");
-        setConfirmPassword("");
-        setPhoneNumber("");
+        setFormData({
+          name: "",
+          email: "",
+          password: "",
+          confirmpassword: "",
+          phoneNumber: "",
+          otp: "",
+        });
         closeSignup();
       } else {
         showToast("warn", res.data.message);
@@ -93,7 +125,7 @@ const Signup = () => {
     try {
       setIsDisabled(true);
       const res = await axios.post("/api/sendEmail", {
-        email,
+        email: formData.email,
       });
       setIsDisabled(false);
       if (!res.data.success) {
@@ -106,6 +138,7 @@ const Signup = () => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
+          setIsDisabled(false);
           showToast("error", error.response.data.message);
         } else {
           showToast(
@@ -122,8 +155,8 @@ const Signup = () => {
     e.preventDefault();
     try {
       const res = await axios.post("/api/verifyOtp", {
-        email,
-        otp,
+        email: formData.email,
+        otp: formData.otp,
       });
       if (res.data.success) {
         setIsEmail(false);
@@ -139,7 +172,7 @@ const Signup = () => {
           if (error.response.status === 401) {
             showToast("error", error.response.data.message);
             // Perform specific actions for 401 status code
-            setOtp("");
+            setFormData({ ...formData, otp: "" });
             setIsEmail(false);
           } else if (error.response.status === 500) {
             showToast("error", error.response.data.message);
@@ -189,9 +222,10 @@ const Signup = () => {
                 </div>
                 <EmailForm
                   onSubmit={sendOtptoUser}
-                  email={email}
+                  email={formData.email}
                   handleChange={handleChange}
                   isDisabled={isDisabled}
+                  errorMessage={emailErrorMessage}
                 />
                 <div className="text-sm font-light text-gray-500 dark:text-gray-400">
                   Already have an account?{" "}
@@ -214,7 +248,7 @@ const Signup = () => {
                   <button
                     onClick={() => {
                       setIsEmail(false);
-                      setOtp("");
+                      setFormData({ ...formData, otp: "" });
                       clearCountdown();
                     }}
                   >
@@ -244,7 +278,7 @@ const Signup = () => {
                   <div></div>
                 </div>
                 <OtpForm
-                  otp={otp}
+                  otp={formData.otp}
                   handleChange={handleChange}
                   handleSubmit={verifyOtp}
                   countdown={countdown}
@@ -272,7 +306,7 @@ const Signup = () => {
                       Name
                     </label>
                     <input
-                      value={name}
+                      value={formData.name}
                       onChange={handleChange}
                       type="text"
                       name="name"
@@ -290,7 +324,7 @@ const Signup = () => {
                       Your email
                     </label>
                     <input
-                      value={email}
+                      value={formData.email}
                       onChange={handleChange}
                       type="email"
                       name="email"
@@ -309,7 +343,7 @@ const Signup = () => {
                       Phone Number
                     </label>
                     <input
-                      value={phoneNumber}
+                      value={formData.phoneNumber}
                       onChange={handleChange}
                       type="tel"
                       name="phoneNumber"
@@ -318,6 +352,11 @@ const Signup = () => {
                       placeholder="123-456-7890"
                       required
                     />
+                    {phoneErrorMessage && (
+                      <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                        {phoneErrorMessage}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label
@@ -327,7 +366,7 @@ const Signup = () => {
                       Password
                     </label>
                     <input
-                      value={password}
+                      value={formData.password}
                       onChange={handleChange}
                       type="password"
                       name="password"
@@ -336,6 +375,11 @@ const Signup = () => {
                       className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       required
                     />
+                    {passwordErrorMessage && (
+                      <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                        {passwordErrorMessage}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label
@@ -345,7 +389,7 @@ const Signup = () => {
                       Confirm password
                     </label>
                     <input
-                      value={confirmpassword}
+                      value={formData.confirmpassword}
                       onChange={handleChange}
                       type="password"
                       name="confirmpassword"
@@ -382,7 +426,10 @@ const Signup = () => {
                   </div>
                   <button
                     type="submit"
-                    className="w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+                    disabled={isDisabled}
+                    className={`${
+                      isDisabled ? "cursor-not-allowed" : "cursor-pointer"
+                    } w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800`}
                   >
                     Create an account
                   </button>

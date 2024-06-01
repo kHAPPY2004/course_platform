@@ -8,7 +8,7 @@ import {
   calculateExpirationDate,
   generateSessionToken,
 } from "../lib/gen_session";
-import { fetchUserDetails } from "../lib/user_util";
+import { fetchUserDetails, isValidEmail } from "../lib/user_util";
 
 dotenv.config();
 
@@ -60,6 +60,12 @@ export const sendOtp_signup = async (req: Request, res: Response) => {
         .json({ message: "Email is required", success: false });
     }
 
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid email format", success: false });
+    }
     const { user } = await fetchUserDetails(email);
 
     if (user) {
@@ -113,6 +119,14 @@ export const sendOtp_login_forgot_Email = async (
         .status(400)
         .json({ message: "Email is required", success: false });
     }
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid email format", success: false });
+    }
+
     const { user } = await fetchUserDetails(email);
 
     if (!user) {
@@ -182,6 +196,14 @@ export const verifyOtp_signup = async (req: Request, res: Response) => {
         .status(400)
         .json({ message: "Email and OTP are required", success: false });
     }
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid email format", success: false });
+    }
+
     const { user } = await fetchUserDetails(email);
 
     if (user) {
@@ -242,6 +264,14 @@ export const verifyOtpForgot = async (req: Request, res: Response) => {
         .status(400)
         .json({ message: "Email and OTP are required", success: false });
     }
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid email format", success: false });
+    }
+
     const { user } = await fetchUserDetails(email);
 
     if (!user) {
@@ -315,6 +345,13 @@ export const verifyOtpandLogin = async (
       return res
         .status(400)
         .json({ message: "Email and OTP are required", success: false });
+    }
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid email format", success: false });
     }
 
     //login process

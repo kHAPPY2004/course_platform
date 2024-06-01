@@ -3,6 +3,32 @@ import redisClient from "../DB/redis.config";
 
 const prisma = new PrismaClient();
 
+// Email validation function with domain check
+export const isValidEmail = (email: string) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return false;
+  }
+
+  const allowedDomains = ["gmail.com", "yahoo.com", "outlook.com"];
+  const emailDomain = email.split("@")[1];
+
+  return allowedDomains.includes(emailDomain);
+};
+
+// Password validation function
+export const isValidPassword = (password: string) => {
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  return passwordRegex.test(password);
+};
+
+// Phone number validation function
+export const isValidPhoneNumber = (phoneNumber: string) => {
+  const phoneRegex = /^\d{10}$/; // Adjust the regex according to your phone number format requirements
+  return phoneRegex.test(phoneNumber);
+};
+
 export const fetchUserDetails = async (email: string) => {
   const cacheKey = `data:user:${email}`;
 

@@ -5,6 +5,7 @@ interface EmailFormProps {
   email: string;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isDisabled: boolean;
+  errorMessage: string;
 }
 
 const EmailForm: React.FC<EmailFormProps> = ({
@@ -12,6 +13,7 @@ const EmailForm: React.FC<EmailFormProps> = ({
   email,
   handleChange,
   isDisabled,
+  errorMessage,
 }) => {
   return (
     <form onSubmit={onSubmit} className="space-y-4 md:space-y-6" method="POST">
@@ -32,6 +34,11 @@ const EmailForm: React.FC<EmailFormProps> = ({
           placeholder="name@company.com"
           required
         />
+        {errorMessage && (
+          <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+            {errorMessage}
+          </p>
+        )}
       </div>
       <div className="flex items-start">
         <div className="flex items-center h-5">

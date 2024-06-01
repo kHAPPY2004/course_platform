@@ -8,7 +8,12 @@ import {
   calculateExpirationDate,
   generateSessionToken,
 } from "../lib/gen_session";
-import { fetchUserDetails } from "../lib/user_util";
+import {
+  fetchUserDetails,
+  isValidEmail,
+  isValidPassword,
+  isValidPhoneNumber,
+} from "../lib/user_util";
 dotenv.config();
 
 interface RequestBody {
@@ -26,6 +31,12 @@ export const isUserPresent = async (req: Request, res: Response) => {
         .json({ message: "Email is required", success: false });
     }
 
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid email format", success: false });
+    }
     const { user } = await fetchUserDetails(email);
 
     if (!user) {
@@ -77,6 +88,27 @@ export const createUser = async (
       return res
         .status(400)
         .json({ message: "Credientials are missing...", success: false });
+    }
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid email format", success: false });
+    }
+
+    // Validate password format
+    if (!isValidPassword(password)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid password format", success: false });
+    }
+
+    // Validate phone number format
+    if (!isValidPhoneNumber(phoneNumber)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid phone number format", success: false });
     }
 
     const { user } = await fetchUserDetails(email);
@@ -166,6 +198,21 @@ export const loginUser = async (
         .status(400)
         .json({ message: "Email and password are required", success: false });
     }
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid email format", success: false });
+    }
+
+    // Validate password format
+    if (!isValidPassword(password)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid password format", success: false });
+    }
+
     const { user } = await fetchUserDetails(email);
 
     if (!user) {
@@ -251,6 +298,19 @@ export const forgotPassword = async (
       return res
         .status(400)
         .json({ message: "Email and Password are required", success: false });
+    }
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid email format", success: false });
+    }
+
+    // Validate password format
+    if (!isValidPassword(password)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid password format", success: false });
     }
 
     const { user } = await fetchUserDetails(email);

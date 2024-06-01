@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { checkUser } from "../store/atoms/userAuth";
 import { showToast } from "../util/toast";
@@ -9,12 +8,16 @@ import OtpForm from "../util/reuse_component/otp_form_filling";
 import EmailForm from "../util/reuse_component/email_form";
 import usePopupState from "../components/popupState";
 import ToastConfig from "../util/toastcontainer";
+import { emailSchema, passwordSchema } from "../util/zod";
 
 const Login: React.FC = () => {
   const setCheckUser = useSetRecoilState(checkUser);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmpassword, setConfirmPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    confirmpassword: "",
+    otp: "",
+  });
   const [isVerified, setIsVerified] = useState(false);
   const [isUser, setIsUser] = useState(false);
   const [login_pass, setLogin_pass] = useState(false);
@@ -23,7 +26,6 @@ const Login: React.FC = () => {
   const [isDisabled, setIsDisabled] = useState(false);
   const [unique_key_forgot, setUnique_key_forgot] = useState("");
   const [unique_key_sendOtp, setUnique_key_sendOtp] = useState("");
-  const [otp, setOtp] = useState("");
   const { countdown, startCountdown, clearCountdown } = useCountdown(30);
   const [attemptLeftforSendOtp, setAttemptLeftforSendOtp] = useState<
     string | undefined
@@ -33,21 +35,38 @@ const Login: React.FC = () => {
   >(undefined);
   const [attemptLeftforVerifyOtpforgot, setAttemptLeftforVerifyOtpforgot] =
     useState<string | undefined>(undefined);
-
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const { closeLogin, openSignup } = usePopupState();
 
-  const handleChange = (e: {
-    target: { name: string; value: React.SetStateAction<string> };
-  }) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
     if (name === "email") {
-      setEmail(value);
+      const result = emailSchema.safeParse(value);
+      if (result.success) {
+        setIsDisabled(false);
+        setEmailErrorMessage("");
+      } else {
+        setIsDisabled(true);
+        const errorMessages = result.error.errors.map(
+          (error: any) => error.message
+        );
+        setEmailErrorMessage(errorMessages.join(", "));
+      }
     } else if (name === "password") {
-      setPassword(value);
-    } else if (name === "confirmpassword") {
-      setConfirmPassword(value);
-    } else if (name === "otp") {
-      setOtp(value);
+      const result = passwordSchema.safeParse(value);
+      if (result.success) {
+        setIsDisabled(false);
+        setPasswordErrorMessage("");
+      } else {
+        setIsDisabled(true);
+        const errorMessages = result.error.errors.map(
+          (error: any) => error.message
+        );
+        setPasswordErrorMessage(errorMessages.join(", "));
+      }
     }
   };
   //check user is present in database
@@ -55,7 +74,7 @@ const Login: React.FC = () => {
     e.preventDefault();
     try {
       const res = await axios.post("/api/isuserpresent", {
-        email,
+        email: formData.email,
       });
       if (res.data.success) {
         setIsUser(true);
@@ -83,14 +102,16 @@ const Login: React.FC = () => {
     preventDefault: () => void;
   }) => {
     e.preventDefault();
+    const { email, password } = formData;
     try {
       const res = await axios.post("/api/login", {
         email,
         password,
       });
       if (res.data.success) {
-        setEmail("");
-        setPassword("");
+        setFormData({ ...formData, email: "" });
+        setFormData({ ...formData, password: "" });
+
         // Update the checkUser selector after successful login
         setCheckUser(res.data); // Update the checkUser atom
         setLogin_pass(false);
@@ -117,10 +138,11 @@ const Login: React.FC = () => {
   // send otp for login
   const sendOtpandlogin = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
+
     try {
       setIsDisabled(true);
       const res = await axios.post("/api/sendotp_for_login_forgot", {
-        email,
+        email: formData.email,
       });
       setIsDisabled(false);
       if (res.data.success) {
@@ -162,6 +184,7 @@ const Login: React.FC = () => {
     preventDefault: () => void;
   }) => {
     e.preventDefault();
+    const { email, otp } = formData;
     try {
       setIsDisabled(true);
       const res = await axios.post("/api/verifyOtpAndLogin", {
@@ -171,8 +194,8 @@ const Login: React.FC = () => {
       });
       setIsDisabled(false);
       if (res.data.success) {
-        setEmail("");
-        setOtp("");
+        setFormData({ ...formData, email: "" });
+        setFormData({ ...formData, otp: "" });
         // Update the checkUser selector after successful login
         setCheckUser(res.data); // Update the checkUser atom
         setLogin_otp(false);
@@ -188,7 +211,7 @@ const Login: React.FC = () => {
           if (error.response.status === 401) {
             showToast("error", error.response.data.message);
             // Perform specific actions for 401 status code
-            setOtp("");
+            setFormData({ ...formData, otp: "" });
             setLogin_otp(false);
           } else if (
             error.response.status === 500 ||
@@ -198,7 +221,7 @@ const Login: React.FC = () => {
           } else if (error.response.status === 429) {
             showToast("error", error.response.data.message);
             // Perform specific actions for 401 status code
-            setOtp("");
+            setFormData({ ...formData, otp: "" });
             setIsDisabled(false);
             setLogin_otp(false);
           }
@@ -216,6 +239,7 @@ const Login: React.FC = () => {
   // reset_password and login
   const Forgot = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
+    const { email, password } = formData;
     try {
       const res = await axios.post("/api/forgot", {
         email,
@@ -259,6 +283,7 @@ const Login: React.FC = () => {
   // send otp for forgot_password
   const sendOtp_forgot = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
+    const { email } = formData;
     try {
       setIsDisabled(true);
       const res = await axios.post("/api/sendotp_for_login_forgot", {
@@ -301,6 +326,7 @@ const Login: React.FC = () => {
   // verify otp for forgot_password
   const verifyOtp_forgot = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
+    const { email, otp } = formData;
     try {
       const res = await axios.post("/api/verifyOtpforgot", {
         email,
@@ -323,7 +349,7 @@ const Login: React.FC = () => {
           if (error.response.status === 401) {
             showToast("error", error.response.data.message);
             // Perform specific actions for 401 status code
-            setOtp("");
+            setFormData({ ...formData, otp: "" });
             setForgotpassword(false);
           } else if (
             error.response.status === 500 ||
@@ -333,7 +359,7 @@ const Login: React.FC = () => {
           } else if (error.response.status === 429) {
             showToast("error", error.response.data.message);
             // Perform specific actions for 401 status code
-            setOtp("");
+            setFormData({ ...formData, otp: "" });
             setIsDisabled(false);
             setForgotpassword(false);
           }
@@ -387,9 +413,10 @@ const Login: React.FC = () => {
 
                   <EmailForm
                     onSubmit={isUserh}
-                    email={email}
+                    email={formData.email}
                     handleChange={handleChange}
                     isDisabled={isDisabled}
+                    errorMessage={emailErrorMessage}
                   />
                   <div className="text-sm font-light text-gray-500 dark:text-gray-400">
                     Create a new account?{" "}
@@ -497,7 +524,7 @@ const Login: React.FC = () => {
                         Your email
                       </label>
                       <input
-                        value={email}
+                        value={formData.email}
                         onChange={handleChange}
                         type="email"
                         name="email"
@@ -516,7 +543,7 @@ const Login: React.FC = () => {
                         Password
                       </label>
                       <input
-                        value={password}
+                        value={formData.password}
                         onChange={handleChange}
                         type="password"
                         name="password"
@@ -525,22 +552,21 @@ const Login: React.FC = () => {
                         className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-gray-600 focus:border-gray-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         required
                       />
+                      {passwordErrorMessage && (
+                        <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                          {passwordErrorMessage}
+                        </p>
+                      )}
                     </div>
                     <button
                       type="submit"
-                      className="w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+                      disabled={isDisabled}
+                      className={`${
+                        isDisabled ? "cursor-not-allowed" : "cursor-pointer"
+                      } w-full text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800`}
                     >
                       Login
                     </button>
-                    <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                      Create a new account?{" "}
-                      <Link
-                        to="/Signup"
-                        className="font-medium text-gray-600 hover:underline dark:text-gray-500"
-                      >
-                        Signup
-                      </Link>
-                    </p>
                   </form>
                 </>
               )}
@@ -556,7 +582,7 @@ const Login: React.FC = () => {
                     <button
                       onClick={() => {
                         setLogin_otp(false);
-                        setOtp("");
+                        setFormData({ ...formData, otp: "" });
                         clearCountdown();
                       }}
                     >
@@ -586,7 +612,7 @@ const Login: React.FC = () => {
                     <div></div>
                   </div>
                   <OtpForm
-                    otp={otp}
+                    otp={formData.otp}
                     handleChange={handleChange}
                     handleSubmit={handleSubmit_through_otp}
                     countdown={countdown}
@@ -613,7 +639,7 @@ const Login: React.FC = () => {
                     <button
                       onClick={() => {
                         setForgotpassword(false);
-                        setOtp("");
+                        setFormData({ ...formData, otp: "" });
                         clearCountdown();
                       }}
                     >
@@ -643,7 +669,7 @@ const Login: React.FC = () => {
                     <div></div>
                   </div>
                   <OtpForm
-                    otp={otp}
+                    otp={formData.otp}
                     handleChange={handleChange}
                     handleSubmit={verifyOtp_forgot}
                     countdown={countdown}
@@ -677,7 +703,7 @@ const Login: React.FC = () => {
                       Your email
                     </label>
                     <input
-                      value={email}
+                      value={formData.email}
                       onChange={handleChange}
                       type="email"
                       name="email"
@@ -696,7 +722,7 @@ const Login: React.FC = () => {
                       New Password
                     </label>
                     <input
-                      value={password}
+                      value={formData.password}
                       onChange={handleChange}
                       type="password"
                       name="password"
@@ -714,7 +740,7 @@ const Login: React.FC = () => {
                       Confirm New Password
                     </label>
                     <input
-                      value={confirmpassword}
+                      value={formData.confirmpassword}
                       onChange={handleChange}
                       type="password"
                       name="confirmpassword"
