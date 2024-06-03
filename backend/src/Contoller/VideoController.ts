@@ -56,6 +56,17 @@ export const addVideoMetadata = async (
         .status(200)
         .json({ success: false, message: "Parent content not found." });
     }
+
+    // before creating new course delete old data from redis
+    const getallvideos = `data:videometadata`;
+    try {
+      await redisClient.del(getallvideos);
+    } catch (redisError) {
+      return res
+        .status(500)
+        .json({ message: "Error while talking to redis..." });
+    }
+
     // create a new course in the database
     const video_added = await prisma.videoMetadata.create({
       data: {
@@ -108,6 +119,7 @@ export const getVideoMetadata = async (
     // get all the courses from database
 
     const allVideos = await prisma.videoMetadata.findMany();
+    console.log("all -----video", allVideos);
     if (!allVideos) {
       return res.status(400).json({
         success: false,

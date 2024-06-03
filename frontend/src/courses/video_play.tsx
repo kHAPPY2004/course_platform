@@ -5,22 +5,20 @@ import { filteredVideostate } from "../store/atoms/getVideos";
 import { useParams } from "react-router-dom";
 
 import CourseSlugRedirector from "../components/course_protect";
-import BreadCrumbs from "../components/breadCrumbs";
 
 const CourseSlugViewer: React.FC = () => {
-  const allvid = useRecoilValueLoadable(filteredVideostate);
+  const allvid: any = useRecoilValueLoadable(filteredVideostate);
   console.log("all vid", allvid);
 
   const playerRef = useRef<ReactPlayer>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [volume, setVolume] = useState<number>(0.5);
+  const [volume, setVolume] = useState<number>(1);
   const [speed, setSpeed] = useState<number>(1);
-  // const [isMiniPlayer, setIsMiniPlayer] = useState<boolean>(true);
   const [isBuffering, setIsBuffering] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
   const [duration, setDuration] = useState<number>(0);
   const [played, setPlayed] = useState<number>(0);
-  const [isCinemaMode, setIsCinemaMode] = useState<boolean>(true);
+  const [isCinemaMode, setIsCinemaMode] = useState<boolean>(false);
   const [showVolume, setShowVolume] = useState<boolean>(false);
   const [showSpeed, setShowSpeed] = useState<boolean>(false);
   const [selectedQuality, setSelectedQuality] = useState<string>("auto");
@@ -34,7 +32,6 @@ const CourseSlugViewer: React.FC = () => {
 
   const handleKeyPress = (e: KeyboardEvent) => {
     const isShiftPressed = e.shiftKey;
-    console.log(isShiftPressed);
     const key = e.key;
     switch (key) {
       case " ":
@@ -67,9 +64,9 @@ const CourseSlugViewer: React.FC = () => {
       // case "i":
       //   toggleMiniPlayer();
       //   break;
-      // case "Escape":
-      //   MiniPlayer_banaya();
-      //   break;
+      case "Escape":
+        toggleCinemaMode();
+        break;
       case "t": // Toggle cinema mode when "t" key is pressed
         toggleCinemaMode();
         break;
@@ -165,12 +162,6 @@ const CourseSlugViewer: React.FC = () => {
     }
   };
 
-  // const toggleMiniPlayer = () => {
-  //   setIsMiniPlayer((prevState) => !prevState);
-  // };
-  // const MiniPlayer_banaya = () => {
-  //   setIsCinemaMode(true); // Set isMiniPlayer to false to remove the mini player
-  // };
   const toggleCinemaMode = () => {
     setIsCinemaMode((prevState) => !prevState); // Toggle cinema mode
   };
@@ -188,102 +179,108 @@ const CourseSlugViewer: React.FC = () => {
     setSelectedQuality(e.target.value);
     // playerRef.current?.selectPlaybackQuality(e.target.value);
   };
+  const getVideoUrl = () => {
+    if (allvid.state !== "hasValue" || !allvid.contents.length) return "";
 
-  // return (
-  //   <div
-  //     onMouseEnter={handleQualityMouseEnter} // Add onMouseEnter event
-  //     onMouseLeave={handleQualityMouseLeave} // Add onMouseLeave event
-  //     className={`relative ${
-  //       isCinemaMode ? "bg-slate-500 w-96 h-2/3" : "bg-zinc-400 w-2/3 h-2/3"
-  //     }`}
-  //   >
-  //     <ReactPlayer
-  //       ref={playerRef}
-  //       url="https://d2szwvl7yo497w.cloudfront.net/cohort-2/0/Week%200.1%20-%20Introduction,%20Settings%20up%20IDE.mp4"
-  //       // url="https://www.youtube.com/watch?v=vnWSeZ1JIxY"
-  //       playing={isPlaying}
-  //       volume={volume}
-  //       playbackRate={speed}
-  //       width="100%"
-  //       height="100%"
-  //       controls
-  //       className="border-none"
-  //       config={{
-  //         // file: { attributes: { controlsList: "nodownload" } },
-  //         youtube: { playerVars: { controls: 1 } }, // Enable YouTube controls
-  //       }}
-  //       onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
-  //       onPlaybackQualityChange={handlePlaybackQualityChange}
-  //       onBuffer={handleBuffer}
-  //       onBufferEnd={handleBufferEnd}
-  //       onError={handleError}
-  //       onDuration={handleDuration}
-  //       onProgress={handleProgress}
-  //     />
-  //     {isBuffering && (
-  //       <div className="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-75">
-  //         <div className="text-white">Buffering...</div>
-  //       </div>
-  //     )}
-  //     {isError && (
-  //       <div className="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-75">
-  //         <div className="text-white">Error loading video</div>
-  //       </div>
-  //     )}{" "}
-  //     {showQuality && (
-  //       <div className="absolute top-2 right-2 flex items-center">
-  //         <>
-  //           <span className="text-white mr-2">Quality:</span>
-  //           <select
-  //             className="bg-gray-800 text-white rounded p-1"
-  //             value={selectedQuality}
-  //             onChange={handleQualityChange}
-  //           >
-  //             <option value="auto">Auto</option>
-  //             <option value="360p">360p</option>
-  //             <option value="480p">480p</option>
-  //             <option value="720p">720p</option>
-  //             <option value="1080p">1080p</option>
-  //           </select>
-  //         </>
-  //       </div>
-  //     )}
-  //     {/* <button
-  //       className="absolute top-2 right-2 bg-gray-800 text-white rounded-full p-2"
-  //       onClick={toggleMiniPlayer}
-  //     >
-  //       {isMiniPlayer ? "Exit Mini Player" : "Mini Player"}
-  //     </button> */}
-  //     {/* Cinema mode button */}
-  //     <button
-  //       className="absolute top-2 left-2 bg-gray-800 text-white rounded-full p-2"
-  //       onClick={toggleCinemaMode}
-  //     >
-  //       {isCinemaMode ? "Exit Cinema Mode" : "Cinema Mode"}
-  //     </button>
-  //     {showVolume && (
-  //       <div
-  //         className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-md p-2"
-  //         style={{ zIndex: 9999 }}
-  //       >
-  //         <span className="icon icon-volume" />
-  //         <span>{Math.round(volume * 100)}%</span>
-  //       </div>
-  //     )}
-  //     {showSpeed && (
-  //       <div
-  //         className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-md p-2"
-  //         style={{ zIndex: 9999 }}
-  //       >
-  //         <span>{speed}x</span>
-  //       </div>
-  //     )}
-  //   </div>
-  // );
+    const video = allvid.contents[0]; // Assuming only one video object is present
+    switch (selectedQuality) {
+      case "360p":
+        return video.video_360p_mp4_1;
+      case "720p":
+        return video.video_720p_mp4_1;
+      case "1080p":
+        return video.video_1080p_mp4_1;
+      default:
+        return (
+          video.video_360p_mp4_1 ||
+          video.video_720p_mp4_1 ||
+          video.video_1080p_mp4_1
+        );
+    }
+  };
+
+  const videoUrl = getVideoUrl();
   return (
     <>
-      <BreadCrumbs />
-      <div>hkdjfhskhs</div>
+      {allvid.state === "hasValue" && allvid.contents.length < 1 && (
+        <div className="m-10 text-red-200">No Video Available</div>
+      )}
+      {allvid.state === "hasValue" && allvid.contents.length > 0 && (
+        <div
+          onMouseEnter={handleQualityMouseEnter} // Add onMouseEnter event
+          onMouseLeave={handleQualityMouseLeave} // Add onMouseLeave event
+          className={`relative ${
+            isCinemaMode ? "w-full h-2/3" : "w-2/3 h-2/3"
+          }`}
+        >
+          <ReactPlayer
+            ref={playerRef}
+            url={videoUrl}
+            playing={isPlaying}
+            volume={volume}
+            playbackRate={speed}
+            width="100%"
+            height="100%"
+            controls
+            className="border-none"
+            config={{
+              file: { attributes: { controlsList: "nodownload" } },
+            }}
+            onContextMenu={(e: React.MouseEvent) => e.preventDefault()}
+            onPlaybackQualityChange={handlePlaybackQualityChange}
+            onBuffer={handleBuffer}
+            onBufferEnd={handleBufferEnd}
+            onError={handleError}
+            onDuration={handleDuration}
+            onProgress={handleProgress}
+          />
+          {isBuffering && (
+            <div className="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-75">
+              <div className="text-white">Buffering...</div>
+            </div>
+          )}
+          {isError && (
+            <div className="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-black bg-opacity-75">
+              <div className="text-white">Error loading video</div>
+            </div>
+          )}
+          {showQuality && (
+            <div className="absolute top-2 right-2 flex items-center">
+              <>
+                <span className="text-white mr-2">Quality:</span>
+                <select
+                  className="bg-gray-800 text-white rounded p-1"
+                  value={selectedQuality}
+                  onChange={handleQualityChange}
+                >
+                  <option value="auto">Auto</option>
+                  <option value="360p">360p</option>
+                  <option value="720p">720p</option>
+                  <option value="1080p">1080p</option>
+                </select>
+              </>
+            </div>
+          )}
+          {showVolume && (
+            <div
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 dark:bg-gray-800 bg-gray-100 rounded-md p-2"
+              style={{ zIndex: 9999 }}
+            >
+              <span className="dark:text-white text-black">
+                {Math.round(volume * 100)}%
+              </span>
+            </div>
+          )}
+          {showSpeed && (
+            <div
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 dark:bg-gray-800 bg-gray-100 rounded-md p-2"
+              style={{ zIndex: 9999 }}
+            >
+              <span className="dark:text-white text-black">{speed}x</span>
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 };

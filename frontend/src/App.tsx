@@ -113,7 +113,14 @@ const ProtectedRouteUser = () => {
                 </CourseFolder>
               }
             />
-            <Route path="/course/:id/:hash/:hash2" element={<Video_play />} />
+            <Route
+              path="/course/:id/:hash/:hash2"
+              element={
+                <CourseFolder>
+                  <Video_play />
+                </CourseFolder>
+              }
+            />
             <Route
               path="/purchases"
               element={

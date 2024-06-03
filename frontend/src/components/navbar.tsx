@@ -10,7 +10,7 @@ import axios from "axios";
 import { showToast } from "../util/toast";
 import useTheme from "../util/usetheme";
 import ToastConfig from "../util/toastcontainer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import usePopupState from "./popupState";
 import {
   LoginModal,
@@ -36,6 +36,24 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [hoverTimeout, setHoverTimeout] = useState<number | null>(null);
+
+  const handleMouseEnter = () => {
+    const timeout = window.setTimeout(() => {
+      setTooltipVisible(true);
+    }, 300); // 2 seconds delay
+    setHoverTimeout(timeout);
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+      setHoverTimeout(null);
+    }
+    setTooltipVisible(false);
+  };
   const closeDropdown = () => {
     setDropdownOpen(false);
   };
@@ -78,6 +96,19 @@ const Navbar = () => {
     setSidebar((currentState) => !currentState);
   };
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "b") {
+        toggleSidebar();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [toggleSidebar]);
+
   const logout = async (
     email: string,
     e: React.MouseEvent<HTMLButtonElement>
@@ -96,6 +127,7 @@ const Navbar = () => {
       showToast("error", "Error! Please try after some time");
     }
   };
+
   return (
     <>
       <ToastConfig />
@@ -105,41 +137,52 @@ const Navbar = () => {
 
       <nav className="bg-white bg-opacity-90 dark:bg-gray-950 dark:bg-opacity-90 fixed w-full z-20 top-0 start-0 backdrop-blur shadow-lg dark:shadow-slate-900 transform transition duration-500">
         <div className="flex flex-wrap items-center justify-between px-1 md:px-4 py-2 md:py-4">
-          <div className="flex space-x-4 md:space-x-5">
+          <div
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            className="flex space-x-4 md:space-x-5"
+          >
             {!toggleButtonHidden && (
-              <button onClick={toggleSidebar}>
-                {sidebar ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="h-6 w-6 md:w-8 md:h-8 text-black dark:text-white"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18 18 6M6 6l12 12"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="h-6 w-6 md:w-8 md:h-8 text-black dark:text-white"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                    />
-                  </svg>
+              <>
+                <button onClick={toggleSidebar}>
+                  {sidebar ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="h-6 w-6 md:w-8 md:h-8 text-black dark:text-white"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 18 18 6M6 6l12 12"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="h-6 w-6 md:w-8 md:h-8 text-black dark:text-white"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                      />
+                    </svg>
+                  )}
+                </button>
+                {tooltipVisible && (
+                  <div className="hidden md:block absolute bottom-[-20px] bg-black text-white p-2 rounded-md z-50">
+                    Ctrl+b(cmd+b) to toggle
+                  </div>
                 )}
-              </button>
+              </>
             )}
             <Link
               to="/"

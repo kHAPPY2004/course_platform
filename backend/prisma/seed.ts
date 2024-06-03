@@ -280,20 +280,105 @@ async function main() {
         contentId: 3,
       },
     ];
+    const videoMetadataData = [
+      {
+        contentId: 12,
+        video_360p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.5107922594168932.mp4",
+        video_720p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.016000267316386596.mp4",
+        video_1080p_mp4_1:
+          "https://d2szwvl7yo497w.cloudfront.net/cohort-2/0/Week%200.1%20-%20Introduction,%20Settings%20up%20IDE.mp4",
+      },
+      {
+        contentId: 13,
+        video_1080p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.5107922594168932.mp4",
+        video_720p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.016000267316386596.mp4",
+        video_360p_mp4_1:
+          "https://d2szwvl7yo497w.cloudfront.net/cohort-2/0/Week%200.1%20-%20Introduction,%20Settings%20up%20IDE.mp4",
+      },
+      {
+        contentId: 14,
+        video_720p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.5107922594168932.mp4",
+        video_360p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.016000267316386596.mp4",
+        video_1080p_mp4_1:
+          "https://d2szwvl7yo497w.cloudfront.net/cohort-2/0/Week%200.1%20-%20Introduction,%20Settings%20up%20IDE.mp4",
+      },
+      {
+        contentId: 15,
+        video_360p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.5107922594168932.mp4",
+        video_720p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.016000267316386596.mp4",
+        video_1080p_mp4_1:
+          "https://d2szwvl7yo497w.cloudfront.net/cohort-2/0/Week%200.1%20-%20Introduction,%20Settings%20up%20IDE.mp4",
+      },
+      {
+        contentId: 16,
+        video_720p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.5107922594168932.mp4",
+        video_360p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.016000267316386596.mp4",
+        video_1080p_mp4_1:
+          "https://d2szwvl7yo497w.cloudfront.net/cohort-2/0/Week%200.1%20-%20Introduction,%20Settings%20up%20IDE.mp4",
+      },
+      {
+        contentId: 17,
+        video_1080p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.5107922594168932.mp4",
+        video_720p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.016000267316386596.mp4",
+        video_360p_mp4_1:
+          "https://d2szwvl7yo497w.cloudfront.net/cohort-2/0/Week%200.1%20-%20Introduction,%20Settings%20up%20IDE.mp4",
+      },
+      {
+        contentId: 19,
+        video_360p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.5107922594168932.mp4",
+        video_720p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.016000267316386596.mp4",
+        video_1080p_mp4_1:
+          "https://d2szwvl7yo497w.cloudfront.net/cohort-2/0/Week%200.1%20-%20Introduction,%20Settings%20up%20IDE.mp4",
+      },
+      {
+        contentId: 20,
+        video_720p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.5107922594168932.mp4",
+        video_360p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.016000267316386596.mp4",
+        video_1080p_mp4_1:
+          "https://d2szwvl7yo497w.cloudfront.net/cohort-2/0/Week%200.1%20-%20Introduction,%20Settings%20up%20IDE.mp4",
+      },
+      {
+        contentId: 21,
+        video_1080p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.5107922594168932.mp4",
+        video_720p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.016000267316386596.mp4",
+        video_360p_mp4_1:
+          "https://d2szwvl7yo497w.cloudfront.net/cohort-2/0/Week%200.1%20-%20Introduction,%20Settings%20up%20IDE.mp4",
+      },
+      {
+        contentId: 22,
+        video_360p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.5107922594168932.mp4",
+        video_720p_mp4_1:
+          "https://appxcontent.kaxa.in/uploadvideo2/2024-04-16/harkirat_db//2024-04-16-0.016000267316386596.mp4",
+        video_1080p_mp4_1:
+          "https://d2szwvl7yo497w.cloudfront.net/cohort-2/0/Week%200.1%20-%20Introduction,%20Settings%20up%20IDE.mp4",
+      },
+    ];
+
     // Seed courses data
     await prisma.course.createMany({ data: coursesData });
     await prisma.content.createMany({ data: contentDataFolder });
     await prisma.content.createMany({ data: contentDataVideo });
     await prisma.courseContent.createMany({ data: coursecontent });
-
-    await prisma.user.create({
-      data: {
-        name: "Demo",
-        email: "demo@gmail.com",
-        password: "U2FsdGVkX19HrxoSS3zHl5SSQ3OywtloRU+OJZ3QQG4=",
-        phoneNumber: "234234256",
-      },
-    });
+    await prisma.videoMetadata.createMany({ data: videoMetadataData });
 
     console.log("Prisma database has been seeded successfully.");
   } catch (error) {
